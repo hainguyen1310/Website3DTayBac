@@ -1,6 +1,8 @@
 # Mộc Tây Bắc
 
-Landing page bán sản vật Tây Bắc và trang tự thiết kế hộp quà. Dựng bằng React 19, TypeScript và Vite, tích hợp `@designcodeio/threeui@1.2.0`.
+Website demo bán sản vật Tây Bắc, trình thiết kế hộp quà và khu vực quản trị. Dựng bằng React 19, TypeScript và Vite.
+
+Tích hợp cơ sở dữ liệu Supabase, RLS và luồng vận hành được mô tả tại [docs/SUPABASE.md](docs/SUPABASE.md).
 
 ## Chạy dự án
 
@@ -13,24 +15,28 @@ npm run dev
 
 Mở http://localhost:5173. Các trang:
 
-- `/`: landing page, lọc danh mục, tìm kiếm có/không dấu, yêu thích, chi tiết sản phẩm và giỏ hàng.
+- `/`: landing page giới thiệu thương hiệu, Deal hời, tin tức rút gọn, liên hệ, giỏ hàng và hộp quà.
+- `/san-pham`: danh mục sản phẩm, giá, tìm kiếm và chọn mua.
+- `/gioi-thieu`: câu chuyện thương hiệu và nguồn gốc minh họa.
+- `/tin-tuc`: danh sách các bài viết minh họa; `/tin-tuc/:storyId` là trang đọc bài chi tiết.
 - `/thiet-ke`: chọn 1–4 sản vật, màu hộp, họa tiết, tên người nhận, lời nhắn; xem trước và tính giá trực tiếp.
-- `/trai-nghiem`: KageLandingPage nguyên bản từ ThreeUI.
+- `/admin`: dashboard quản trị demo; quản lý đơn hàng, sản phẩm, khách hàng, khuyến mãi, nội dung, báo cáo và cài đặt.
+
+Các đường dẫn cũ `/deal-hoi` và `/lien-he` được giữ để điều hướng về section tương ứng trên trang chủ.
 
 ```sh
 npm run build
 npm run preview
 npm test
-npm run verify:threeui
 ```
 
 ## Phạm vi bản hiện tại
 
 - Thương hiệu Mộc Tây Bắc, danh mục, giá và hình ảnh là dữ liệu minh họa, cần được chủ cửa hàng duyệt và thay bằng dữ liệu thật trước khi mở bán.
 - Giỏ hàng, yêu thích và bản thiết kế được lưu trong localStorage của trình duyệt. Không cần tài khoản.
-- Luồng đặt hàng là bản mẫu có kiểm tra thông tin và xuất tệp JSON. **Chưa kết nối máy chủ, chưa gửi đơn, chưa thanh toán, chưa tính phí giao hàng.** Thông tin khách hàng chỉ ở bộ nhớ của trang và trong tệp nếu người dùng chủ động tải xuống.
-- Không giả lập xác nhận đã nhận đơn hoặc giao dịch thành công.
-- Trình thiết kế hiện dùng bản phối CSS/2D. Kage là cảnh đền Kyoto nguyên bản của ThreeUI, không phải mô hình sản phẩm hay cảnh Tây Bắc.
+- Luồng đặt hàng là bản mẫu có kiểm tra thông tin, mã QR có thể quét và xuất tệp JSON. QR chỉ mã hóa nội dung demo; thao tác “đã thanh toán” là mô phỏng tại trình duyệt. **Chưa kết nối máy chủ, ngân hàng, ví điện tử, webhook, chưa gửi đơn và chưa tính phí giao hàng.**
+- Dashboard admin dùng dữ liệu giả, không có đăng nhập; danh sách đơn demo được lưu cục bộ trên trình duyệt để hiển thị lại sau khi tải trang.
+- Trình thiết kế hiện dùng bản phối CSS/2D.
 
 ## Tích hợp mô hình 3D sau
 
@@ -48,15 +54,8 @@ type GiftDesign = {
 
 Thống nhất với nhà cung cấp tên mesh/material, các vùng thay texture và tọa độ thiệp. Giữ một bản xem trước 2D nếu thiết bị không hỗ trợ WebGL.
 
-## ThreeUI và nguồn gốc
+## Nguồn gốc tài nguyên
 
-- Chỉ import renderer từ entrypoint được yêu cầu: `import { KageLandingPage } from '@designcodeio/threeui'`.
-- `src/Scene.tsx` truyền đúng cả 8 props trong hướng dẫn đính kèm. Trang được tải khi vào `/trai-nghiem` để không làm nặng cửa hàng.
-- Đã tải bundle đăng ký https://threeui.com/source-code/kage-landing-page.json và nguồn https://threeui.com/landing-pages/kage.html trước khi tích hợp.
-- HTML, fonts.css, Three.js và 14 ảnh được sao chép nguyên byte từ package vào `public/landing-pages`, giữ nguyên đường dẫn.
-- Hash chuẩn nằm trong `docs/threeui-manifest.json`. `npm run verify:threeui` kiểm tra 17 tệp; hash HTML là `c8e06b90397ac246baf0ab6f32f5f6b570acc6fe03c7009f711b579fb72d9f49`.
-- Nguồn HTML/CSS/JS của Kage không bị viết lại; thư viện dùng iframe nội bộ theo đúng renderer của tác giả, không nhúng trang tài liệu ThreeUI.
-- Các giấy phép và ghi chú bên thứ ba được giữ trong `docs/THREEUI-*`.
 - Ảnh minh họa được tạo bằng ImageGen, lưu trong `public/images/`; prompt và nguồn gốc ở [tài liệu ảnh](docs/IMAGE-PROMPTS.md).
 - Phông chữ tiếng Việt được đóng gói nội bộ; trang cửa hàng không phụ thuộc CDN ảnh/phông chữ.
 
@@ -64,6 +63,6 @@ Kết quả kiểm tra giao diện và chức năng: [VERIFICATION.md](docs/VERI
 
 ## Đưa lên hosting
 
-Xuất thư mục `dist` bằng `npm run build`. Hosting cần SPA fallback về `index.html` cho `/thiet-ke` và `/trai-nghiem`, đồng thời phục vụ nguyên các tài nguyên `/landing-pages/*` và `/images/*`.
+Xuất thư mục `dist` bằng `npm run build`. Hosting cần SPA fallback về `index.html` cho `/thiet-ke`, đồng thời phục vụ nguyên các tài nguyên `/images/*`.
 
-Để bán hàng thật, kết nối giỏ hàng/checkout với máy chủ hoặc nền tảng thương mại điện tử, xác thực giá và tồn kho phía máy chủ, bổ sung chính sách và thông tin cửa hàng, tích hợp vận chuyển và cổng thanh toán. Không coi dữ liệu localStorage là giá hoặc đơn hàng đáng tin cậy phía máy chủ.
+Để bán hàng thật, kết nối giỏ hàng/checkout với máy chủ hoặc nền tảng thương mại điện tử, xác thực giá và tồn kho phía máy chủ, bổ sung chính sách và thông tin cửa hàng, tích hợp vận chuyển và cổng thanh toán. Thanh toán QR thật cần tạo yêu cầu thanh toán ở máy chủ, ký/xác thực callback webhook từ đối tác và chỉ cập nhật trạng thái đơn sau khi xác minh. Không coi dữ liệu localStorage, trạng thái admin demo hoặc QR demo là dữ liệu đáng tin cậy phía máy chủ.

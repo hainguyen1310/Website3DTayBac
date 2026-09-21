@@ -8,10 +8,13 @@ import {
   saveLocal,
 } from "./catalog";
 import type { CartLine, GiftDesign, Product } from "./catalog";
+import { initialAdminOrders } from "./shopData";
+import type { AdminOrder, AdminOrderStatus } from "./shopData";
 
 type Shop = {
   cart: CartLine[];
   setQuantity: (key: string, quantity: number) => void;
+  clearCart: () => void;
   addProduct: (id: string, quantity?: number) => void;
   addGift: (design: GiftDesign) => void;
   favoriteIds: string[];
@@ -22,6 +25,9 @@ type Shop = {
   setSelectedProduct: (product: Product | null) => void;
   notify: (message: string) => void;
   notification: string;
+  adminOrders: AdminOrder[];
+  recordDemoOrder: (order: AdminOrder) => void;
+  updateDemoOrder: (id: string, status: AdminOrderStatus) => void;
 };
 const ShopContext = createContext<Shop | null>(null);
 export const useShop = () => useContext(ShopContext)!;
@@ -39,6 +45,10 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [notification, setNotification] = useState("");
+  const [adminOrders, setAdminOrders] = useState<AdminOrder[]>(() => {
+    const saved = readSaved("moc-admin-orders-v1");
+    return Array.isArray(saved) ? (saved as AdminOrder[]) : initialAdminOrders;
+  });
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const notify = (message: string) => {
     clearTimeout(timer.current);
@@ -51,6 +61,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveLocal("moc-favorites-v1", favoriteIds);
   }, [favoriteIds]);
+  useEffect(() => {
+    saveLocal("moc-admin-orders-v1", adminOrders);
+  }, [adminOrders]);
   useEffect(() => () => clearTimeout(timer.current), []);
   const add = (line: CartLine) =>
     setCart((current) => {
@@ -92,6 +105,13 @@ export function ShopProvider({ children }: { children: ReactNode }) {
               : item,
           ),
     );
+  const clearCart = () => setCart([]);
+  const recordDemoOrder = (order: AdminOrder) =>
+    setAdminOrders((current) => [order, ...current]);
+  const updateDemoOrder = (id: string, status: AdminOrderStatus) =>
+    setAdminOrders((current) =>
+      current.map((order) => (order.id === id ? { ...order, status } : order)),
+    );
   const toggleFavorite = (id: string) =>
     setFavoriteIds((current) =>
       current.includes(id)
@@ -103,6 +123,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       value={{
         cart,
         setQuantity,
+        clearCart,
         addProduct,
         addGift,
         favoriteIds,
@@ -113,6 +134,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         setSelectedProduct,
         notify,
         notification,
+        adminOrders,
+        recordDemoOrder,
+        updateDemoOrder,
       }}
     >
       {children}

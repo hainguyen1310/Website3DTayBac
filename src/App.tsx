@@ -1,16 +1,18 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Box,
+  BadgePercent,
   Check,
   CheckCircle2,
   ChevronRight,
+  Clock3,
   Download,
   Gift,
   Heart,
@@ -28,19 +30,27 @@ import {
   X,
 } from "lucide-react";
 import {
-  categories,
   colors,
   defaultDesign,
   linePrice,
   money,
   products,
 } from "./catalog";
-import type { CartLine, Product } from "./catalog";
+import type { CartLine } from "./catalog";
 import { ShopProvider, useShop } from "./ShopContext";
 import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
-
-const Scene = lazy(() => import("./Scene"));
+import AdminPage from "./Admin";
+import {
+  AboutPage,
+  ContactSection,
+  NewsDetailPage,
+  NewsPage,
+  ProductsPage,
+} from "./CommercePages";
+import { dealProduct, deals } from "./shopData";
+import { usePublishedArticles } from "./hooks/usePublishedArticles";
+import { createCheckoutOrder } from "./services/storeApi";
 
 function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -137,13 +147,9 @@ function Header() {
         <div className="nav-inner">
           <Logo />
           <nav className="desktop-nav" aria-label="Điều hướng chính">
-            <Link
-              to="/#san-pham"
-              className={location.pathname === "/" ? "nav-active" : ""}
-            >
-              Sản vật Tây Bắc
-            </Link>
-            <Link to="/#cau-chuyen">Câu chuyện của Mộc</Link>
+            <Link to="/san-pham" className={location.pathname === "/san-pham" ? "nav-active" : ""}>Sản phẩm</Link>
+            <Link to="/gioi-thieu" className={location.pathname === "/gioi-thieu" ? "nav-active" : ""}>Về Mộc</Link>
+            <Link to="/tin-tuc" className={location.pathname === "/tin-tuc" ? "nav-active" : ""}>Tin tức</Link>
             <Link
               to="/thiet-ke"
               className={location.pathname === "/thiet-ke" ? "nav-active" : ""}
@@ -189,17 +195,17 @@ function Header() {
         </div>
         {menuOpen && (
           <nav className="mobile-nav" aria-label="Điều hướng điện thoại">
-            <Link to="/#san-pham">
-              Sản vật Tây Bắc <ArrowUpRight size={16} />
+            <Link to="/san-pham">
+              Sản phẩm <ArrowUpRight size={16} />
             </Link>
-            <Link to="/#cau-chuyen">
-              Câu chuyện của Mộc <ArrowUpRight size={16} />
+            <Link to="/gioi-thieu">
+              Về Mộc <Mountain size={16} />
+            </Link>
+            <Link to="/tin-tuc">
+              Tin tức <ArrowUpRight size={16} />
             </Link>
             <Link to="/thiet-ke">
               Tự thiết kế quà <Gift size={16} />
-            </Link>
-            <Link to="/trai-nghiem">
-              Trải nghiệm 3D <Box size={16} />
             </Link>
             <button
               onClick={() => {
@@ -313,65 +319,9 @@ function SearchModal({
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
-  const { setSelectedProduct, addProduct, favoriteIds, toggleFavorite } =
-    useShop();
-  const saved = favoriteIds.includes(product.id);
-  return (
-    <article className="product-card">
-      <div className="product-image-wrap">
-        <button
-          className="product-image-button"
-          onClick={() => setSelectedProduct(product)}
-          aria-label={`Xem ${product.name}`}
-        >
-          <img
-            src={product.image}
-            alt={product.name}
-            loading="lazy"
-            width={800}
-            height={800}
-          />
-        </button>
-        <span className="product-tag">{product.tag}</span>
-        <button
-          className={`favorite-button ${saved ? "is-favorite" : ""}`}
-          onClick={() => toggleFavorite(product.id)}
-          aria-pressed={saved}
-          aria-label={`${saved ? "Bỏ yêu thích" : "Yêu thích"} ${product.name}`}
-        >
-          <Heart size={17} fill={saved ? "currentColor" : "none"} />
-        </button>
-      </div>
-      <div className="product-origin">
-        <span>{product.origin}</span>
-        <span>{product.weight}</span>
-      </div>
-      <button
-        className="product-title"
-        onClick={() => setSelectedProduct(product)}
-      >
-        <h3>{product.name}</h3>
-      </button>
-      <div className="product-bottom">
-        <strong>{money(product.price)}</strong>
-        <button
-          className="add-button"
-          onClick={() => addProduct(product.id)}
-          aria-label={`Thêm ${product.name} vào giỏ`}
-        >
-          <Plus size={19} />
-        </button>
-      </div>
-    </article>
-  );
-}
-
 function Home() {
-  const [category, setCategory] = useState(categories[0]);
-  const filtered = products.filter(
-    (p) => category === categories[0] || p.category === category,
-  );
+  const { addProduct } = useShop();
+  const publishedArticles = usePublishedArticles();
   return (
     <main>
       <section className="hero">
@@ -399,7 +349,7 @@ function Home() {
             Những điều mộc mạc, gói ghém thành món quà.
           </p>
           <div className="hero-actions">
-            <Link to="/#san-pham" className="button button-cream">
+            <Link to="/san-pham" className="button button-cream">
               Khám phá sản vật <ArrowUpRight size={19} />
             </Link>
             <Link to="/thiet-ke" className="button button-glass">
@@ -419,8 +369,8 @@ function Home() {
           <span>
             <MapPin size={14} /> CẢM HỨNG TỪ MÙ CANG CHẢI, TÂY BẮC
           </span>
-          <Link to="/#san-pham">
-            Cuộn để khám phá <ArrowDown size={16} />
+          <Link to="/#deal-hoi">
+            Khám phá deal hời <ArrowDown size={16} />
           </Link>
         </div>
         <div className="hero-coordinates">21°46′ N &nbsp; 104°07′ E</div>
@@ -455,45 +405,24 @@ function Home() {
           </span>
         </div>
       </div>
-      <section id="san-pham" className="products-section container">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">
-              <span className="tiny-diamond" /> TINH HOA ĐƯỢC CHỌN LỌC
-            </span>
-            <h2>
-              Mang một chút <em>Tây Bắc</em> về nhà.
-            </h2>
+      <section id="deal-hoi" className="landing-deals">
+        <div className="container">
+          <div className="section-heading landing-section-heading">
+            <div>
+              <span className="eyebrow"><BadgePercent size={14} /> DEAL HỜI GIÁ SỐC · MINH HỌA</span>
+              <h2>Thích là <em>chốt deal.</em></h2>
+            </div>
+            <p>Những ưu đãi vui vẻ mở đầu hành trình khám phá của bạn.</p>
           </div>
-          <Link className="text-link" to="/thiet-ke">
-            Ghép thành hộp quà <ArrowUpRight size={17} />
-          </Link>
-        </div>
-        <div
-          className="category-tabs"
-          role="group"
-          aria-label="Lọc danh mục sản phẩm"
-        >
-          {categories.map((c, i) => (
-            <button
-              key={c}
-              className={category === c ? "active" : ""}
-              onClick={() => setCategory(c)}
-              aria-pressed={category === c}
-            >
-              {i === 0 && <span className="tab-grid">✦</span>}
-              {c}
-            </button>
-          ))}
-        </div>
-        <div className="product-grid">
-          {filtered.map((p) => (
-            <ProductCard product={p} key={p.id} />
-          ))}
-        </div>
-        <div className="catalog-footnote">
-          <span className="tiny-diamond" /> Một chút tinh hoa từ những miền đất
-          lành <span className="tiny-diamond" />
+          <div className="deal-grid">
+            {deals.map((deal) => {
+              const product = dealProduct(deal.productId);
+              return <article className={`deal-card deal-${deal.color}`} key={deal.id}>
+                <div className="deal-image"><img src={product.image} alt={product.name} /><span>-{deal.discount}%</span></div>
+                <div className="deal-copy"><small>{deal.label}</small><h2>{product.name}</h2><p>{product.weight} · {product.origin}</p><div className="deal-price"><del>{money(deal.originalPrice)}</del><strong>{money(product.price)}</strong></div><div className="deal-bottom"><span><Clock3 size={15} /> {deal.ending}</span><button className="button button-green" onClick={() => addProduct(product.id)}><ShoppingBag size={17} /> Chọn mua</button></div></div>
+              </article>;
+            })}
+          </div>
         </div>
       </section>
       <section className="gift-feature container" id="qua-tang">
@@ -588,18 +517,27 @@ function Home() {
           </div>
         </div>
       </section>
-      <section className="experience-banner container">
-        <div className="experience-icon">
-          <Box size={30} strokeWidth={1.1} />
+      <section id="tin-tuc" className="landing-news">
+        <div className="container">
+          <div className="section-heading landing-section-heading">
+            <div>
+              <span className="eyebrow"><span className="tiny-diamond" /> NHẬT KÝ CỦA MỘC</span>
+              <h2>Đọc một chút <em>chuyện núi rừng.</em></h2>
+            </div>
+            <Link className="text-link" to="/tin-tuc">Xem tất cả tin tức <ArrowUpRight size={17} /></Link>
+          </div>
+          <div className="news-grid home-news-grid">
+            {publishedArticles.map((story) => <article className="news-card" key={story.id}><img src={story.image} alt="" loading="lazy" /><div><span>{story.tag} · {story.date}</span><h2>{story.title}</h2><p>{story.excerpt}</p><Link className="article-link" to={`/tin-tuc/${story.id}`}>Đọc bài viết <ChevronRight size={16} /></Link></div></article>)}
+          </div>
         </div>
-        <div>
-          <span className="eyebrow">MỘT GÓC TRẢI NGHIỆM MỚI</span>
-          <h3>Chậm lại một chút. Bước vào không gian 3D.</h3>
-          <p>Khám phá cảnh Kage tương tác, được tạo nên bởi ThreeUI.</p>
+      </section>
+      <section className="landing-contact" aria-labelledby="contact-heading">
+        <div className="container landing-contact-heading">
+          <span className="eyebrow"><Leaf size={14} /> KẾT NỐI CÙNG MỘC</span>
+          <h2 id="contact-heading">Một lời nhắn, <em>một kết nối.</em></h2>
+          <p>Các thông tin bên dưới đều là minh họa — nhưng Mộc luôn muốn lắng nghe điều bạn đang cần.</p>
         </div>
-        <Link to="/trai-nghiem" className="text-link">
-          Bắt đầu khám phá <ArrowUpRight size={19} />
-        </Link>
+        <ContactSection id="lien-he" />
       </section>
       <section className="closing-section">
         <span className="tiny-diamond" />
@@ -697,10 +635,76 @@ function lineName(line: CartLine) {
     : products.find((p) => p.id === line.productId)!.name;
 }
 
+type DemoOrder = {
+  type: string;
+  orderCode: string;
+  createdAt: string;
+  customer: { name: string; phone: string; address: string };
+  items: Array<{ name: string; quantity: number; unitPrice: number; design?: CartLine["design"] }>;
+  subtotal: number;
+  shipping: string;
+  currency: string;
+  payment?: string;
+};
+
+function PaymentQR({
+  order,
+  onBack,
+  onComplete,
+}: {
+  order: DemoOrder;
+  onBack: () => void;
+  onComplete: () => Promise<void>;
+}) {
+  const qrValue = `MOC-TAY-BAC-DEMO|${order.orderCode}|${order.subtotal}|QR-DEMO-ONLY`;
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const complete = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      await onComplete();
+    } catch {
+      setError("Chưa thể tạo đơn trong hệ thống. Vui lòng thử lại sau.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="payment-qr">
+      <button className="back-link" onClick={onBack}>
+        <ArrowLeft size={15} /> Sửa thông tin đơn
+      </button>
+      <div className="qr-demo-badge">THANH TOÁN QR · BẢN DEMO</div>
+      <h3>Quét mã để thanh toán</h3>
+      <p className="payment-caption">
+        Mã này chỉ chứa dữ liệu mô phỏng. Không liên kết ngân hàng, ví điện tử
+        hay phát sinh giao dịch thật.
+      </p>
+      <div className="qr-frame">
+        <QRCodeSVG value={qrValue} size={190} level="M" includeMargin />
+      </div>
+      <div className="payment-reference">
+        <span>Mã đơn mẫu</span><b>{order.orderCode}</b>
+        <span>Số tiền minh họa</span><strong>{money(order.subtotal)}</strong>
+      </div>
+      <div className="demo-payment-methods">
+        <span className="active">VietQR demo</span><span>Ví Mộc demo</span><span>Ngân hàng demo</span>
+      </div>
+      <button className="button button-green full-width" onClick={complete} disabled={saving}>
+        <CheckCircle2 size={18} /> {saving ? "Đang ghi nhận…" : "Mô phỏng đã thanh toán"}
+      </button>
+      {error && <p className="demo-note" role="alert">{error}</p>}
+      <p className="demo-note">Trong hệ thống thật, bước này phải chờ webhook xác thực từ đối tác thanh toán.</p>
+    </div>
+  );
+}
+
 function Cart() {
-  const { cart, setQuantity, setCartOpen } = useShop();
+  const { cart, setQuantity, setCartOpen, clearCart, recordDemoOrder } = useShop();
   const [checkout, setCheckout] = useState(false);
-  const [order, setOrder] = useState<Record<string, unknown> | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<DemoOrder | null>(null);
+  const [order, setOrder] = useState<DemoOrder | null>(null);
   const total = cart.reduce(
     (sum, item) => sum + linePrice(item) * item.quantity,
     0,
@@ -708,8 +712,9 @@ function Cart() {
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    setOrder({
+    setPaymentOrder({
       type: "ĐƠN MẪU — CHƯA GỬI ĐẾN CỬA HÀNG",
+      orderCode: `MOCTB-DEMO-${String(Date.now()).slice(-6)}`,
       createdAt: new Date().toISOString(),
       customer: {
         name: String(data.get("name")).trim(),
@@ -739,32 +744,23 @@ function Cart() {
   };
   return (
     <Modal
-      title={
-        order
-          ? "Món quà đã được gói ghém"
-          : checkout
-            ? "Thông tin nhận quà"
-            : "Giỏ quà của bạn"
-      }
-      onClose={() => setCartOpen(false)}
+      title={order ? "Thanh toán mô phỏng hoàn tất" : paymentOrder ? "Thanh toán QR" : checkout ? "Thông tin nhận quà" : "Giỏ quà của bạn"}
+      onClose={() => { setCartOpen(false); setCheckout(false); setPaymentOrder(null); }}
       className="cart-drawer"
     >
       {order ? (
         <div className="order-success">
           <CheckCircle2 size={49} strokeWidth={1.3} />
-          <h3>Đơn mẫu của bạn đã sẵn sàng.</h3>
+          <h3>Đơn hàng đã được ghi nhận.</h3>
           <p>
-            Đây là bản trải nghiệm. Đơn chưa được gửi đến cửa hàng và chưa phát
-            sinh thanh toán.
+            Đơn đang chờ xác thực thanh toán QR. Hệ thống chỉ chuyển sang đã
+            thanh toán sau khi nhận webhook hợp lệ từ đối tác.
           </p>
           <div className="order-total">
             <span>Tổng tiền sản phẩm</span>
-            <b>{money(total)}</b>
+            <b>{money(order.subtotal)}</b>
           </div>
-          <p className="demo-note">
-            Bạn có thể tải thông tin đơn và thiết kế hộp quà để lưu lại. Phí
-            giao hàng chưa được tính.
-          </p>
+          <p className="demo-note">Bạn có thể tải thông tin đơn để lưu lại. Phí giao hàng chưa được tính.</p>
           <button className="button button-green" onClick={download}>
             <Download size={18} /> Tải thông tin đơn mẫu
           </button>
@@ -772,13 +768,39 @@ function Cart() {
             Tiếp tục khám phá <ArrowRight size={17} />
           </button>
         </div>
+      ) : paymentOrder ? (
+        <PaymentQR
+          order={paymentOrder}
+          onBack={() => { setPaymentOrder(null); setCheckout(true); }}
+          onComplete={async () => {
+            const persisted = await createCheckoutOrder(paymentOrder.customer, cart);
+            recordDemoOrder({
+              id: persisted.orderNumber,
+              customer: paymentOrder.customer.name || "Khách demo",
+              phone: paymentOrder.customer.phone || "0900 000 000",
+              items: paymentOrder.items.reduce((sum, item) => sum + item.quantity, 0),
+              total: persisted.totalAmountVnd,
+              status: "Chờ thanh toán",
+              payment: "QR",
+              createdAt: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+            });
+            setOrder({
+              ...paymentOrder,
+              orderCode: persisted.orderNumber,
+              subtotal: persisted.totalAmountVnd,
+              payment: "QR đang chờ webhook xác thực",
+            });
+            setPaymentOrder(null);
+            clearCart();
+          }}
+        />
       ) : !cart.length ? (
         <div className="empty-state cart-empty">
           <ShoppingBag size={44} strokeWidth={1.2} />
           <h3>Giỏ quà đang chờ bạn.</h3>
           <p>Thêm một chút hương rừng, một chút tâm tình.</p>
           <Link
-            to="/#san-pham"
+            to="/san-pham"
             className="button button-green"
             onClick={() => setCartOpen(false)}
           >
@@ -797,8 +819,7 @@ function Cart() {
                 <ArrowLeft size={15} /> Trở lại giỏ quà
               </button>
               <p className="checkout-notice">
-                Bạn đang tạo đơn mẫu trên thiết bị này. Thông tin không được gửi
-                đến cửa hàng.
+                Bạn đang tạo đơn mẫu trên thiết bị này. Sau bước này, bạn có thể trải nghiệm thanh toán bằng mã QR giả lập.
               </p>
               <label className="field-label" htmlFor="customer-name">
                 Họ và tên
@@ -844,10 +865,10 @@ function Cart() {
                 <strong>{money(total)}</strong>
               </div>
               <p className="demo-note">
-                Phí giao hàng chưa được tính. Chưa hỗ trợ thanh toán trực tuyến.
+                Phí giao hàng chưa được tính. QR ở bước sau là mô phỏng, không phải thanh toán trực tuyến thật.
               </p>
               <button className="button button-green full-width" type="submit">
-                Tạo đơn mẫu <ArrowRight size={18} />
+                Tiếp tục đến mã QR <ArrowRight size={18} />
               </button>
             </form>
           ) : (
@@ -921,7 +942,7 @@ function Cart() {
                   Tiếp tục đặt hàng <ArrowRight size={18} />
                 </button>
                 <p className="checkout-demo">
-                  <Check size={13} /> Bản trải nghiệm, chưa phát sinh thanh toán
+                  <Check size={13} /> Bản trải nghiệm · có luồng QR thanh toán giả lập
                 </p>
               </div>
             </>
@@ -929,34 +950,6 @@ function Cart() {
         </>
       )}
     </Modal>
-  );
-}
-
-function Experience() {
-  return (
-    <main className="experience-page">
-      <div className="experience-toolbar">
-        <Link to="/" className="back-link">
-          <ArrowLeft size={17} /> Về nhà Mộc
-        </Link>
-        <span>
-          <Box size={16} /> Kage · Trải nghiệm ThreeUI nguyên bản
-        </span>
-        <Link to="/thiet-ke">
-          Thiết kế quà <ArrowUpRight size={16} />
-        </Link>
-      </div>
-      <Suspense
-        fallback={
-          <div className="scene-loading">
-            <Mountain size={38} strokeWidth={1} />
-            <p>Đang mở một không gian tĩnh lặng…</p>
-          </div>
-        }
-      >
-        <Scene />
-      </Suspense>
-    </main>
   );
 }
 
@@ -979,14 +972,15 @@ function Footer() {
           </div>
           <div className="footer-links">
             <h3>Khám phá Mộc</h3>
-            <Link to="/#san-pham">Sản vật Tây Bắc</Link>
-            <Link to="/#cau-chuyen">Câu chuyện của Mộc</Link>
-            <Link to="/trai-nghiem">Không gian 3D</Link>
+            <Link to="/san-pham">Sản phẩm</Link>
+            <Link to="/#deal-hoi">Deal hời giá sốc</Link>
+            <Link to="/gioi-thieu">Câu chuyện & nguồn gốc</Link>
+            <Link to="/tin-tuc">Tin tức của Mộc</Link>
           </div>
           <div className="footer-links">
             <h3>Một món quà riêng</h3>
             <Link to="/thiet-ke">Tự thiết kế hộp quà</Link>
-            <Link to="/#qua-tang">Cảm hứng tặng quà</Link>
+            <Link to="/#lien-he">Liên hệ & hỗ trợ</Link>
             <button onClick={() => setFaqOpen(true)}>Câu hỏi thường gặp</button>
           </div>
           <div className="footer-invitation">
@@ -998,7 +992,7 @@ function Footer() {
               <br />
               cho ngày thêm lành.
             </h3>
-            <Link to="/#san-pham">
+            <Link to="/san-pham">
               Ghé cửa hàng <ArrowUpRight size={18} />
             </Link>
           </div>
@@ -1023,9 +1017,9 @@ function Footer() {
             <details>
               <summary>Đơn hàng đã được gửi đi chưa?</summary>
               <p>
-                Đây là bản trải nghiệm giao diện. Đơn mẫu chưa được gửi đến cửa
-                hàng, chưa thu tiền và chưa có dịch vụ giao hàng. Bạn có thể tải
-                thông tin đơn mẫu về máy.
+                Đây là bản trải nghiệm giao diện. Luồng QR là mô phỏng, không
+                kết nối ngân hàng, chưa thu tiền và chưa có dịch vụ giao hàng.
+                Bạn có thể tải thông tin đơn mẫu về máy.
               </p>
             </details>
             <details>
@@ -1039,9 +1033,8 @@ function Footer() {
             <details>
               <summary>Có thể xem sản phẩm bằng 3D không?</summary>
               <p>
-                Hộp quà hiện có bản phối 2D tương tác. Không gian Kage là bản
-                trải nghiệm 3D riêng của ThreeUI. Mô hình 3D của sản phẩm sẽ
-                được bổ sung khi nhà cung cấp bàn giao.
+                Hộp quà hiện có bản phối 2D tương tác. Mô hình 3D của sản phẩm
+                sẽ được bổ sung khi nhà cung cấp bàn giao.
               </p>
             </details>
           </div>
@@ -1058,8 +1051,8 @@ function Shell() {
     document.title =
       location.pathname === "/thiet-ke"
         ? "Tự thiết kế hộp quà — Mộc Tây Bắc"
-        : location.pathname === "/trai-nghiem"
-          ? "Không gian 3D — Mộc Tây Bắc"
+        : location.pathname === "/admin"
+          ? "Quản trị demo — Mộc Tây Bắc"
           : "Mộc Tây Bắc — Gói trọn tinh hoa núi rừng";
     const id = requestAnimationFrame(() => {
       if (location.hash)
@@ -1079,12 +1072,18 @@ function Shell() {
       <a className="skip-link" href="#main-content">
         Đến nội dung chính
       </a>
-      <Header />
+      {location.pathname !== "/admin" && <Header />}
       <div id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/san-pham" element={<ProductsPage />} />
+          <Route path="/deal-hoi" element={<Navigate to="/#deal-hoi" replace />} />
+          <Route path="/gioi-thieu" element={<AboutPage />} />
+          <Route path="/tin-tuc" element={<NewsPage />} />
+          <Route path="/tin-tuc/:storyId" element={<NewsDetailPage />} />
+          <Route path="/lien-he" element={<Navigate to="/#lien-he" replace />} />
           <Route path="/thiet-ke" element={<Customizer />} />
-          <Route path="/trai-nghiem" element={<Experience />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route
             path="*"
             element={
@@ -1100,9 +1099,9 @@ function Shell() {
           />
         </Routes>
       </div>
-      {location.pathname !== "/trai-nghiem" && <Footer />}
-      {cartOpen && <Cart />}
-      {selectedProduct && <ProductModal key={selectedProduct.id} />}
+      {location.pathname !== "/admin" && <Footer />}
+      {location.pathname !== "/admin" && cartOpen && <Cart />}
+      {location.pathname !== "/admin" && selectedProduct && <ProductModal key={selectedProduct.id} />}
       <div
         className={`toast ${notification ? "visible" : ""}`}
         role="status"

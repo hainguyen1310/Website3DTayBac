@@ -1096,41 +1096,6 @@ html {
   color: #5b7250;
   margin-top: 25px;
 }
-.experience-banner {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 29px 34px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-}
-.experience-icon {
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: #edf0e7;
-  color: #6d825d;
-}
-.experience-banner .eyebrow {
-  font-size: 8px;
-  letter-spacing: 1.5px;
-}
-.experience-banner h3 {
-  font-family: var(--serif);
-  font-size: 18px;
-  font-weight: 400;
-  margin: 5px 0;
-}
-.experience-banner p {
-  font-size: 10px;
-  color: #818679;
-}
-.experience-banner > .text-link {
-  margin-left: auto;
-  white-space: nowrap;
-}
 .closing-section {
   text-align: center;
   padding: 60px 20px 64px;
@@ -2135,45 +2100,6 @@ textarea::placeholder {
   opacity: 1;
   transform: translate(-50%, 0);
 }
-.experience-page {
-  background: #080b0a;
-}
-.experience-toolbar {
-  min-height: 50px;
-  padding: 10px 24px;
-  background: #eeefe7;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.experience-toolbar > span,
-.experience-toolbar > a {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-}
-.experience-toolbar > span {
-  color: #7c8772;
-  font-size: 9px;
-}
-.shader-frame,
-.shader-frame .landing-page-frame {
-  width: 100%;
-  height: calc(100dvh - 138px);
-  min-height: 540px;
-}
-.scene-loading {
-  height: 75vh;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  justify-content: center;
-  align-items: center;
-  color: #d8dfcf;
-  font-size: 12px;
-}
 .not-found {
   min-height: 60vh;
   display: flex;
@@ -2518,28 +2444,6 @@ textarea::placeholder {
     width: 88px;
     height: 88px;
     right: -26px;
-  }
-  .experience-banner {
-    padding: 23px;
-    gap: 16px;
-  }
-  .experience-banner h3 {
-    font-size: 15px;
-  }
-  .experience-banner p {
-    font-size: 8px;
-  }
-  .experience-banner > .text-link {
-    font-size: 10px;
-    gap: 8px;
-  }
-  .experience-icon {
-    width: 47px;
-    height: 47px;
-    flex-shrink: 0;
-  }
-  .experience-icon > svg {
-    width: 25px;
   }
   .footer-main {
     grid-template-columns: 1.2fr 1fr 1fr;
@@ -3023,35 +2927,6 @@ textarea::placeholder {
     font-size: 16px;
     margin-top: 22px;
   }
-  .experience-banner {
-    flex-wrap: wrap;
-    padding: 22px 19px;
-    gap: 16px;
-  }
-  .experience-icon {
-    width: 40px;
-    height: 40px;
-  }
-  .experience-banner > div:nth-child(2) {
-    width: calc(100% - 56px);
-  }
-  .experience-banner .eyebrow {
-    font-size: 6px;
-    letter-spacing: 1px;
-  }
-  .experience-banner h3 {
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 6px 0;
-  }
-  .experience-banner p {
-    font-size: 8px;
-    line-height: 1.8;
-  }
-  .experience-banner > .text-link {
-    margin-left: 56px;
-    font-size: 9px;
-  }
   .closing-section {
     padding: 39px 27px 44px;
   }
@@ -3393,26 +3268,6 @@ textarea::placeholder {
     padding: 13px 16px;
     bottom: 18px;
     gap: 9px;
-  }
-  .experience-toolbar {
-    padding: 10px 15px;
-    min-height: 60px;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .experience-toolbar > span {
-    order: 3;
-    width: 100%;
-    font-size: 7px;
-    justify-content: center;
-  }
-  .experience-toolbar > a {
-    font-size: 9px;
-  }
-  .shader-frame,
-  .shader-frame .landing-page-frame {
-    height: calc(100dvh - 133px);
-    min-height: 480px;
   }
   .not-found > h1 {
     font-size: 27px;
