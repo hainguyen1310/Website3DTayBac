@@ -18,18 +18,19 @@ import {
   giftPrice,
   money,
   patterns,
-  products,
   readSaved,
   saveLocal,
   BOX_PRICE,
 } from "./catalog";
 import type { GiftDesign } from "./catalog";
+import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
 import GiftPreview from "./GiftPreview";
 
 export default function Customizer() {
+  const { products } = useCatalog();
   const [design, setDesign] = useState<GiftDesign>(() =>
-    cleanDesign(readSaved("moc-design-v1") ?? defaultDesign),
+    cleanDesign(readSaved("moc-design-v1") ?? defaultDesign, products),
   );
   const [step, setStep] = useState(0);
   const { addGift, notify } = useShop();
@@ -39,6 +40,10 @@ export default function Customizer() {
   useEffect(() => {
     saveLocal("moc-design-v1", design);
   }, [design]);
+  // Danh mục đọc từ cơ sở dữ liệu có thể khác bản tĩnh: loại bỏ sản vật không còn bán.
+  useEffect(() => {
+    setDesign((current) => cleanDesign(current, products));
+  }, [products]);
   const toggleProduct = (id: string) =>
     update({
       productIds: design.productIds.includes(id)
@@ -70,7 +75,7 @@ export default function Customizer() {
               </span>
               <span>Bản phối 2D</span>
             </div>
-            <GiftPreview design={design} showProducts />
+            <GiftPreview design={design} products={products} showProducts />
             <div className="preview-caption">
               <Leaf size={16} />
               <span>Một chiếc hộp nhỏ. Đong đầy sự quan tâm.</span>
@@ -244,7 +249,7 @@ export default function Customizer() {
                   Tổng hộp quà{" "}
                   <small>{design.productIds.length} sản vật đã chọn</small>
                 </span>
-                <strong>{money(giftPrice(design))}</strong>
+                <strong>{money(giftPrice(design, products))}</strong>
               </div>
               {design.productIds.length === 0 && (
                 <p className="field-error">

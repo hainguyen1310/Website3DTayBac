@@ -1,5 +1,3 @@
-import { products } from "./catalog";
-
 export const deals = [
   {
     id: "deal-1",
@@ -29,9 +27,6 @@ export const deals = [
     color: "earth",
   },
 ] as const;
-
-export const dealProduct = (productId: string) =>
-  products.find((product) => product.id === productId)!;
 
 export const stories = [
   {
@@ -80,75 +75,3 @@ export const stories = [
     ],
   },
 ] as const;
-
-export type AdminOrderStatus =
-  | "Chờ thanh toán"
-  | "Đã thanh toán"
-  | "Đang đóng gói"
-  | "Đang giao"
-  | "Hoàn tất"
-  | "Đã hủy";
-
-export type AdminOrder = {
-  id: string;
-  customer: string;
-  phone: string;
-  items: number;
-  total: number;
-  status: AdminOrderStatus;
-  payment: "QR demo" | "QR" | "COD";
-  createdAt: string;
-};
-
-export const initialAdminOrders: AdminOrder[] = [
-  {
-    id: "MOCTB-1048",
-    customer: "An Nhiên",
-    phone: "0901 234 567",
-    items: 2,
-    total: 675000,
-    status: "Đã thanh toán",
-    payment: "QR demo",
-    createdAt: "21/09 · 09:42",
-  },
-  {
-    id: "MOCTB-1047",
-    customer: "Minh Anh",
-    phone: "0987 654 321",
-    items: 1,
-    total: 320000,
-    status: "Đang đóng gói",
-    payment: "QR demo",
-    createdAt: "20/09 · 16:18",
-  },
-  {
-    id: "MOCTB-1046",
-    customer: "Thu Hà",
-    phone: "0938 265 014",
-    items: 3,
-    total: 860000,
-    status: "Đang giao",
-    payment: "COD",
-    createdAt: "20/09 · 10:05",
-  },
-  {
-    id: "MOCTB-1045",
-    customer: "Quang Huy",
-    phone: "0905 128 488",
-    items: 1,
-    total: 250000,
-    status: "Hoàn tất",
-    payment: "QR demo",
-    createdAt: "19/09 · 14:30",
-  },
-  {
-    id: "MOCTB-1044",
-    customer: "Hà My",
-    phone: "0912 770 630",
-    items: 2,
-    total: 415000,
-    status: "Chờ thanh toán",
-    payment: "QR demo",
-    createdAt: "19/09 · 09:12",
-  },
-];

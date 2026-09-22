@@ -1,16 +1,17 @@
 import type { CSSProperties } from "react";
 import { Mountain } from "lucide-react";
-import type { GiftDesign } from "./catalog";
-import { products } from "./catalog";
+import type { GiftDesign, Product } from "./catalog";
 
 /** Replace this presentation component with the vendor's 3D viewer later.
  * The design object is the shared contract; pricing and checkout stay separate. */
 export default function GiftPreview({
   design,
+  products,
   compact = false,
   showProducts = false,
 }: {
   design: GiftDesign;
+  products: Product[];
   compact?: boolean;
   showProducts?: boolean;
 }) {

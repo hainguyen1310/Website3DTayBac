@@ -21,9 +21,9 @@ import {
   Sprout,
   Store,
 } from "lucide-react";
-import { categories, money, products } from "./catalog";
+import { ALL_CATEGORY, money } from "./catalog";
 import type { Product } from "./catalog";
-import { dealProduct, deals } from "./shopData";
+import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
 import { usePublishedArticles } from "./hooks/usePublishedArticles";
 import { submitContactMessage } from "./services/storeApi";
@@ -94,18 +94,19 @@ function StoreProductCard({ product, deal }: { product: Product; deal?: boolean 
 }
 
 export function ProductsPage() {
+  const { products, categories } = useCatalog();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState(ALL_CATEGORY);
   const visibleProducts = useMemo(
     () =>
       products.filter(
         (product) =>
-          (category === categories[0] || product.category === category) &&
+          (category === ALL_CATEGORY || product.category === category) &&
           `${product.name} ${product.category} ${product.origin}`
             .toLocaleLowerCase("vi-VN")
             .includes(query.toLocaleLowerCase("vi-VN")),
       ),
-    [category, query],
+    [category, products, query],
   );
   return (
     <main>
@@ -158,6 +159,7 @@ export function ProductsPage() {
 
 export function DealsPage() {
   const { addProduct } = useShop();
+  const { products, deals } = useCatalog();
   return (
     <main>
       <section className="deal-hero">
@@ -171,8 +173,9 @@ export function DealsPage() {
       <section id="deal-list" className="container deals-page">
         <div className="section-heading"><div><span className="eyebrow"><Clock3 size={14} /> LỰA CHỌN HÔM NAY</span><h2>Thích là <em>chốt deal.</em></h2></div><p>Giá niêm yết và mức giảm đều là dữ liệu giả.</p></div>
         <div className="deal-grid">
-          {deals.map((deal) => {
-            const product = dealProduct(deal.productId);
+          {deals.flatMap((deal) => {
+            const product = products.find((p) => p.id === deal.productId);
+            if (!product) return [];
             return <article className={`deal-card deal-${deal.color}`} key={deal.id}>
               <div className="deal-image"><img src={product.image} alt={product.name} /><span>-{deal.discount}%</span></div>
               <div className="deal-copy"><small>{deal.label}</small><h2>{product.name}</h2><p>{product.weight} · {product.origin}</p><div className="deal-price"><del>{money(deal.originalPrice)}</del><strong>{money(product.price)}</strong></div><div className="deal-bottom"><span><Clock3 size={15} /> {deal.ending}</span><button className="button button-green" onClick={() => addProduct(product.id)}><ShoppingBag size={17} /> Chọn mua</button></div></div>

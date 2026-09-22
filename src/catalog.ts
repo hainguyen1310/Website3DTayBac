@@ -9,6 +9,21 @@ export type Product = {
   tag: string;
   description: string;
 };
+
+export type Deal = {
+  id: string;
+  productId: string;
+  label: string;
+  originalPrice: number;
+  discount: number;
+  ending: string;
+  color: string;
+};
+
+/**
+ * Danh mục tĩnh dùng làm phương án dự phòng khi chưa đọc được cơ sở dữ liệu.
+ * Khi Supabase trả dữ liệu, CatalogProvider sẽ thay bằng danh mục thật.
+ */
 export const products: Product[] = [
   {
     id: "tea",
@@ -59,21 +74,30 @@ export const products: Product[] = [
       "Mùi thơm đặc trưng, ấm nồng và tê nhẹ nơi đầu lưỡi. Một chút mắc khén cho món nướng, nước chấm, hay bữa cơm thêm hương vị vùng cao.",
   },
 ];
-export const categories = [
-  "Tất cả sản phẩm",
-  ...products.map((p) => p.category),
+
+export const ALL_CATEGORY = "Tất cả sản phẩm";
+
+export const buildCategories = (list: Product[]) => [
+  ALL_CATEGORY,
+  ...new Set(list.map((product) => product.category)),
 ];
+
+export const categories = buildCategories(products);
+
 export const money = (n: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
     n,
   );
+
 export const colors = [
   { name: "Xanh rừng", value: "#315442" },
   { name: "Đỏ đất", value: "#964f3e" },
   { name: "Chàm núi", value: "#3c506b" },
   { name: "Nâu mộc", value: "#967650" },
 ];
+
 export const patterns = ["Thổ cẩm", "Triền núi", "Tối giản"];
+
 export type GiftDesign = {
   productIds: string[];
   color: string;
@@ -81,6 +105,7 @@ export type GiftDesign = {
   message: string;
   recipient: string;
 };
+
 export const defaultDesign: GiftDesign = {
   productIds: ["tea", "honey"],
   color: colors[0].value,
@@ -88,24 +113,35 @@ export const defaultDesign: GiftDesign = {
   message: "Gói chút an lành, gửi người thương.",
   recipient: "Người thương",
 };
+
 export type CartLine = {
   key: string;
   productId?: string;
   design?: GiftDesign;
   quantity: number;
 };
+
 export const BOX_PRICE = 65000;
-export const giftPrice = (design: GiftDesign) =>
+
+export const findProduct = (list: Product[], id: string | undefined) =>
+  list.find((product) => product.id === id);
+
+export const giftPrice = (design: GiftDesign, list: Product[] = products) =>
   BOX_PRICE +
-  products
-    .filter((p) => design.productIds.includes(p.id))
-    .reduce((sum, p) => sum + p.price, 0);
-export function linePrice(line: CartLine) {
+  list
+    .filter((product) => design.productIds.includes(product.id))
+    .reduce((sum, product) => sum + product.price, 0);
+
+export function linePrice(line: CartLine, list: Product[] = products) {
   return line.design
-    ? giftPrice(line.design)
-    : (products.find((p) => p.id === line.productId)?.price ?? 0);
+    ? giftPrice(line.design, list)
+    : (findProduct(list, line.productId)?.price ?? 0);
 }
-export function cleanDesign(value: unknown): GiftDesign {
+
+export function cleanDesign(
+  value: unknown,
+  list: Product[] = products,
+): GiftDesign {
   const d = (
     value && typeof value === "object" ? value : {}
   ) as Partial<GiftDesign>;
@@ -113,7 +149,9 @@ export function cleanDesign(value: unknown): GiftDesign {
     productIds: Array.isArray(d.productIds)
       ? [
           ...new Set(
-            d.productIds.filter((id) => products.some((p) => p.id === id)),
+            d.productIds.filter((id) =>
+              list.some((product) => product.id === id),
+            ),
           ),
         ].slice(0, 4)
       : [...defaultDesign.productIds],
@@ -133,7 +171,11 @@ export function cleanDesign(value: unknown): GiftDesign {
         : defaultDesign.recipient,
   };
 }
-export function cleanCart(value: unknown): CartLine[] {
+
+export function cleanCart(
+  value: unknown,
+  list: Product[] = products,
+): CartLine[] {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 50).flatMap<CartLine>((raw) => {
     if (!raw || typeof raw !== "object" || typeof raw.key !== "string")
@@ -143,16 +185,17 @@ export function cleanCart(value: unknown): CartLine[] {
       Math.min(20, Math.floor(Number(raw.quantity) || 1)),
     );
     if (raw.design) {
-      const design = cleanDesign(raw.design);
+      const design = cleanDesign(raw.design, list);
       return design.productIds.length
         ? [{ key: raw.key, design, quantity }]
         : [];
     }
-    if (products.some((p) => p.id === raw.productId))
+    if (list.some((product) => product.id === raw.productId))
       return [{ key: raw.key, productId: raw.productId, quantity }];
     return [];
   });
 }
+
 export function readSaved(key: string): unknown {
   try {
     return JSON.parse(localStorage.getItem(key) || "null");
@@ -160,6 +203,7 @@ export function readSaved(key: string): unknown {
     return null;
   }
 }
+
 export function saveLocal(key: string, value: unknown): boolean {
   try {
     localStorage.setItem(key, JSON.stringify(value));

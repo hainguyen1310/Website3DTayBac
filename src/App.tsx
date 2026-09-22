@@ -29,18 +29,13 @@ import {
   Sprout,
   X,
 } from "lucide-react";
-import {
-  colors,
-  defaultDesign,
-  linePrice,
-  money,
-  products,
-} from "./catalog";
-import type { CartLine } from "./catalog";
+import { colors, defaultDesign, linePrice, money } from "./catalog";
+import type { CartLine, Product } from "./catalog";
+import { CatalogProvider, useCatalog } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
 import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
-import AdminPage from "./Admin";
+import AdminPage from "./admin/AdminPage";
 import {
   AboutPage,
   ContactSection,
@@ -48,7 +43,6 @@ import {
   NewsPage,
   ProductsPage,
 } from "./CommercePages";
-import { dealProduct, deals } from "./shopData";
 import { usePublishedArticles } from "./hooks/usePublishedArticles";
 import { createCheckoutOrder } from "./services/storeApi";
 
@@ -125,6 +119,7 @@ function Modal({
 
 function Header() {
   const { cart, setCartOpen, favoriteIds } = useShop();
+  const { notice } = useCatalog();
   const [searchOpen, setSearchOpen] = useState(false);
   const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -137,7 +132,7 @@ function Header() {
     <>
       <div className="announcement">
         <span>
-          <Leaf size={13} /> Từ bản làng, gửi đến bạn.
+          <Leaf size={13} /> {notice}
         </span>
         <Link to="/thiet-ke">
           Một món quà, ngàn lời thương <ArrowUpRight size={13} />
@@ -234,7 +229,7 @@ function SearchModal({
   favorites?: boolean;
 }) {
   const [query, setQuery] = useState("");
-  const { setSelectedProduct, favoriteIds } = useShop();
+  const { products, setSelectedProduct, favoriteIds } = useShop();
   const normalize = (text: string) =>
     text
       .normalize("NFD")
@@ -320,7 +315,8 @@ function SearchModal({
 }
 
 function Home() {
-  const { addProduct } = useShop();
+  const { addProduct, products } = useShop();
+  const { deals } = useCatalog();
   const publishedArticles = usePublishedArticles();
   return (
     <main>
@@ -415,8 +411,9 @@ function Home() {
             <p>Những ưu đãi vui vẻ mở đầu hành trình khám phá của bạn.</p>
           </div>
           <div className="deal-grid">
-            {deals.map((deal) => {
-              const product = dealProduct(deal.productId);
+            {deals.flatMap((deal) => {
+              const product = products.find((p) => p.id === deal.productId);
+              if (!product) return [];
               return <article className={`deal-card deal-${deal.color}`} key={deal.id}>
                 <div className="deal-image"><img src={product.image} alt={product.name} /><span>-{deal.discount}%</span></div>
                 <div className="deal-copy"><small>{deal.label}</small><h2>{product.name}</h2><p>{product.weight} · {product.origin}</p><div className="deal-price"><del>{money(deal.originalPrice)}</del><strong>{money(product.price)}</strong></div><div className="deal-bottom"><span><Clock3 size={15} /> {deal.ending}</span><button className="button button-green" onClick={() => addProduct(product.id)}><ShoppingBag size={17} /> Chọn mua</button></div></div>
@@ -463,7 +460,7 @@ function Home() {
         </div>
         <div className="gift-feature-visual">
           <span className="handwritten">made with love ♡</span>
-          <GiftPreview design={defaultDesign} compact />
+          <GiftPreview design={defaultDesign} products={products} compact />
           <div className="floating-label">
             <span className="tiny-diamond" /> Mang dấu ấn của riêng bạn
           </div>
@@ -629,10 +626,10 @@ function Quantity({
   );
 }
 
-function lineName(line: CartLine) {
+function lineName(line: CartLine, list: Product[]) {
   return line.design
     ? `Hộp quà gửi ${line.design.recipient || "người thương"}`
-    : products.find((p) => p.id === line.productId)!.name;
+    : (list.find((p) => p.id === line.productId)?.name ?? "Sản vật");
 }
 
 type DemoOrder = {
@@ -701,12 +698,12 @@ function PaymentQR({
 }
 
 function Cart() {
-  const { cart, setQuantity, setCartOpen, clearCart, recordDemoOrder } = useShop();
+  const { cart, setQuantity, setCartOpen, clearCart, products } = useShop();
   const [checkout, setCheckout] = useState(false);
   const [paymentOrder, setPaymentOrder] = useState<DemoOrder | null>(null);
   const [order, setOrder] = useState<DemoOrder | null>(null);
   const total = cart.reduce(
-    (sum, item) => sum + linePrice(item) * item.quantity,
+    (sum, item) => sum + linePrice(item, products) * item.quantity,
     0,
   );
   const submit = (e: FormEvent<HTMLFormElement>) => {
@@ -722,9 +719,9 @@ function Cart() {
         address: String(data.get("address")).trim(),
       },
       items: cart.map((line) => ({
-        name: lineName(line),
+        name: lineName(line, products),
         quantity: line.quantity,
-        unitPrice: linePrice(line),
+        unitPrice: linePrice(line, products),
         design: line.design,
       })),
       subtotal: total,
@@ -774,16 +771,6 @@ function Cart() {
           onBack={() => { setPaymentOrder(null); setCheckout(true); }}
           onComplete={async () => {
             const persisted = await createCheckoutOrder(paymentOrder.customer, cart);
-            recordDemoOrder({
-              id: persisted.orderNumber,
-              customer: paymentOrder.customer.name || "Khách demo",
-              phone: paymentOrder.customer.phone || "0900 000 000",
-              items: paymentOrder.items.reduce((sum, item) => sum + item.quantity, 0),
-              total: persisted.totalAmountVnd,
-              status: "Chờ thanh toán",
-              payment: "QR",
-              createdAt: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-            });
             setOrder({
               ...paymentOrder,
               orderCode: persisted.orderNumber,
@@ -883,13 +870,13 @@ function Cart() {
                     <article className="cart-line" key={item.key}>
                       <div className="cart-thumbnail">
                         {item.design ? (
-                          <GiftPreview design={item.design} compact />
+                          <GiftPreview design={item.design} products={products} compact />
                         ) : (
                           <img src={p!.image} alt={p!.name} />
                         )}
                       </div>
                       <div className="cart-line-info">
-                        <h3>{lineName(item)}</h3>
+                        <h3>{lineName(item, products)}</h3>
                         {item.design ? (
                           <>
                             <small>
@@ -908,7 +895,7 @@ function Cart() {
                         ) : (
                           <small>{p!.weight}</small>
                         )}
-                        <b>{money(linePrice(item))}</b>
+                        <b>{money(linePrice(item, products))}</b>
                         <Quantity
                           value={item.quantity}
                           onChange={(quantity) =>
@@ -918,7 +905,7 @@ function Cart() {
                       </div>
                       <button
                         className="remove-line"
-                        aria-label={`Xóa ${lineName(item)}`}
+                        aria-label={`Xóa ${lineName(item, products)}`}
                         onClick={() => setQuantity(item.key, 0)}
                       >
                         <X size={15} />
@@ -1052,7 +1039,7 @@ function Shell() {
       location.pathname === "/thiet-ke"
         ? "Tự thiết kế hộp quà — Mộc Tây Bắc"
         : location.pathname === "/admin"
-          ? "Quản trị demo — Mộc Tây Bắc"
+          ? "Quản trị — Mộc Tây Bắc"
           : "Mộc Tây Bắc — Gói trọn tinh hoa núi rừng";
     const id = requestAnimationFrame(() => {
       if (location.hash)
@@ -1120,8 +1107,10 @@ function Shell() {
 
 export default function App() {
   return (
-    <ShopProvider>
-      <Shell />
-    </ShopProvider>
+    <CatalogProvider>
+      <ShopProvider>
+        <Shell />
+      </ShopProvider>
+    </CatalogProvider>
   );
 }

@@ -1,6 +1,20 @@
 # Kiểm tra bản dựng
 
-Ngày kiểm tra: 20/09/2026.
+Ngày kiểm tra: 22/09/2026.
+
+## Lần kiểm tra gần nhất (sau khi nối admin với Supabase)
+
+- `npm run build`: đạt (TypeScript + Vite, 1667 module).
+- `npm test`: 4/4 bài kiểm tra giá, khôi phục giỏ hàng, lọc dữ liệu lỗi và giữ nguyên thiết kế: đạt.
+- Truy vấn PostgREST thật (publishable key trong `.env`) cho toàn bộ câu lệnh admin dùng: `products`, `product_inventory`, `orders` + `customers` + `order_items`, `order_status_events`, `customers` + `orders`, `articles`, `promotions` + `promotion_products` + `products`, `contact_messages`, `site_settings`, `order_items` + `orders!inner` (báo cáo), count HEAD. Tất cả trả 200, không lỗi cú pháp; các bảng vận hành trả rỗng vì RLS chặn `anon`.
+- RPC `submit_contact_message` và `create_checkout_order`: tồn tại, chặn dữ liệu rỗng bằng lỗi `P0001`.
+- RPC `confirm_gateway_payment`: `anon` bị từ chối `42501 permission denied`.
+- Render thật bằng trình duyệt headless:
+  - `/admin`: hiện form đăng nhập “Đăng nhập Mộc.” (AuthProvider + router hoạt động, không lỗi runtime).
+  - `/san-pham`: hiện 4 sản phẩm, danh mục và thanh tìm kiếm; không rơi vào trạng thái rỗng.
+- Chưa kiểm tra được luồng ghi khi đã đăng nhập vì dự án chưa có tài khoản `admin`/`staff`; cần tạo tài khoản theo `docs/SUPABASE.md` rồi kiểm tra CRUD thủ công.
+
+## Lần kiểm tra trước (20/09/2026)
 
 - TypeScript và bản production: đạt (`npm run build`).
 - 4 bài kiểm tra logic giá, khôi phục giỏ hàng, lọc dữ liệu lưu lỗi và giữ nguyên thông tin thiết kế: đạt (`npm test`).

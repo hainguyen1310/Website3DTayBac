@@ -20,7 +20,7 @@ Mở http://localhost:5173. Các trang:
 - `/gioi-thieu`: câu chuyện thương hiệu và nguồn gốc minh họa.
 - `/tin-tuc`: danh sách các bài viết minh họa; `/tin-tuc/:storyId` là trang đọc bài chi tiết.
 - `/thiet-ke`: chọn 1–4 sản vật, màu hộp, họa tiết, tên người nhận, lời nhắn; xem trước và tính giá trực tiếp.
-- `/admin`: dashboard quản trị demo; quản lý đơn hàng, sản phẩm, khách hàng, khuyến mãi, nội dung, báo cáo và cài đặt.
+- `/admin`: dashboard quản trị thật, đăng nhập bằng Supabase Auth; CRUD sản phẩm + tồn kho, danh mục, đơn hàng, khách hàng, khuyến mãi, bài viết, hộp thư liên hệ, báo cáo và cài đặt cửa hàng.
 
 Các đường dẫn cũ `/deal-hoi` và `/lien-he` được giữ để điều hướng về section tương ứng trên trang chủ.
 
@@ -32,10 +32,11 @@ npm test
 
 ## Phạm vi bản hiện tại
 
-- Thương hiệu Mộc Tây Bắc, danh mục, giá và hình ảnh là dữ liệu minh họa, cần được chủ cửa hàng duyệt và thay bằng dữ liệu thật trước khi mở bán.
-- Giỏ hàng, yêu thích và bản thiết kế được lưu trong localStorage của trình duyệt. Không cần tài khoản.
-- Luồng đặt hàng là bản mẫu có kiểm tra thông tin, mã QR có thể quét và xuất tệp JSON. QR chỉ mã hóa nội dung demo; thao tác “đã thanh toán” là mô phỏng tại trình duyệt. **Chưa kết nối máy chủ, ngân hàng, ví điện tử, webhook, chưa gửi đơn và chưa tính phí giao hàng.**
-- Dashboard admin dùng dữ liệu giả, không có đăng nhập; danh sách đơn demo được lưu cục bộ trên trình duyệt để hiển thị lại sau khi tải trang.
+- Danh mục, giá, bài viết, ưu đãi và câu thông báo được đọc từ Supabase (RLS công khai). Khi chưa cấu hình Supabase, cửa hàng tự dùng dữ liệu tĩnh trong `src/catalog.ts` và `src/shopData.ts`.
+- Ảnh sản phẩm và nội dung thương hiệu vẫn là dữ liệu minh họa, cần chủ cửa hàng thay bằng dữ liệu thật trước khi mở bán.
+- Giỏ hàng, yêu thích và bản thiết kế được lưu trong localStorage của trình duyệt. Không cần tài khoản để mua.
+- Luồng đặt hàng ghi đơn thật vào Supabase qua RPC `create_checkout_order` (giá do database tính lại). QR chỉ mã hóa nội dung demo; thao tác “đã thanh toán” là mô phỏng tại trình duyệt. **Chưa có webhook cổng thanh toán nên đơn dừng ở trạng thái chờ thanh toán và tồn kho chưa bị trừ; chưa tính phí giao hàng.**
+- Khu vực `/admin` yêu cầu tài khoản có `profiles.role` là `admin` hoặc `staff`. Tài khoản khác chỉ thấy màn hình từ chối truy cập. Xem hướng dẫn tạo tài khoản tại [docs/SUPABASE.md](docs/SUPABASE.md).
 - Trình thiết kế hiện dùng bản phối CSS/2D.
 
 ## Tích hợp mô hình 3D sau
@@ -65,4 +66,4 @@ Kết quả kiểm tra giao diện và chức năng: [VERIFICATION.md](docs/VERI
 
 Xuất thư mục `dist` bằng `npm run build`. Hosting cần SPA fallback về `index.html` cho `/thiet-ke`, đồng thời phục vụ nguyên các tài nguyên `/images/*`.
 
-Để bán hàng thật, kết nối giỏ hàng/checkout với máy chủ hoặc nền tảng thương mại điện tử, xác thực giá và tồn kho phía máy chủ, bổ sung chính sách và thông tin cửa hàng, tích hợp vận chuyển và cổng thanh toán. Thanh toán QR thật cần tạo yêu cầu thanh toán ở máy chủ, ký/xác thực callback webhook từ đối tác và chỉ cập nhật trạng thái đơn sau khi xác minh. Không coi dữ liệu localStorage, trạng thái admin demo hoặc QR demo là dữ liệu đáng tin cậy phía máy chủ.
+Để bán hàng thật, còn cần: Edge Function nhận webhook QR và gọi `confirm_gateway_payment` (để chốt thanh toán và trừ tồn kho), phí giao hàng, ảnh sản phẩm thật, chính sách và thông tin cửa hàng. Không coi trạng thái QR demo là dữ liệu đáng tin cậy phía máy chủ.
