@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
   FolderTree,
   Pencil,
   Plus,
+  Search,
   Trash2,
 } from "lucide-react";
 import { money } from "../catalog";
@@ -24,13 +25,17 @@ import type {
   ProductInput,
 } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
   AdminEmpty,
+  AdminEditorPage,
   AdminError,
   AdminLoading,
   AdminModal,
+  FieldHint,
   SectionHeader,
   useAsync,
 } from "./ui";
+import ImageInput from "./ImageInput";
 
 type ProductForm = {
   id: string | null;
@@ -60,7 +65,7 @@ const emptyForm: ProductForm = {
   origin: "",
   weightLabel: "",
   priceVnd: "0",
-  imageUrl: "/images/tea.webp",
+  imageUrl: "",
   tag: "",
   description: "",
   active: true,
@@ -107,7 +112,13 @@ const toInput = (form: ProductForm): ProductInput => ({
   lowStockThreshold: Number(form.lowStockThreshold) || 0,
 });
 
-function CategoryManager({ onClose }: { onClose: () => void }) {
+function CategoryManager({
+  onClose,
+  onChanged,
+}: {
+  onClose: () => void;
+  onChanged: () => void;
+}) {
   const { data, error, loading, reload } = useAsync(listAdminCategories, []);
   const [form, setForm] = useState<CategoryInput & { id: string | null }>({
     id: null,
@@ -117,8 +128,17 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
   });
   const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminCategory | null>(null);
 
   const submit = async () => {
+    if (!form.name.trim() || !form.slug.trim()) {
+      setActionError("Tên và slug danh mục là bắt buộc.");
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
+      setActionError("Slug chỉ gồm chữ thường, số và dấu gạch ngang.");
+      return;
+    }
     setBusy(true);
     setActionError("");
     try {
@@ -129,6 +149,7 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
       }
       setForm({ id: null, slug: "", name: "", sortOrder: 50 });
       reload();
+      onChanged();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không lưu được danh mục.",
@@ -139,20 +160,19 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
   };
 
   const remove = async (category: AdminCategory) => {
-    if (
-      !window.confirm(
-        `Xóa danh mục “${category.name}”? Sản phẩm thuộc danh mục này sẽ chuyển thành chưa phân loại.`,
-      )
-    )
-      return;
+    setBusy(true);
     setActionError("");
     try {
       await deleteCategory(category.id);
+      setPendingDelete(null);
       reload();
+      onChanged();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không xóa được danh mục.",
       );
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -164,13 +184,16 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
       ) : error ? (
         <AdminError message={error} />
       ) : (
-        <ul className="admin-detail-list">
+        <ul className="admin-detail-list admin-category-list">
           {(data ?? []).map((category) => (
             <li key={category.id}>
               <span>
                 {category.name}
                 <small>
-                  /{category.slug} · thứ tự {category.sortOrder}
+                  /{category.slug} · {category.productCount} sản phẩm
+                  {category.productCount
+                    ? ` · ${category.activeProductCount} đang bán`
+                    : ""}
                 </small>
               </span>
               <div className="admin-row-actions">
@@ -189,7 +212,13 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
                 </button>
                 <button
                   className="danger"
-                  onClick={() => void remove(category)}
+                  onClick={() => setPendingDelete(category)}
+                  disabled={category.productCount > 0}
+                  title={
+                    category.productCount
+                      ? "Chuyển sản phẩm sang danh mục khác trước khi xóa"
+                      : "Xóa danh mục"
+                  }
                   aria-label={`Xóa ${category.name}`}
                 >
                   <Trash2 size={14} />
@@ -203,6 +232,7 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
         <label>
           Tên danh mục
           <input
+            required
             value={form.name}
             onChange={(event) =>
               setForm((current) => ({ ...current, name: event.target.value }))
@@ -212,6 +242,7 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
         <label>
           Slug (a-z, 0-9, gạch ngang)
           <input
+            required
             value={form.slug}
             onChange={(event) =>
               setForm((current) => ({ ...current, slug: event.target.value }))
@@ -222,6 +253,7 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
           Thứ tự hiển thị
           <input
             type="number"
+            min={0}
             value={form.sortOrder}
             onChange={(event) =>
               setForm((current) => ({
@@ -247,6 +279,21 @@ function CategoryManager({ onClose }: { onClose: () => void }) {
           </button>
         )}
       </div>
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa danh mục trống"
+          description={
+            <>
+              Xóa danh mục <b>“{pendingDelete.name}”</b>? Thao tác này không thể
+              hoàn tác.
+            </>
+          }
+          confirmLabel="Xóa danh mục"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
+      )}
     </AdminModal>
   );
 }
@@ -255,16 +302,47 @@ export default function ProductsSection() {
   const { data, error, loading, reload } = useAsync(listAdminProducts, []);
   const [form, setForm] = useState<ProductForm | null>(null);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminProduct | null>(null);
 
-  const { data: categories } = useAsync(listAdminCategories, []);
+  const {
+    data: categories,
+    error: categoriesError,
+    loading: categoriesLoading,
+    reload: reloadCategories,
+  } = useAsync(listAdminCategories, []);
+  const products = data ?? [];
+  const lowStockCount = products.filter(
+    (product) => product.quantity <= product.lowStockThreshold,
+  ).length;
+  const inventoryValue = products.reduce(
+    (sum, product) => sum + product.quantity * product.priceVnd,
+    0,
+  );
+  const visibleProducts = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return products.filter((product) => {
+      if (categoryFilter !== "all" && product.categoryId !== categoryFilter) return false;
+      return !needle || `${product.name} ${product.sku} ${product.slug}`.toLowerCase().includes(needle);
+    });
+  }, [categoryFilter, products, query]);
 
   const save = async () => {
     if (!form) return;
     if (!form.name.trim() || !form.sku.trim() || !form.slug.trim()) {
       setActionError("Tên, SKU và slug là bắt buộc.");
+      return;
+    }
+    if (!form.categoryId) {
+      setActionError("Hãy chọn danh mục cho sản phẩm.");
+      return;
+    }
+    if (!form.imageUrl.trim()) {
+      setActionError("Hãy chọn ảnh sản phẩm.");
       return;
     }
     if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
@@ -321,26 +399,26 @@ export default function ProductsSection() {
   };
 
   const remove = async (product: AdminProduct) => {
-    if (
-      !window.confirm(
-        `Xóa “${product.name}”? Sản phẩm sẽ bị gỡ khỏi cửa hàng và mọi khuyến mãi.`,
-      )
-    )
-      return;
+    setBusy(true);
     setActionError("");
     try {
       await deleteProduct(product.id);
       setNotice(`Đã xóa ${product.name}.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không xóa được sản phẩm.",
       );
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
     <>
+      {!form && (
+        <>
       <SectionHeader
         eyebrow="DANH MỤC BÁN HÀNG"
         title="Sản phẩm & tồn kho"
@@ -361,15 +439,41 @@ export default function ProductsSection() {
           </div>
         }
       />
+      <div className="metric-grid admin-list-metrics">
+        <article><span>Tổng sản phẩm</span><strong>{products.length}</strong><small>Trong danh mục cửa hàng</small></article>
+        <article><span>Đang bán</span><strong>{products.filter((product) => product.active).length}</strong><small>Hiển thị trên cửa hàng</small></article>
+        <article><span>Sắp hết hàng</span><strong>{lowStockCount}</strong><small>Theo ngưỡng cảnh báo</small></article>
+        <article><span>Đã ẩn</span><strong>{products.filter((product) => !product.active).length}</strong><small>Chưa hiển thị công khai</small></article>
+        <article><span>Giá trị tồn kho</span><strong>{money(inventoryValue)}</strong><small>Theo giá bán hiện tại</small></article>
+      </div>
+      <div className="admin-card admin-filter-toolbar">
+        <div className="admin-search">
+          <Search size={16} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Tìm tên sản phẩm, SKU…"
+            aria-label="Tìm sản phẩm"
+          />
+        </div>
+        <select
+          className="admin-toolbar-select"
+          value={categoryFilter}
+          onChange={(event) => setCategoryFilter(event.target.value)}
+          aria-label="Lọc theo danh mục"
+        >
+          <option value="all">Tất cả danh mục</option>
+          {(categories ?? []).map((category) => (
+            <option key={category.id} value={category.id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
 
       <section className="admin-card">
         <div className="admin-card-heading">
           <div>
-            <h2>{data?.length ?? 0} sản phẩm</h2>
-            <p>
-              Cửa hàng chỉ hiển thị sản phẩm đang bật. Tồn kho lưu trong
-              product_inventory.
-            </p>
+            <h2>{visibleProducts.length} sản phẩm</h2>
+            <p>Sản phẩm đang bật sẽ hiện trên cửa hàng.</p>
           </div>
           <button onClick={reload}>
             Làm mới <ArrowUpRight size={15} />
@@ -383,7 +487,7 @@ export default function ProductsSection() {
           <AdminLoading />
         ) : error ? (
           <AdminError message={error} />
-        ) : data?.length ? (
+        ) : visibleProducts.length ? (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -397,7 +501,7 @@ export default function ProductsSection() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((product) => (
+                {visibleProducts.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <div className="admin-product-cell">
@@ -459,7 +563,7 @@ export default function ProductsSection() {
                         </button>
                         <button
                           className="danger"
-                          onClick={() => void remove(product)}
+                          onClick={() => setPendingDelete(product)}
                           aria-label={`Xóa ${product.name}`}
                         >
                           <Trash2 size={15} />
@@ -472,21 +576,84 @@ export default function ProductsSection() {
             </table>
           </div>
         ) : (
-          <AdminEmpty>Chưa có sản phẩm nào trong cơ sở dữ liệu.</AdminEmpty>
+          <AdminEmpty>Không có sản phẩm phù hợp bộ lọc.</AdminEmpty>
         )}
       </section>
+        </>
+      )}
 
       {form && (
-        <AdminModal
-          title={form.id ? `Sửa: ${form.name}` : "Thêm sản phẩm"}
-          onClose={() => setForm(null)}
-          wide
+        <AdminEditorPage
+          section="Sản phẩm"
+          mode={form.id ? "Chỉnh sửa" : "Tạo mới"}
+          title={form.id ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm mới"}
+          subtitle="Thiết lập thông tin hiển thị, tồn kho và danh mục bán hàng."
+          onBack={() => setForm(null)}
+          aside={
+            <>
+              <section>
+                <h2>Hình ảnh sản phẩm</h2>
+                <ImageInput
+                  value={form.imageUrl}
+                  folder="products"
+                  onChange={(imageUrl) => setForm({ ...form, imageUrl })}
+                />
+                <p>Ảnh được tối ưu và lưu trong thư viện của cửa hàng.</p>
+              </section>
+              <section>
+                <h2>Cài đặt hiển thị</h2>
+                <div className="admin-switch-list">
+                  <label className="admin-switch-row">
+                    <span>
+                      <b>Đang bán</b>
+                      <small>Hiển thị sản phẩm trên cửa hàng</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={form.active}
+                      onChange={(event) =>
+                        setForm({ ...form, active: event.target.checked })
+                      }
+                    />
+                  </label>
+                  <label className="admin-switch-row">
+                    <span>
+                      <b>Sản phẩm nổi bật</b>
+                      <small>Ưu tiên trong các khu vực giới thiệu</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={form.featured}
+                      onChange={(event) =>
+                        setForm({ ...form, featured: event.target.checked })
+                      }
+                    />
+                  </label>
+                </div>
+              </section>
+            </>
+          }
+          footer={
+            <>
+              <button className="admin-ghost" onClick={() => setForm(null)}>
+                Hủy
+              </button>
+              <button
+                className="admin-primary"
+                onClick={() => void save()}
+                disabled={busy}
+              >
+                {busy ? "Đang lưu…" : form.id ? "Cập nhật sản phẩm" : "Tạo sản phẩm"}
+              </button>
+            </>
+          }
         >
           <AdminError message={actionError} />
           <div className="admin-form-grid">
             <label>
               Tên sản phẩm
               <input
+                required
                 value={form.name}
                 onChange={(event) =>
                   setForm({ ...form, name: event.target.value })
@@ -496,6 +663,7 @@ export default function ProductsSection() {
             <label>
               Slug (dùng cho URL và giỏ hàng)
               <input
+                required
                 value={form.slug}
                 onChange={(event) =>
                   setForm({ ...form, slug: event.target.value })
@@ -505,25 +673,34 @@ export default function ProductsSection() {
             <label>
               SKU
               <input
+                required
                 value={form.sku}
                 onChange={(event) => setForm({ ...form, sku: event.target.value })}
               />
             </label>
             <label>
-              Danh mục
+              Danh mục <span className="admin-required">*</span>
               <select
+                required
                 value={form.categoryId}
                 onChange={(event) =>
                   setForm({ ...form, categoryId: event.target.value })
                 }
               >
-                <option value="">— Chưa phân loại —</option>
+                <option value="">— Chọn danh mục —</option>
                 {(categories ?? []).map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {category.name} ({category.productCount} sản phẩm)
                   </option>
                 ))}
               </select>
+              {categoriesLoading ? (
+                <FieldHint>Đang tải danh mục…</FieldHint>
+              ) : categoriesError ? (
+                <FieldHint>Chưa tải được danh mục. Hãy thử làm mới.</FieldHint>
+              ) : (
+                <FieldHint>Danh mục quyết định vị trí sản phẩm trên cửa hàng.</FieldHint>
+              )}
             </label>
             <label>
               Xuất xứ
@@ -554,16 +731,6 @@ export default function ProductsSection() {
                 onChange={(event) =>
                   setForm({ ...form, priceVnd: event.target.value })
                 }
-              />
-            </label>
-            <label>
-              Ảnh (đường dẫn)
-              <input
-                value={form.imageUrl}
-                onChange={(event) =>
-                  setForm({ ...form, imageUrl: event.target.value })
-                }
-                placeholder="/images/tea.webp"
               />
             </label>
             <label>
@@ -615,44 +782,30 @@ export default function ProductsSection() {
                 }
               />
             </label>
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={form.active}
-                onChange={(event) =>
-                  setForm({ ...form, active: event.target.checked })
-                }
-              />
-              Đang bán (hiện trên cửa hàng)
-            </label>
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={form.featured}
-                onChange={(event) =>
-                  setForm({ ...form, featured: event.target.checked })
-                }
-              />
-              Đánh dấu nổi bật
-            </label>
           </div>
-          <div className="admin-modal-actions">
-            <button
-              className="admin-primary"
-              onClick={() => void save()}
-              disabled={busy}
-            >
-              {busy ? "Đang lưu…" : form.id ? "Cập nhật" : "Tạo sản phẩm"}
-            </button>
-            <button className="admin-ghost" onClick={() => setForm(null)}>
-              Hủy
-            </button>
-          </div>
-        </AdminModal>
+        </AdminEditorPage>
       )}
 
       {categoriesOpen && (
-        <CategoryManager onClose={() => setCategoriesOpen(false)} />
+        <CategoryManager
+          onClose={() => setCategoriesOpen(false)}
+          onChanged={reloadCategories}
+        />
+      )}
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa sản phẩm"
+          description={
+            <>
+              Xóa <b>“{pendingDelete.name}”</b>? Sản phẩm sẽ được gỡ khỏi cửa
+              hàng và tất cả chương trình khuyến mãi có liên quan.
+            </>
+          }
+          confirmLabel="Xóa sản phẩm"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
       )}
     </>
   );

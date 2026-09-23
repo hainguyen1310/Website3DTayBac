@@ -96,7 +96,17 @@ export default function AdminPage() {
 
   return (
     <main className="admin-shell">
-      <aside className={sidebarOpen ? "admin-sidebar is-open" : "admin-sidebar"}>
+      {sidebarOpen && (
+        <button
+          className="admin-sidebar-scrim"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Đóng menu quản trị"
+        />
+      )}
+      <aside
+        className={sidebarOpen ? "admin-sidebar is-open" : "admin-sidebar"}
+        aria-label="Điều hướng quản trị"
+      >
         <div className="admin-logo">
           <span>M</span>
           <div>
@@ -111,7 +121,7 @@ export default function AdminPage() {
             <X size={18} />
           </button>
         </div>
-        <nav aria-label="Điều hướng quản trị">
+        <nav>
           {menu.map((item) => {
             const Icon = item.icon;
             return (
@@ -147,6 +157,7 @@ export default function AdminPage() {
             className="admin-menu-button"
             onClick={() => setSidebarOpen(true)}
             aria-label="Mở menu quản trị"
+            aria-expanded={sidebarOpen}
           >
             <Menu size={21} />
           </button>
@@ -156,13 +167,13 @@ export default function AdminPage() {
             <b>{active.label}</b>
           </div>
           <div>
-            <button className="admin-user" onClick={() => void signOut()}>
+            <div className="admin-user">
               <span>{initials}</span>
               <div>
                 <b>{profile?.fullName || session.user.email}</b>
                 <small>{session.user.email}</small>
               </div>
-            </button>
+            </div>
           </div>
         </header>
         <div className="admin-content">{renderSection()}</div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Download, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { money } from "../catalog";
 import {
   createCustomer,
@@ -9,10 +9,11 @@ import {
 } from "../services/adminApi";
 import type { AdminCustomer, CustomerInput } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
+  AdminEditorPage,
   AdminEmpty,
   AdminError,
   AdminLoading,
-  AdminModal,
   downloadCsv,
   formatDate,
   SectionHeader,
@@ -36,6 +37,7 @@ export default function CustomersSection() {
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminCustomer | null>(null);
 
   const customers = data ?? [];
   const visible = useMemo(() => {
@@ -52,6 +54,10 @@ export default function CustomersSection() {
     if (!form) return;
     if (!form.fullName.trim() || !form.phone.trim()) {
       setActionError("Tên và số điện thoại là bắt buộc.");
+      return;
+    }
+    if (!/^(0\d{9}|\+84\d{9})$/.test(form.phone.trim())) {
+      setActionError("Số điện thoại cần gồm 10 số bắt đầu bằng 0, hoặc +84 và 9 số.");
       return;
     }
     setBusy(true);
@@ -76,21 +82,19 @@ export default function CustomersSection() {
   };
 
   const remove = async (customer: AdminCustomer) => {
-    if (
-      !window.confirm(
-        `Xóa khách “${customer.fullName}”? Khách còn đơn hàng sẽ không xóa được.`,
-      )
-    )
-      return;
+    setBusy(true);
     setActionError("");
     try {
       await deleteCustomer(customer.id);
       setNotice(`Đã xóa ${customer.fullName}.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không xóa được khách hàng.",
       );
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -106,6 +110,87 @@ export default function CustomersSection() {
         customer.totalVnd,
       ]),
     ]);
+
+  if (form) {
+    return (
+      <AdminEditorPage
+        section="Khách hàng"
+        mode={form.id ? "Chỉnh sửa" : "Tạo mới"}
+        title={form.id ? "Chỉnh sửa khách hàng" : "Thêm khách hàng mới"}
+        subtitle="Cập nhật thông tin liên hệ sử dụng khi vận hành đơn hàng."
+        onBack={() => setForm(null)}
+        aside={
+          <section>
+            <h2>Ghi chú dữ liệu</h2>
+            <p>
+              Lịch sử đơn hàng không bị sửa hoặc xóa khi thay đổi thông tin khách hàng.
+            </p>
+            <p className="admin-footnote">
+              Số điện thoại là thông tin bắt buộc để xác nhận đơn.
+            </p>
+          </section>
+        }
+        footer={
+          <>
+            <AdminError message={actionError} />
+            <button className="admin-ghost" onClick={() => setForm(null)} disabled={busy}>
+              Hủy
+            </button>
+            <button className="admin-primary" onClick={() => void save()} disabled={busy}>
+              {busy ? "Đang lưu…" : form.id ? "Cập nhật khách hàng" : "Tạo khách hàng"}
+            </button>
+          </>
+        }
+      >
+        <section className="admin-form-section">
+          <h2>Thông tin liên hệ</h2>
+          <p>Thông tin này sẽ được dùng làm dữ liệu mặc định khi tạo đơn hàng.</p>
+          <div className="admin-form-grid">
+            <label>
+              Họ và tên <em>*</em>
+              <input
+                required
+                autoComplete="name"
+                value={form.fullName}
+                onChange={(event) => setForm({ ...form, fullName: event.target.value })}
+              />
+            </label>
+            <label>
+              Số điện thoại <em>*</em>
+              <input
+                required
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                pattern="(0[0-9]{9}|\\+84[0-9]{9})"
+                value={form.phone}
+                onChange={(event) => setForm({ ...form, phone: event.target.value })}
+                placeholder="0901234567"
+              />
+            </label>
+            <label>
+              Email
+              <input
+                type="email"
+                autoComplete="email"
+                value={form.email ?? ""}
+                onChange={(event) => setForm({ ...form, email: event.target.value })}
+              />
+            </label>
+            <label>
+              Địa chỉ mặc định
+              <textarea
+                rows={3}
+                autoComplete="street-address"
+                value={form.address ?? ""}
+                onChange={(event) => setForm({ ...form, address: event.target.value })}
+              />
+            </label>
+          </div>
+        </section>
+      </AdminEditorPage>
+    );
+  }
 
   return (
     <>
@@ -167,7 +252,7 @@ export default function CustomersSection() {
         <div className="admin-card-heading">
           <div>
             <h2>{visible.length} khách hàng</h2>
-            <p>Khách được tạo tự động khi đặt hàng hoặc thêm tay tại đây.</p>
+            <p>Khách đặt hàng sẽ tự xuất hiện ở đây.</p>
           </div>
           <div className="admin-search">
             <Search size={16} />
@@ -244,7 +329,7 @@ export default function CustomersSection() {
                         </button>
                         <button
                           className="danger"
-                          onClick={() => void remove(customer)}
+                          onClick={() => setPendingDelete(customer)}
                           aria-label={`Xóa ${customer.fullName}`}
                         >
                           <Trash2 size={15} />
@@ -259,71 +344,22 @@ export default function CustomersSection() {
         ) : (
           <AdminEmpty>Chưa có khách hàng phù hợp.</AdminEmpty>
         )}
-        <p className="admin-footnote">
-          <ArrowUpRight size={13} /> Khách hàng phát sinh từ luồng đặt hàng sẽ tự
-          động xuất hiện ở đây.
-        </p>
       </section>
 
-      {form && (
-        <AdminModal
-          title={form.id ? `Sửa: ${form.fullName}` : "Thêm khách hàng"}
-          onClose={() => setForm(null)}
-        >
-          <AdminError message={actionError} />
-          <div className="admin-form-grid">
-            <label>
-              Họ và tên
-              <input
-                value={form.fullName}
-                onChange={(event) =>
-                  setForm({ ...form, fullName: event.target.value })
-                }
-              />
-            </label>
-            <label>
-              Số điện thoại
-              <input
-                value={form.phone}
-                onChange={(event) =>
-                  setForm({ ...form, phone: event.target.value })
-                }
-                placeholder="0901234567"
-              />
-            </label>
-            <label>
-              Email
-              <input
-                type="email"
-                value={form.email ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, email: event.target.value })
-                }
-              />
-            </label>
-            <label>
-              Địa chỉ mặc định
-              <input
-                value={form.address ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, address: event.target.value })
-                }
-              />
-            </label>
-          </div>
-          <div className="admin-modal-actions">
-            <button
-              className="admin-primary"
-              onClick={() => void save()}
-              disabled={busy}
-            >
-              {busy ? "Đang lưu…" : form.id ? "Cập nhật" : "Tạo khách hàng"}
-            </button>
-            <button className="admin-ghost" onClick={() => setForm(null)}>
-              Hủy
-            </button>
-          </div>
-        </AdminModal>
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa khách hàng"
+          description={
+            <>
+              Xóa <b>{pendingDelete.fullName}</b>? Khách còn đơn hàng sẽ được
+              hệ thống giữ lại để bảo toàn lịch sử giao dịch.
+            </>
+          }
+          confirmLabel="Xóa khách hàng"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
       )}
     </>
   );

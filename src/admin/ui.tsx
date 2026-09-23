@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { AlertCircle, Loader2, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, ChevronRight, Loader2, X } from "lucide-react";
+import { invalidateCache } from "../services/cache";
 import { ORDER_STATUS_LABELS } from "../services/adminApi";
 import type { OrderStatus } from "../services/adminApi";
 
@@ -75,7 +76,11 @@ export function useAsync<T>(
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(0);
-  const reload = useCallback(() => setToken((value) => value + 1), []);
+  // "Làm mới" phải bỏ qua cache để luôn lấy dữ liệu mới từ Supabase.
+  const reload = useCallback(() => {
+    invalidateCache();
+    setToken((value) => value + 1);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -152,6 +157,98 @@ export function AdminModal({
         <div className="admin-modal-body">{children}</div>
       </div>
     </div>
+  );
+}
+
+/** Xác nhận hành động có hậu quả thay cho hộp thoại trình duyệt thô. */
+export function AdminConfirmDialog({
+  title = "Xác nhận thao tác",
+  description,
+  confirmLabel = "Xác nhận",
+  onConfirm,
+  onClose,
+  busy = false,
+}: {
+  title?: string;
+  description: ReactNode;
+  confirmLabel?: string;
+  onConfirm: () => void;
+  onClose: () => void;
+  busy?: boolean;
+}) {
+  return (
+    <AdminModal title={title} onClose={busy ? () => undefined : onClose}>
+      <div className="admin-confirm-copy">{description}</div>
+      <div className="admin-modal-actions">
+        <button
+          className="admin-danger"
+          onClick={onConfirm}
+          disabled={busy}
+          autoFocus
+        >
+          {busy ? "Đang xử lý…" : confirmLabel}
+        </button>
+        <button className="admin-ghost" onClick={onClose} disabled={busy}>
+          Hủy
+        </button>
+      </div>
+    </AdminModal>
+  );
+}
+
+export function FieldHint({ children }: { children: ReactNode }) {
+  return <small className="admin-field-hint">{children}</small>;
+}
+
+/** Full-page CRUD workspace used for create, edit and detail screens. */
+export function AdminEditorPage({
+  section,
+  title,
+  subtitle,
+  mode,
+  onBack,
+  children,
+  aside,
+  footer,
+  topAction,
+}: {
+  section: string;
+  title: string;
+  subtitle: string;
+  mode: string;
+  onBack: () => void;
+  children: ReactNode;
+  aside?: ReactNode;
+  footer: ReactNode;
+  topAction?: ReactNode;
+}) {
+  return (
+    <section className="admin-editor-page">
+      <div className="admin-editor-crumb" aria-label="Vị trí hiện tại">
+        <span>Quản trị</span>
+        <ChevronRight size={13} />
+        <span>{section}</span>
+        <ChevronRight size={13} />
+        <b>{mode}</b>
+      </div>
+      <header className="admin-editor-header">
+        <div>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
+        <div className="admin-header-actions">
+          <button className="admin-ghost" onClick={onBack}>
+            <ArrowLeft size={16} /> Quay lại danh sách
+          </button>
+          {topAction}
+        </div>
+      </header>
+      <div className={aside ? "admin-editor-layout" : "admin-editor-layout single"}>
+        <div className="admin-editor-main">{children}</div>
+        {aside && <aside className="admin-editor-aside">{aside}</aside>}
+      </div>
+      <footer className="admin-editor-footer">{footer}</footer>
+    </section>
   );
 }
 

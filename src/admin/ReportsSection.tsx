@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpRight, BarChart3, Download } from "lucide-react";
+import { ArrowUpRight, Download } from "lucide-react";
 import { money } from "../catalog";
 import {
   getReportData,
@@ -200,18 +200,6 @@ export default function ReportsSection() {
               )}
             </section>
           </div>
-
-          <section className="admin-card report-callout">
-            <BarChart3 size={38} />
-            <div>
-              <h2>Báo cáo lấy trực tiếp từ cơ sở dữ liệu</h2>
-              <p>
-                Số liệu tính từ bảng orders và order_items trong {days} ngày gần
-                nhất, không tính đơn đã hủy. Thanh toán chỉ được ghi nhận khi
-                webhook đối tác xác thực qua hàm confirm_gateway_payment.
-              </p>
-            </div>
-          </section>
         </>
       ) : null}
     </>

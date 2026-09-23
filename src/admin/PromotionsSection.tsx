@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { ArrowUpRight, Pencil, Plus, Trash2 } from "lucide-react";
-import { money } from "../catalog";
+import { useMemo, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
   createPromotion,
   deletePromotion,
@@ -12,10 +11,12 @@ import {
 } from "../services/adminApi";
 import type { AdminPromotion } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
   AdminEmpty,
+  AdminEditorPage,
   AdminError,
   AdminLoading,
-  AdminModal,
+  FieldHint,
   formatDate,
   SectionHeader,
   toDateTimeInput,
@@ -23,7 +24,11 @@ import {
   useAsync,
 } from "./ui";
 
-const ACCENTS = ["forest", "honey", "earth"];
+const ACCENTS = [
+  { value: "forest", label: "Rừng xanh" },
+  { value: "honey", label: "Mật ong" },
+  { value: "earth", label: "Đất ấm" },
+] as const;
 
 type RowForm = {
   productId: string;
@@ -61,9 +66,28 @@ export default function PromotionsSection() {
   const { data, error, loading, reload } = useAsync(listAdminPromotions, []);
   const { data: products } = useAsync(listAdminProducts, []);
   const [form, setForm] = useState<PromotionForm | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminPromotion | null>(null);
+  const promotions = data ?? [];
+  const now = Date.now();
+  const upcomingCount = promotions.filter(
+    (promotion) => promotion.startsAt && new Date(promotion.startsAt).getTime() > now,
+  ).length;
+  const endedCount = promotions.filter(
+    (promotion) => promotion.endsAt && new Date(promotion.endsAt).getTime() <= now,
+  ).length;
+  const visiblePromotions = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return promotions.filter((promotion) => {
+      if (statusFilter === "active" && !promotion.isActive) return false;
+      if (statusFilter === "inactive" && promotion.isActive) return false;
+      return !needle || `${promotion.code} ${promotion.name}`.toLowerCase().includes(needle);
+    });
+  }, [promotions, query, statusFilter]);
 
   const openEdit = (promotion: AdminPromotion) => {
     setActionError("");
@@ -94,8 +118,23 @@ export default function PromotionsSection() {
       return;
     }
     const rows = form.rows.filter((row) => row.productId);
-    if (rows.some((row) => Number(row.discountPercent) < 1)) {
-      setActionError("Mức giảm phải từ 1% trở lên.");
+    if (!rows.length || rows.length !== form.rows.length) {
+      setActionError("Hãy chọn sản phẩm cho mọi dòng khuyến mãi.");
+      return;
+    }
+    if (new Set(rows.map((row) => row.productId)).size !== rows.length) {
+      setActionError("Mỗi sản phẩm chỉ được xuất hiện một lần trong cùng chương trình.");
+      return;
+    }
+    if (
+      rows.some(
+        (row) =>
+          Number(row.originalPriceVnd) <= 0 ||
+          Number(row.discountPercent) < 1 ||
+          Number(row.discountPercent) > 100,
+      )
+    ) {
+      setActionError("Giá gốc phải lớn hơn 0 và mức giảm phải từ 1% đến 100%.");
       return;
     }
     const startsAt = fromDateTimeInput(form.startsAt);
@@ -122,7 +161,7 @@ export default function PromotionsSection() {
           await deletePromotionProduct(promotionId, productId);
         }
       }
-      for (const row of rows) {
+      for (const [index, row] of rows.entries()) {
         await savePromotionProduct(promotionId, {
           productId: row.productId,
           originalPriceVnd: Number(row.originalPriceVnd) || 0,
@@ -130,7 +169,7 @@ export default function PromotionsSection() {
           displayLabel: row.displayLabel,
           displayEnding: row.displayEnding,
           accent: row.accent,
-          sortOrder: Number(row.sortOrder) || 0,
+          sortOrder: (index + 1) * 10,
         });
       }
       setNotice(`Đã lưu khuyến mãi ${payload.code.toUpperCase()}.`);
@@ -146,26 +185,51 @@ export default function PromotionsSection() {
   };
 
   const remove = async (promotion: AdminPromotion) => {
-    if (
-      !window.confirm(
-        `Xóa khuyến mãi ${promotion.code}? Toàn bộ dòng sản phẩm của chương trình cũng bị xóa.`,
-      )
-    )
-      return;
+    setBusy(true);
     setActionError("");
     try {
       await deletePromotion(promotion.id);
       setNotice(`Đã xóa ${promotion.code}.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không xóa được khuyến mãi.",
       );
+    } finally {
+      setBusy(false);
     }
+  };
+
+  const changeProduct = (index: number, productId: string) => {
+    if (!form) return;
+    const product = (products ?? []).find((item) => item.id === productId);
+    setForm({
+      ...form,
+      rows: form.rows.map((row, rowIndex) =>
+        rowIndex === index
+          ? {
+              ...row,
+              productId,
+              originalPriceVnd: product ? String(product.priceVnd) : row.originalPriceVnd,
+              displayLabel: product && !row.displayLabel ? product.tag : row.displayLabel,
+            }
+          : row,
+      ),
+    });
+  };
+
+  const moveRow = (from: number, to: number) => {
+    if (!form || to < 0 || to >= form.rows.length) return;
+    const rows = [...form.rows];
+    [rows[from], rows[to]] = [rows[to], rows[from]];
+    setForm({ ...form, rows });
   };
 
   return (
     <>
+      {!form && (
+        <>
       <SectionHeader
         eyebrow="ƯU ĐÃI & MÃ GIẢM"
         title="Khuyến mãi"
@@ -178,15 +242,40 @@ export default function PromotionsSection() {
           </button>
         }
       />
+      <div className="metric-grid admin-list-metrics">
+        <article><span>Tổng chương trình</span><strong>{promotions.length}</strong><small>Đã tạo trong hệ thống</small></article>
+        <article><span>Đang chạy</span><strong>{promotions.filter((item) => item.isActive).length}</strong><small>Đang bật hiển thị</small></article>
+        <article><span>Sắp diễn ra</span><strong>{upcomingCount}</strong><small>Chưa đến thời gian áp dụng</small></article>
+        <article><span>Đã kết thúc</span><strong>{endedCount}</strong><small>Đã qua ngày kết thúc</small></article>
+        <article><span>Sản phẩm áp dụng</span><strong>{promotions.reduce((sum, item) => sum + item.products.length, 0)}</strong><small>Tổng dòng liên kết</small></article>
+      </div>
+      <div className="admin-card admin-filter-toolbar">
+        <div className="admin-search">
+          <Search size={16} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Tìm tên hoặc mã khuyến mãi…"
+            aria-label="Tìm khuyến mãi"
+          />
+        </div>
+        <select
+          className="admin-toolbar-select"
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as "all" | "active" | "inactive")}
+          aria-label="Lọc trạng thái khuyến mãi"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="active">Đang bật</option>
+          <option value="inactive">Đang tắt</option>
+        </select>
+      </div>
 
       <section className="admin-card">
         <div className="admin-card-heading">
           <div>
-            <h2>{data?.length ?? 0} chương trình</h2>
-            <p>
-              Ưu đãi đang bật và trong thời gian hiệu lực sẽ tự hiện ở mục Deal
-              hời trên trang chủ.
-            </p>
+            <h2>{visiblePromotions.length} chương trình</h2>
+            <p>Ưu đãi đang bật sẽ hiện ở mục Deal hời trên trang chủ.</p>
           </div>
           <button onClick={reload}>
             Làm mới <ArrowUpRight size={15} />
@@ -200,7 +289,7 @@ export default function PromotionsSection() {
           <AdminLoading />
         ) : error ? (
           <AdminError message={error} />
-        ) : data?.length ? (
+        ) : visiblePromotions.length ? (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -213,7 +302,7 @@ export default function PromotionsSection() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((promotion) => (
+                {visiblePromotions.map((promotion) => (
                   <tr key={promotion.id}>
                     <td>
                       <b>{promotion.code}</b>
@@ -252,7 +341,7 @@ export default function PromotionsSection() {
                         </button>
                         <button
                           className="danger"
-                          onClick={() => void remove(promotion)}
+                          onClick={() => setPendingDelete(promotion)}
                           aria-label={`Xóa ${promotion.code}`}
                         >
                           <Trash2 size={15} />
@@ -265,15 +354,58 @@ export default function PromotionsSection() {
             </table>
           </div>
         ) : (
-          <AdminEmpty>Chưa có chương trình khuyến mãi nào.</AdminEmpty>
+          <AdminEmpty>Không có chương trình phù hợp bộ lọc.</AdminEmpty>
         )}
       </section>
+        </>
+      )}
 
       {form && (
-        <AdminModal
-          title={form.id ? `Sửa khuyến mãi ${form.code}` : "Tạo khuyến mãi"}
-          onClose={() => setForm(null)}
-          wide
+        <AdminEditorPage
+          section="Khuyến mãi"
+          mode={form.id ? "Chỉnh sửa" : "Tạo mới"}
+          title={form.id ? "Chỉnh sửa khuyến mãi" : "Tạo khuyến mãi mới"}
+          subtitle="Thiết lập điều kiện ưu đãi và các sản phẩm áp dụng."
+          onBack={() => setForm(null)}
+          aside={
+            <>
+              <section>
+                <h2>Cài đặt hiển thị</h2>
+                <div className="admin-switch-list">
+                  <label className="admin-switch-row">
+                    <span>
+                      <b>Bật chương trình</b>
+                      <small>Chỉ ưu đãi đang bật mới xuất hiện trên cửa hàng</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={form.isActive}
+                      onChange={(event) =>
+                        setForm({ ...form, isActive: event.target.checked })
+                      }
+                    />
+                  </label>
+                </div>
+              </section>
+              <section>
+                <h2>Phạm vi áp dụng</h2>
+                <p>
+                  Chọn các sản phẩm cụ thể ở phần bên trái. Một sản phẩm chỉ có
+                  thể xuất hiện một lần trong cùng chương trình.
+                </p>
+              </section>
+            </>
+          }
+          footer={
+            <>
+              <button className="admin-ghost" onClick={() => setForm(null)}>
+                Hủy
+              </button>
+              <button className="admin-primary" onClick={() => void save()} disabled={busy}>
+                {busy ? "Đang lưu…" : form.id ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi"}
+              </button>
+            </>
+          }
         >
           <AdminError message={actionError} />
           <div className="admin-form-grid">
@@ -316,16 +448,6 @@ export default function PromotionsSection() {
                 }
               />
             </label>
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(event) =>
-                  setForm({ ...form, isActive: event.target.checked })
-                }
-              />
-              Bật chương trình
-            </label>
           </div>
 
           <h3 className="admin-subheading">Sản phẩm trong chương trình</h3>
@@ -337,9 +459,9 @@ export default function PromotionsSection() {
                   <th>Giá gốc</th>
                   <th>Giảm %</th>
                   <th>Nhãn</th>
-                  <th>Đếm ngược</th>
-                  <th>Màu</th>
-                  <th>Thứ tự</th>
+                  <th>Dòng trạng thái</th>
+                  <th>Tông màu</th>
+                  <th>Vị trí</th>
                   <th />
                 </tr>
               </thead>
@@ -349,21 +471,23 @@ export default function PromotionsSection() {
                     <td>
                       <select
                         value={row.productId}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, productId: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
+                        onChange={(event) => changeProduct(index, event.target.value)}
                       >
                         <option value="">— Chọn sản phẩm —</option>
                         {(products ?? []).map((product) => (
-                          <option key={product.id} value={product.id}>
-                            {product.name}
+                          <option
+                            key={product.id}
+                            value={product.id}
+                            disabled={
+                              (!product.active && row.productId !== product.id) ||
+                              form.rows.some(
+                                (item, itemIndex) =>
+                                  itemIndex !== index && item.productId === product.id,
+                              )
+                            }
+                          >
+                            {product.name} · {product.categoryName}
+                            {!product.active ? " (đã ẩn)" : ""}
                           </option>
                         ))}
                       </select>
@@ -448,27 +572,31 @@ export default function PromotionsSection() {
                         }
                       >
                         {ACCENTS.map((accent) => (
-                          <option key={accent} value={accent}>
-                            {accent}
+                          <option key={accent.value} value={accent.value}>
+                            {accent.label}
                           </option>
                         ))}
                       </select>
                     </td>
                     <td>
-                      <input
-                        type="number"
-                        value={row.sortOrder}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, sortOrder: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      />
+                      <div className="admin-row-actions">
+                        <button
+                          type="button"
+                          onClick={() => moveRow(index, index - 1)}
+                          disabled={index === 0}
+                          aria-label="Đưa sản phẩm lên trên"
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveRow(index, index + 1)}
+                          disabled={index === form.rows.length - 1}
+                          aria-label="Đưa sản phẩm xuống dưới"
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                      </div>
                     </td>
                     <td>
                       <button
@@ -513,26 +641,27 @@ export default function PromotionsSection() {
           >
             <Plus size={15} /> Thêm dòng sản phẩm
           </button>
+          <FieldHint>
+            Chọn mỗi sản phẩm một lần. Giá hiện tại của sản phẩm sẽ được điền
+            sẵn làm giá gốc; có thể điều chỉnh khi cần hiển thị mức giảm.
+          </FieldHint>
 
-          <div className="admin-modal-actions">
-            <button
-              className="admin-primary"
-              onClick={() => void save()}
-              disabled={busy}
-            >
-              {busy ? "Đang lưu…" : form.id ? "Cập nhật" : "Tạo khuyến mãi"}
-            </button>
-            <button className="admin-ghost" onClick={() => setForm(null)}>
-              Hủy
-            </button>
-          </div>
-          <p className="admin-footnote">
-            Giá bán hiển thị trên cửa hàng vẫn là giá trong bảng products; giá
-            gốc ở đây dùng để gạch ngang và tính mức giảm. Ví dụ:{" "}
-            {money(Number(form.rows[0]?.originalPriceVnd) || 0)} → giảm{" "}
-            {form.rows[0]?.discountPercent || 0}%.
-          </p>
-        </AdminModal>
+        </AdminEditorPage>
+      )}
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa chương trình khuyến mãi"
+          description={
+            <>
+              Xóa <b>{pendingDelete.code}</b>? Toàn bộ liên kết sản phẩm trong
+              chương trình này cũng sẽ bị xóa.
+            </>
+          }
+          confirmLabel="Xóa chương trình"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
       )}
     </>
   );

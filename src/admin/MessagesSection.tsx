@@ -9,6 +9,7 @@ import {
 } from "../services/adminApi";
 import type { ContactStatus } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
   AdminEmpty,
   AdminError,
   AdminLoading,
@@ -23,6 +24,10 @@ export default function MessagesSection() {
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busyId, setBusyId] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const messages = data ?? [];
   const visible = useMemo(
@@ -51,12 +56,12 @@ export default function MessagesSection() {
   };
 
   const remove = async (id: string, name: string) => {
-    if (!window.confirm(`Xóa lời nhắn của ${name}?`)) return;
     setBusyId(id);
     setActionError("");
     try {
       await deleteMessage(id);
       setNotice(`Đã xóa lời nhắn của ${name}.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
@@ -104,10 +109,7 @@ export default function MessagesSection() {
         <div className="admin-card-heading">
           <div>
             <h2>{visible.length} lời nhắn</h2>
-            <p>
-              Lời nhắn được lưu bởi RPC submit_contact_message và chỉ đọc được
-              bởi tài khoản admin/staff.
-            </p>
+            <p>Từ biểu mẫu liên hệ trên cửa hàng.</p>
           </div>
         </div>
 
@@ -162,7 +164,9 @@ export default function MessagesSection() {
                   </select>
                   <button
                     className="danger"
-                    onClick={() => void remove(message.id, message.name)}
+                    onClick={() =>
+                      setPendingDelete({ id: message.id, name: message.name })
+                    }
                     disabled={busyId === message.id}
                     aria-label={`Xóa lời nhắn của ${message.name}`}
                   >
@@ -176,6 +180,21 @@ export default function MessagesSection() {
           <AdminEmpty>Chưa có lời nhắn nào.</AdminEmpty>
         )}
       </section>
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa lời nhắn"
+          description={
+            <>
+              Xóa lời nhắn của <b>{pendingDelete.name}</b>? Sau khi xóa sẽ không
+              thể khôi phục nội dung này.
+            </>
+          }
+          confirmLabel="Xóa lời nhắn"
+          onConfirm={() => void remove(pendingDelete.id, pendingDelete.name)}
+          onClose={() => setPendingDelete(null)}
+          busy={busyId === pendingDelete.id}
+        />
+      )}
     </>
   );
 }

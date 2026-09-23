@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowUpRight, Download, Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowUpRight, Download, Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
   createArticle,
   deleteArticle,
@@ -8,15 +8,20 @@ import {
 } from "../services/adminApi";
 import type { AdminArticle, ArticleInput } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
   AdminEmpty,
+  AdminEditorPage,
   AdminError,
   AdminLoading,
-  AdminModal,
   downloadCsv,
+  FieldHint,
   formatDateTime,
   SectionHeader,
   useAsync,
 } from "./ui";
+import ImageInput from "./ImageInput";
+
+const ARTICLE_TOPICS = ["Từ bản làng", "Gợi ý tặng quà", "Vị Tây Bắc"];
 
 type ArticleForm = {
   id: string | null;
@@ -38,7 +43,7 @@ const emptyForm: ArticleForm = {
   tag: "",
   title: "",
   excerpt: "",
-  imageUrl: "/images/tea.webp",
+  imageUrl: "",
   readTimeMinutes: "4",
   body: "",
   published: true,
@@ -74,14 +79,32 @@ const toInput = (form: ArticleForm): ArticleInput => ({
 export default function ContentSection() {
   const { data, error, loading, reload } = useAsync(listAdminArticles, []);
   const [form, setForm] = useState<ArticleForm | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminArticle | null>(null);
+
+  const topics = [...new Set([...ARTICLE_TOPICS, ...(data ?? []).map((article) => article.tag)])];
+  const articles = data ?? [];
+  const visibleArticles = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return articles.filter((article) => {
+      if (statusFilter === "published" && !article.published) return false;
+      if (statusFilter === "draft" && article.published) return false;
+      return !needle || `${article.title} ${article.slug} ${article.tag}`.toLowerCase().includes(needle);
+    });
+  }, [articles, query, statusFilter]);
 
   const save = async () => {
     if (!form) return;
-    if (!form.title.trim() || !form.slug.trim() || !form.excerpt.trim()) {
-      setActionError("Tiêu đề, slug và mô tả ngắn là bắt buộc.");
+    if (!form.title.trim() || !form.slug.trim() || !form.tag || !form.excerpt.trim()) {
+      setActionError("Tiêu đề, slug, chuyên mục và mô tả ngắn là bắt buộc.");
+      return;
+    }
+    if (!form.imageUrl.trim()) {
+      setActionError("Hãy chọn ảnh bìa cho bài viết.");
       return;
     }
     if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
@@ -135,16 +158,19 @@ export default function ContentSection() {
   };
 
   const remove = async (article: AdminArticle) => {
-    if (!window.confirm(`Xóa bài “${article.title}”?`)) return;
+    setBusy(true);
     setActionError("");
     try {
       await deleteArticle(article.id);
       setNotice(`Đã xóa “${article.title}”.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
         caught instanceof Error ? caught.message : "Không xóa được bài viết.",
       );
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -163,6 +189,8 @@ export default function ContentSection() {
 
   return (
     <>
+      {!form && (
+        <>
       <SectionHeader
         eyebrow="NỘI DUNG THƯƠNG HIỆU"
         title="Tin tức & bài viết"
@@ -180,15 +208,40 @@ export default function ContentSection() {
           </div>
         }
       />
+      <div className="metric-grid admin-list-metrics">
+        <article><span>Tổng bài viết</span><strong>{articles.length}</strong><small>Trong kho nội dung</small></article>
+        <article><span>Đã đăng</span><strong>{articles.filter((article) => article.published).length}</strong><small>Hiển thị trên website</small></article>
+        <article><span>Bản nháp</span><strong>{articles.filter((article) => !article.published).length}</strong><small>Chưa công khai</small></article>
+        <article><span>Chuyên mục</span><strong>{new Set(articles.map((article) => article.tag)).size}</strong><small>Đang được sử dụng</small></article>
+        <article><span>Nội dung</span><strong>{articles.reduce((sum, article) => sum + article.body.length, 0)}</strong><small>Tổng đoạn đã soạn</small></article>
+      </div>
+      <div className="admin-card admin-filter-toolbar">
+        <div className="admin-search">
+          <Search size={16} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Tìm tiêu đề hoặc slug bài đăng…"
+            aria-label="Tìm bài viết"
+          />
+        </div>
+        <select
+          className="admin-toolbar-select"
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as "all" | "published" | "draft")}
+          aria-label="Lọc trạng thái bài viết"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="published">Đã đăng</option>
+          <option value="draft">Bản nháp</option>
+        </select>
+      </div>
 
       <section className="admin-card">
         <div className="admin-card-heading">
           <div>
-            <h2>Bài viết đã xuất bản</h2>
-            <p>
-              Bài đang bật và có ngày xuất bản sẽ hiện trên trang Tin tức của
-              cửa hàng.
-            </p>
+            <h2>{visibleArticles.length} bài viết</h2>
+            <p>Bài đã xuất bản hiện trên trang Tin tức.</p>
           </div>
           <button onClick={reload}>
             Làm mới <ArrowUpRight size={15} />
@@ -202,69 +255,131 @@ export default function ContentSection() {
           <AdminLoading />
         ) : error ? (
           <AdminError message={error} />
-        ) : data?.length ? (
-          <div className="content-list">
-            {data.map((article) => (
-              <article key={article.id}>
-                <img src={article.imageUrl} alt="" />
-                <div>
-                  <span>
-                    {article.tag} · {formatDateTime(article.publishedAt)}
-                  </span>
-                  <b>{article.title}</b>
-                  <small>
-                    /tin-tuc/{article.slug} · {article.body.length} đoạn ·{" "}
-                    {article.readTimeMinutes} phút đọc
-                  </small>
-                </div>
-                <div className="admin-row-actions">
-                  <button
-                    className={article.published ? "admin-toggle active" : "admin-toggle"}
-                    onClick={() => void togglePublished(article)}
-                  >
-                    {article.published ? "Đã xuất bản" : "Bản nháp"}
-                  </button>
-                  <a
-                    href={`/tin-tuc/${article.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`Xem ${article.title}`}
-                  >
-                    <Eye size={15} />
-                  </a>
-                  <button
-                    onClick={() => setForm(toForm(article))}
-                    aria-label={`Sửa ${article.title}`}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    className="danger"
-                    onClick={() => void remove(article)}
-                    aria-label={`Xóa ${article.title}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </article>
-            ))}
+        ) : visibleArticles.length ? (
+          <div className="admin-table-wrap">
+            <table className="admin-table admin-content-table">
+              <thead>
+                <tr>
+                  <th>Ảnh bìa</th>
+                  <th>Tiêu đề</th>
+                  <th>Danh mục</th>
+                  <th>Ngày đăng</th>
+                  <th>Trạng thái</th>
+                  <th aria-label="Thao tác" />
+                </tr>
+              </thead>
+              <tbody>
+                {visibleArticles.map((article) => (
+                  <tr key={article.id}>
+                    <td>
+                      <img className="admin-table-thumbnail" src={article.imageUrl} alt="" />
+                    </td>
+                    <td>
+                      <b>{article.title}</b>
+                      <small>/tin-tuc/{article.slug} · {article.readTimeMinutes} phút đọc</small>
+                    </td>
+                    <td><span className="admin-tag">{article.tag}</span></td>
+                    <td>{formatDateTime(article.publishedAt)}</td>
+                    <td>
+                      <button
+                        className={article.published ? "admin-toggle active" : "admin-toggle"}
+                        onClick={() => void togglePublished(article)}
+                      >
+                        {article.published ? "Đã đăng" : "Bản nháp"}
+                      </button>
+                    </td>
+                    <td>
+                      <div className="admin-row-actions">
+                        <a
+                          href={`/tin-tuc/${article.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`Xem ${article.title}`}
+                        >
+                          <Eye size={15} />
+                        </a>
+                        <button
+                          onClick={() => setForm(toForm(article))}
+                          aria-label={`Sửa ${article.title}`}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          className="danger"
+                          onClick={() => setPendingDelete(article)}
+                          aria-label={`Xóa ${article.title}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
-          <AdminEmpty>Chưa có bài viết nào.</AdminEmpty>
+          <AdminEmpty>Không có bài viết phù hợp bộ lọc.</AdminEmpty>
         )}
       </section>
+        </>
+      )}
 
       {form && (
-        <AdminModal
-          title={form.id ? `Sửa: ${form.title}` : "Viết bài mới"}
-          onClose={() => setForm(null)}
-          wide
+        <AdminEditorPage
+          section="Nội dung"
+          mode={form.id ? "Chỉnh sửa" : "Tạo mới"}
+          title={form.id ? "Chỉnh sửa bài đăng" : "Tạo bài đăng mới"}
+          subtitle="Soạn nội dung và thiết lập cách bài viết xuất hiện trên website."
+          onBack={() => setForm(null)}
+          aside={
+            <>
+              <section>
+                <h2>Ảnh bìa</h2>
+                <ImageInput
+                  value={form.imageUrl}
+                  folder="articles"
+                  onChange={(imageUrl) => setForm({ ...form, imageUrl })}
+                />
+                <p>Hỗ trợ JPG, PNG, WebP, AVIF hoặc GIF.</p>
+              </section>
+              <section>
+                <h2>Cài đặt hiển thị</h2>
+                <div className="admin-switch-list">
+                  <label className="admin-switch-row">
+                    <span>
+                      <b>Xuất bản</b>
+                      <small>Hiển thị bài viết trên trang Tin tức</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={form.published}
+                      onChange={(event) =>
+                        setForm({ ...form, published: event.target.checked })
+                      }
+                    />
+                  </label>
+                </div>
+              </section>
+            </>
+          }
+          footer={
+            <>
+              <button className="admin-ghost" onClick={() => setForm(null)}>
+                Hủy
+              </button>
+              <button className="admin-primary" onClick={() => void save()} disabled={busy}>
+                {busy ? "Đang lưu…" : form.id ? "Cập nhật bài viết" : "Tạo bài viết"}
+              </button>
+            </>
+          }
         >
           <AdminError message={actionError} />
           <div className="admin-form-grid">
             <label>
               Tiêu đề
               <input
+                required
                 value={form.title}
                 onChange={(event) =>
                   setForm({ ...form, title: event.target.value })
@@ -274,6 +389,7 @@ export default function ContentSection() {
             <label>
               Slug (đường dẫn bài viết)
               <input
+                required
                 value={form.slug}
                 onChange={(event) =>
                   setForm({ ...form, slug: event.target.value })
@@ -282,21 +398,20 @@ export default function ContentSection() {
               />
             </label>
             <label>
-              Chuyên mục
-              <input
+              Chuyên mục <span className="admin-required">*</span>
+              <select
+                required
                 value={form.tag}
                 onChange={(event) => setForm({ ...form, tag: event.target.value })}
-                placeholder="Từ bản làng"
-              />
-            </label>
-            <label>
-              Ảnh bìa (đường dẫn)
-              <input
-                value={form.imageUrl}
-                onChange={(event) =>
-                  setForm({ ...form, imageUrl: event.target.value })
-                }
-              />
+              >
+                <option value="">— Chọn chuyên mục —</option>
+                {topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+              <FieldHint>Chuyên mục dùng để phân loại bài viết trên trang Tin tức.</FieldHint>
             </label>
             <label>
               Thời lượng đọc (phút)
@@ -309,16 +424,6 @@ export default function ContentSection() {
                   setForm({ ...form, readTimeMinutes: event.target.value })
                 }
               />
-            </label>
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={form.published}
-                onChange={(event) =>
-                  setForm({ ...form, published: event.target.checked })
-                }
-              />
-              Xuất bản ngay trên trang Tin tức
             </label>
             <label className="full">
               Mô tả ngắn
@@ -341,19 +446,22 @@ export default function ContentSection() {
               />
             </label>
           </div>
-          <div className="admin-modal-actions">
-            <button
-              className="admin-primary"
-              onClick={() => void save()}
-              disabled={busy}
-            >
-              {busy ? "Đang lưu…" : form.id ? "Cập nhật bài" : "Tạo bài viết"}
-            </button>
-            <button className="admin-ghost" onClick={() => setForm(null)}>
-              Hủy
-            </button>
-          </div>
-        </AdminModal>
+        </AdminEditorPage>
+      )}
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa bài viết"
+          description={
+            <>
+              Xóa bài <b>“{pendingDelete.title}”</b>? Nội dung này sẽ không còn
+              xuất hiện trên trang Tin tức.
+            </>
+          }
+          confirmLabel="Xóa bài viết"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
       )}
     </>
   );

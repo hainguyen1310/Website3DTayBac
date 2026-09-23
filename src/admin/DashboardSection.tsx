@@ -6,12 +6,10 @@ import {
   ClipboardList,
   Mail,
   ShoppingBag,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { money } from "../catalog";
 import { getDashboardSnapshot, ORDER_STATUS_LABELS } from "../services/adminApi";
-import type { OrderStatus } from "../services/adminApi";
 import type { AdminSection } from "./sections";
 import {
   AdminEmpty,
@@ -21,13 +19,6 @@ import {
   SectionHeader,
   useAsync,
 } from "./ui";
-
-const REVENUE_STATUSES: OrderStatus[] = [
-  "paid",
-  "packing",
-  "shipping",
-  "completed",
-];
 
 const dayKey = (value: string | Date) => {
   const date = typeof value === "string" ? new Date(value) : value;
@@ -39,13 +30,13 @@ export default function DashboardSection({
 }: {
   onNavigate: (section: AdminSection) => void;
 }) {
-  const { data, error, loading } = useAsync(getDashboardSnapshot, []);
+  const { data, error, loading, reload } = useAsync(getDashboardSnapshot, []);
   const orders = data?.orders ?? [];
   const products = data?.products ?? [];
 
   const summary = useMemo(() => {
-    const paidOrders = orders.filter((order) =>
-      REVENUE_STATUSES.includes(order.status),
+    const paidOrders = orders.filter(
+      (order) => order.paymentStatus === "paid" && order.status !== "cancelled",
     );
     const today = dayKey(new Date());
     const todayOrders = paidOrders.filter(
@@ -69,7 +60,7 @@ export default function DashboardSection({
     }
 
     const lowStock = products.filter(
-      (product) => product.quantity <= product.lowStockThreshold,
+      (product) => product.active && product.quantity <= product.lowStockThreshold,
     );
 
     return {
@@ -90,22 +81,19 @@ export default function DashboardSection({
   return (
     <>
       <SectionHeader
-        eyebrow="BẢN ĐIỀU KHIỂN · DỮ LIỆU SUPABASE"
+        eyebrow="BẢN ĐIỀU KHIỂN"
         title="Tổng quan vận hành"
         action={
-          <button className="admin-primary" onClick={() => onNavigate("orders")}>
-            <ShoppingBag size={17} /> Xem đơn hàng
-          </button>
+          <div className="admin-header-actions">
+            <button className="admin-ghost" onClick={reload}>
+              Làm mới <ArrowUpRight size={15} />
+            </button>
+            <button className="admin-primary" onClick={() => onNavigate("orders")}>
+              <ShoppingBag size={17} /> Xem đơn hàng
+            </button>
+          </div>
         }
       />
-      <div className="admin-notice">
-        <Sparkles size={18} />
-        <p>
-          Số liệu dưới đây được tính trực tiếp từ bảng orders, customers và
-          product_inventory qua Supabase RLS.
-        </p>
-      </div>
-
       <div className="metric-grid">
         <article>
           <span>Doanh thu hôm nay</span>
@@ -225,7 +213,7 @@ export default function DashboardSection({
         <div className="admin-card-heading">
           <div>
             <h2>Đơn hàng gần đây</h2>
-            <p>Cập nhật mới nhất từ cơ sở dữ liệu</p>
+            <p>5 đơn mới nhất</p>
           </div>
           <button onClick={() => onNavigate("orders")}>
             Quản lý đơn hàng <ArrowUpRight size={15} />

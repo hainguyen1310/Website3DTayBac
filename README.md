@@ -57,7 +57,7 @@ Thống nhất với nhà cung cấp tên mesh/material, các vùng thay texture
 
 ## Nguồn gốc tài nguyên
 
-- Ảnh minh họa được tạo bằng ImageGen, lưu trong `public/images/`; prompt và nguồn gốc ở [tài liệu ảnh](docs/IMAGE-PROMPTS.md).
+- Ảnh minh họa được tạo bằng ImageGen, lưu trong `public/images/`; prompt và nguồn gốc ở [tài liệu ảnh](docs/IMAGE-PROMPTS.md). Ảnh thật do cửa hàng tải lên được lưu trong Supabase Storage bucket `site-images` và ghi URL vào database.
 - Phông chữ tiếng Việt được đóng gói nội bộ; trang cửa hàng không phụ thuộc CDN ảnh/phông chữ.
 
 Kết quả kiểm tra giao diện và chức năng: [VERIFICATION.md](docs/VERIFICATION.md).

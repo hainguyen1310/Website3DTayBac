@@ -8,6 +8,7 @@ import {
 } from "../services/adminApi";
 import type { AdminSetting } from "../services/adminApi";
 import {
+  AdminConfirmDialog,
   AdminEmpty,
   AdminError,
   AdminLoading,
@@ -41,6 +42,7 @@ export default function SettingsSection() {
   const [actionError, setActionError] = useState("");
   const [saved, setSaved] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<AdminSetting | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -138,11 +140,12 @@ export default function SettingsSection() {
   };
 
   const remove = async (setting: AdminSetting) => {
-    if (!window.confirm(`Xóa cài đặt “${setting.key}”?`)) return;
+    setBusy(true);
     setActionError("");
     try {
       await deleteSetting(setting.key);
       setSaved(`Đã xóa ${setting.key}.`);
+      setPendingDelete(null);
       reload();
     } catch (caught) {
       setActionError(
@@ -185,15 +188,29 @@ export default function SettingsSection() {
               {INFO_KEYS.map((entry) => (
                 <label key={entry.key}>
                   {entry.label}
-                  <input
-                    value={info[entry.key] ?? ""}
-                    onChange={(event) =>
-                      setInfo((current) => ({
-                        ...current,
-                        [entry.key]: event.target.value,
-                      }))
-                    }
-                  />
+                  {entry.key === "currency" ? (
+                    <select
+                      value={info[entry.key] ?? "VND"}
+                      onChange={(event) =>
+                        setInfo((current) => ({
+                          ...current,
+                          [entry.key]: event.target.value,
+                        }))
+                      }
+                    >
+                      <option value="VND">VND — Việt Nam đồng</option>
+                    </select>
+                  ) : (
+                    <input
+                      value={info[entry.key] ?? ""}
+                      onChange={(event) =>
+                        setInfo((current) => ({
+                          ...current,
+                          [entry.key]: event.target.value,
+                        }))
+                      }
+                    />
+                  )}
                 </label>
               ))}
             </div>
@@ -206,7 +223,7 @@ export default function SettingsSection() {
             <h2>Câu thông báo trên cửa hàng</h2>
             <div className="settings-fields one">
               <label>
-                Nội dung hiển thị ở thanh trên cùng (key: storefront_notice)
+                Nội dung thanh thông báo trên cùng
                 <input
                   value={notice}
                   onChange={(event) => setNotice(event.target.value)}
@@ -222,10 +239,7 @@ export default function SettingsSection() {
             <div className="admin-card-heading">
               <div>
                 <h2>Toàn bộ cài đặt ({data?.length ?? 0})</h2>
-                <p>
-                  Giá trị lưu dạng JSONB. Cài đặt công khai sẽ được đọc bởi
-                  khách qua RLS.
-                </p>
+                <p>Cài đặt công khai sẽ được cửa hàng đọc.</p>
               </div>
               <button onClick={reload}>
                 Làm mới <ArrowUpRight size={15} />
@@ -273,7 +287,7 @@ export default function SettingsSection() {
                             </button>
                             <button
                               className="danger"
-                              onClick={() => void remove(setting)}
+                              onClick={() => setPendingDelete(setting)}
                               aria-label={`Xóa ${setting.key}`}
                             >
                               <Trash2 size={15} />
@@ -343,6 +357,22 @@ export default function SettingsSection() {
             </button>
           </div>
         </AdminModal>
+      )}
+      {pendingDelete && (
+        <AdminConfirmDialog
+          title="Xóa cấu hình"
+          description={
+            <>
+              Xóa cấu hình <b>{pendingDelete.key}</b>? Nếu cửa hàng đang dùng
+              giá trị này, hệ thống sẽ quay về giá trị mặc định hoặc không còn
+              hiển thị dữ liệu tương ứng.
+            </>
+          }
+          confirmLabel="Xóa cấu hình"
+          onConfirm={() => void remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+          busy={busy}
+        />
       )}
     </>
   );

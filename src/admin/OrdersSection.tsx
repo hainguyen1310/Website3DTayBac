@@ -4,11 +4,10 @@ import {
   Download,
   Eye,
   Search,
-  Trash2,
 } from "lucide-react";
 import { money } from "../catalog";
 import {
-  deleteOrder,
+  getAvailableOrderStatuses,
   listAdminOrders,
   listOrderEvents,
   ORDER_STATUSES,
@@ -20,9 +19,9 @@ import {
 import type { AdminOrder, OrderStatus } from "../services/adminApi";
 import {
   AdminEmpty,
+  AdminEditorPage,
   AdminError,
   AdminLoading,
-  AdminModal,
   downloadCsv,
   formatDateTime,
   OrderStatusPill,
@@ -46,12 +45,15 @@ function OrderDetail({
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const statusOptions = getAvailableOrderStatuses(order.status, order.paymentMethod);
+  const canChangeStatus = statusOptions.length > 1;
 
   const apply = async () => {
+    if (status === order.status) return;
     setBusy(true);
     setError("");
     try {
-      await updateOrderStatus(order.id, status);
+      await updateOrderStatus(order.id, order.status, status, order.paymentMethod);
       onChanged();
       onClose();
     } catch (caught) {
@@ -62,7 +64,55 @@ function OrderDetail({
   };
 
   return (
-    <AdminModal title={`Đơn ${order.orderNumber}`} onClose={onClose} wide>
+    <AdminEditorPage
+      section="Đơn hàng"
+      mode="Chi tiết"
+      title={`Đơn hàng ${order.orderNumber}`}
+      subtitle="Kiểm tra thông tin giao nhận, thanh toán và tiến độ xử lý đơn."
+      onBack={onClose}
+      aside={
+        <>
+          <section>
+            <h2>Tổng quan thanh toán</h2>
+            <ul className="admin-detail-list">
+              <li><span>Tạm tính</span><b>{money(order.subtotalVnd)}</b></li>
+              <li><span>Giảm giá</span><b>{money(order.discountVnd)}</b></li>
+              <li><span>Phí giao hàng</span><b>{money(order.shippingVnd)}</b></li>
+              <li><span>Tổng thanh toán</span><b>{money(order.totalVnd)}</b></li>
+            </ul>
+          </section>
+          <section>
+            <h2>Thông tin thanh toán</h2>
+            <p>{PAYMENT_METHOD_LABELS[order.paymentMethod]} · {PAYMENT_STATUS_LABELS[order.paymentStatus]}</p>
+          </section>
+        </>
+      }
+      footer={
+        <>
+          <label className="admin-inline-field">
+            Bước xử lý tiếp theo
+            <select
+              value={status}
+              disabled={!canChangeStatus || busy}
+              onChange={(event) => setStatus(event.target.value as OrderStatus)}
+            >
+              {statusOptions.map((value) => (
+                <option key={value} value={value}>
+                  {ORDER_STATUS_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="admin-primary"
+            onClick={() => void apply()}
+            disabled={busy || !canChangeStatus || status === order.status}
+          >
+            {busy ? "Đang lưu…" : "Cập nhật trạng thái"}
+          </button>
+        </>
+      }
+    >
       <div className="admin-detail-grid">
         <div>
           <h3>Người nhận</h3>
@@ -126,28 +176,14 @@ function OrderDetail({
         </div>
       </div>
       <AdminError message={error} />
-      <div className="admin-modal-actions">
-        <label className="admin-inline-field">
-          Trạng thái
-          <select
-            value={status}
-            onChange={(event) => setStatus(event.target.value as OrderStatus)}
-          >
-            {ORDER_STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {ORDER_STATUS_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="admin-primary" onClick={() => void apply()} disabled={busy}>
-          {busy ? "Đang lưu…" : "Lưu trạng thái"}
-        </button>
-        <button className="admin-ghost" onClick={onClose}>
-          Đóng
-        </button>
-      </div>
-    </AdminModal>
+      <p className="admin-form-note">
+        {order.paymentMethod === "cod" && order.status === "awaiting_payment"
+          ? "Đơn COD: chọn “Đã thanh toán” khi đã thu tiền mặt. Bước này chốt luôn trạng thái thanh toán của đơn."
+          : order.paymentStatus === "pending"
+            ? "Đơn QR chờ thanh toán chỉ được chuyển sang đã thanh toán qua webhook đã xác thực."
+            : "Chỉ các bước xử lý phù hợp với trạng thái hiện tại mới được chọn."}
+      </p>
+    </AdminEditorPage>
   );
 }
 
@@ -156,9 +192,6 @@ export default function OrdersSection() {
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState("");
-  const [notice, setNotice] = useState("");
-  const [actionError, setActionError] = useState("");
 
   const orders = data ?? [];
   const visible = useMemo(() => {
@@ -174,44 +207,15 @@ export default function OrdersSection() {
 
   const open = orders.find((order) => order.id === openId) ?? null;
 
-  const changeStatus = async (order: AdminOrder, status: OrderStatus) => {
-    setBusyId(order.id);
-    setActionError("");
-    setNotice("");
-    try {
-      await updateOrderStatus(order.id, status);
-      setNotice(`Đã cập nhật ${order.orderNumber} → ${ORDER_STATUS_LABELS[status]}.`);
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không cập nhật được đơn.",
-      );
-    } finally {
-      setBusyId("");
-    }
-  };
-
-  const remove = async (order: AdminOrder) => {
-    if (
-      !window.confirm(
-        `Xóa vĩnh viễn đơn ${order.orderNumber}? Chi tiết đơn, thanh toán và lịch sử trạng thái cũng bị xóa.`,
-      )
-    )
-      return;
-    setBusyId(order.id);
-    setActionError("");
-    try {
-      await deleteOrder(order.id);
-      setNotice(`Đã xóa đơn ${order.orderNumber}.`);
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không xóa được đơn.",
-      );
-    } finally {
-      setBusyId("");
-    }
-  };
+  if (open) {
+    return (
+      <OrderDetail
+        order={open}
+        onClose={() => setOpenId(null)}
+        onChanged={reload}
+      />
+    );
+  }
 
   const exportCsv = () =>
     downloadCsv("don-hang-moc.csv", [
@@ -248,6 +252,13 @@ export default function OrdersSection() {
           </button>
         }
       />
+      <div className="metric-grid admin-list-metrics">
+        <article><span>Tổng đơn hàng</span><strong>{orders.length}</strong><small>Đơn đã ghi nhận</small></article>
+        <article><span>Chờ xác nhận</span><strong>{orders.filter((order) => order.status === "awaiting_payment").length}</strong><small>Chờ thanh toán hợp lệ</small></article>
+        <article><span>Đang xử lý</span><strong>{orders.filter((order) => order.status === "packing" || order.status === "shipping").length}</strong><small>Đóng gói hoặc giao hàng</small></article>
+        <article><span>Hoàn thành</span><strong>{orders.filter((order) => order.status === "completed").length}</strong><small>Đã giao thành công</small></article>
+        <article><span>Hoãn / hủy</span><strong>{orders.filter((order) => order.status === "cancelled").length}</strong><small>Đơn không tiếp tục xử lý</small></article>
+      </div>
       <div className="admin-card order-toolbar">
         <div className="admin-search">
           <Search size={17} />
@@ -282,18 +293,12 @@ export default function OrdersSection() {
         <div className="admin-card-heading">
           <div>
             <h2>{visible.length} đơn hàng</h2>
-            <p>
-              Đổi trạng thái để ghi vào orders và tự động thêm một dòng vào
-              order_status_events.
-            </p>
+            <p>Mở từng đơn để kiểm tra chi tiết và chuyển đúng bước xử lý.</p>
           </div>
           <button onClick={reload}>
             Làm mới <ArrowUpRight size={15} />
           </button>
         </div>
-
-        <AdminError message={actionError} />
-        {notice && <p className="admin-alert ok">{notice}</p>}
 
         {loading ? (
           <AdminLoading />
@@ -309,9 +314,8 @@ export default function OrdersSection() {
                   <th>Dòng hàng</th>
                   <th>Thanh toán</th>
                   <th>Trạng thái</th>
-                  <th>Cập nhật</th>
+                  <th>Xử lý</th>
                   <th>Tổng tiền</th>
-                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -339,44 +343,15 @@ export default function OrdersSection() {
                       <OrderStatusPill status={order.status} />
                     </td>
                     <td>
-                      <select
-                        value={order.status}
-                        disabled={busyId === order.id}
-                        aria-label={`Cập nhật ${order.orderNumber}`}
-                        onChange={(event) =>
-                          void changeStatus(
-                            order,
-                            event.target.value as OrderStatus,
-                          )
-                        }
+                      <button
+                        className="admin-ghost admin-row-button"
+                        onClick={() => setOpenId(order.id)}
                       >
-                        {ORDER_STATUSES.map((status) => (
-                          <option key={status} value={status}>
-                            {ORDER_STATUS_LABELS[status]}
-                          </option>
-                        ))}
-                      </select>
+                        <Eye size={14} /> Xem & xử lý
+                      </button>
                     </td>
                     <td>
                       <b>{money(order.totalVnd)}</b>
-                    </td>
-                    <td>
-                      <div className="admin-row-actions">
-                        <button
-                          onClick={() => setOpenId(order.id)}
-                          aria-label={`Xem ${order.orderNumber}`}
-                        >
-                          <Eye size={15} />
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={() => void remove(order)}
-                          disabled={busyId === order.id}
-                          aria-label={`Xóa ${order.orderNumber}`}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -388,13 +363,6 @@ export default function OrdersSection() {
         )}
       </section>
 
-      {open && (
-        <OrderDetail
-          order={open}
-          onClose={() => setOpenId(null)}
-          onChanged={reload}
-        />
-      )}
     </>
   );
 }
