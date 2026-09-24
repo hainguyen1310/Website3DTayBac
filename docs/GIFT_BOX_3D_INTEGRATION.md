@@ -1,4 +1,4 @@
-# Đặc tả tích hợp hộp quà 3D — Mộc Tây Bắc
+# Đặc tả tích hợp hộp quà 3D — A Sỉn
 
 ## 1. Mục lục
 
@@ -27,7 +27,7 @@
 
 ## 2. Mục tiêu
 
-Xây dựng trải nghiệm tự thiết kế hộp quà 3D trên trang `/thiet-ke` của Mộc Tây Bắc.
+Xây dựng trải nghiệm tự thiết kế hộp quà 3D trên trang `/thiet-ke` của A Sỉn.
 
 Khách hàng có thể:
 

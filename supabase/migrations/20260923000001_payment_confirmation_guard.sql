@@ -1,4 +1,4 @@
--- Mộc Tây Bắc: sửa hai lỗi ở luồng xác thực thanh toán.
+-- A Sỉn: sửa hai lỗi ở luồng xác thực thanh toán.
 --
 -- LỖI 1 — đơn đã hủy bị webhook hồi sinh
 --   `confirm_gateway_payment` chỉ kiểm tra `payment_status`, không nhìn tới

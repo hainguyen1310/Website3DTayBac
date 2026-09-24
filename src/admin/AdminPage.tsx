@@ -63,7 +63,7 @@ export default function AdminPage() {
   if (!session) return <AdminLogin />;
   if (!isStaff) return <AdminNoAccess />;
 
-  const initials = (profile?.fullName || session.user.email || "Mộc")
+  const initials = (profile?.fullName || session.user.email || "A Sỉn")
     .split(/[\s@.]+/)
     .filter(Boolean)
     .map((part) => part[0])
@@ -108,9 +108,9 @@ export default function AdminPage() {
         aria-label="Điều hướng quản trị"
       >
         <div className="admin-logo">
-          <span>M</span>
+          <span>A</span>
           <div>
-            <b>mộc.</b>
+            <b>A Sỉn.</b>
             <small>QUẢN TRỊ</small>
           </div>
           <button

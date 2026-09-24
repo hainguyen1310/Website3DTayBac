@@ -33,7 +33,7 @@ export const products: Product[] = [
     weight: "Hộp 100g",
     price: 180000,
     image: "/images/tea.webp",
-    tag: "Vị thanh của núi",
+    tag: "Hương vị thuần khiết từ đỉnh núi.",
     description:
       "Những búp trà phủ lớp lông tơ trắng, gợi hương hoa nhẹ và hậu vị ngọt sâu. Một khoảng lặng dịu dàng trong ngày, dành cho người yêu chén trà mộc.",
   },
@@ -45,7 +45,7 @@ export const products: Product[] = [
     weight: "Hũ 500ml",
     price: 250000,
     image: "/images/honey.webp",
-    tag: "Ngọt lành tự nhiên",
+    tag: "Ngọt lành từ thiên nhiên.",
     description:
       "Sắc mật hổ phách và hương hoa rừng ấm áp. Thưởng thức cùng trà ấm, bánh mì hoặc dùng làm món quà nhỏ gửi đến người thương.",
   },
@@ -69,7 +69,7 @@ export const products: Product[] = [
     weight: "Hũ 100g",
     price: 95000,
     image: "/images/spice.webp",
-    tag: "Gia vị của bản",
+    tag: "Hương vị đặc trưng Tây Bắc.",
     description:
       "Mùi thơm đặc trưng, ấm nồng và tê nhẹ nơi đầu lưỡi. Một chút mắc khén cho món nướng, nước chấm, hay bữa cơm thêm hương vị vùng cao.",
   },

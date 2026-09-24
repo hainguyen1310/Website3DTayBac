@@ -1,0 +1,1732 @@
+/* ==========================================================================
+   MỘC. — TINH HOA NÚI RỪNG TÂY BẮC
+   Desktop-First Pixel-Perfect Landing Page with Torn Paper & Leaf Overlays
+   ========================================================================== */
+
+:root {
+  --moc-forest: #224430;
+  --moc-forest-dark: #183824;
+  --moc-forest-deep: #0e1e14;
+  --moc-forest-light: #2d583f;
+  --moc-cream: #faf9f6;
+  --moc-cream-warm: #f6f3eb;
+  --moc-paper-warm: #f2ece1;
+  --moc-paper-kraft: #ebdcc9;
+  --moc-gold: #c39a58;
+  --moc-coral: #c04d3c;
+  --moc-border: rgba(34, 68, 48, 0.12);
+  --moc-border-light: rgba(34, 68, 48, 0.07);
+  --moc-text: #223a2b;
+  --moc-text-muted: #6b776f;
+  --moc-text-light: #8e9991;
+  --moc-script: "Caveat", "Dancing Script", cursive;
+  --moc-serif: "Lora Variable", "Lora", Georgia, serif;
+  --moc-sans: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Base resets & typography for landing */
+.moc-landing {
+  font-family: var(--moc-sans);
+  color: var(--moc-text);
+  background-color: var(--moc-cream);
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.moc-landing * {
+  box-sizing: border-box;
+}
+
+.moc-container {
+  width: 100%;
+  max-width: 1480px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 56px;
+  padding-right: 56px;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 1200px) {
+  .moc-container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .moc-container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Logo Component
+   -------------------------------------------------------------------------- */
+.moc-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--moc-forest);
+  transition: opacity 0.2s;
+}
+
+.moc-logo:hover {
+  opacity: 0.9;
+}
+
+.moc-logo.logo-light {
+  color: #fbf9f4;
+}
+
+.moc-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.moc-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.moc-logo-brand {
+  font-family: var(--moc-serif);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.moc-logo-dot {
+  color: var(--moc-coral);
+  font-weight: 700;
+}
+
+.moc-logo-sub {
+  font-size: 8px;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 3px;
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* --------------------------------------------------------------------------
+   Header Navbar
+   -------------------------------------------------------------------------- */
+.moc-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(251, 249, 245, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(34, 68, 48, 0.08);
+  width: 100%;
+}
+
+.moc-header-inner {
+  max-width: 1520px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 56px;
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.moc-nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.moc-nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334e3e;
+  text-decoration: none;
+  position: relative;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+
+.moc-nav-link:hover,
+.moc-nav-link.active {
+  color: var(--moc-forest);
+}
+
+.moc-nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background-color: var(--moc-forest);
+  transition: width 0.25s ease;
+}
+
+.moc-nav-link:hover::after,
+.moc-nav-link.active::after {
+  width: 100%;
+}
+
+.moc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.moc-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2b4737;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.moc-action-btn:hover {
+  background-color: rgba(34, 68, 48, 0.08);
+  color: var(--moc-forest);
+}
+
+.moc-cart-count-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--moc-forest);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.moc-pill-cart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--moc-forest);
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.moc-pill-cart-btn:hover {
+  background: var(--moc-forest-dark);
+  transform: translateY(-1px);
+}
+
+.moc-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .moc-nav {
+    display: none;
+  }
+  .moc-menu-toggle {
+    display: inline-flex;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Torn Paper Edge Dividers (Realistic Deckled Edges)
+   -------------------------------------------------------------------------- */
+.moc-torn-divider-wrap {
+  position: relative;
+  width: 100%;
+  height: 42px;
+  overflow: visible;
+  line-height: 0;
+  z-index: 10;
+  margin-top: -20px;
+  margin-bottom: -20px;
+  pointer-events: none;
+}
+
+.moc-torn-divider-wrap.is-flipped {
+  transform: rotate(180deg);
+}
+
+.moc-torn-divider-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Circular Seal / Stamp Component
+   -------------------------------------------------------------------------- */
+.moc-circular-seal {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
+}
+
+.moc-circular-seal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Section (Desktop Full-Width)
+   -------------------------------------------------------------------------- */
+.moc-hero {
+  position: relative;
+  width: 100%;
+  min-height: 740px;
+  height: 82vh;
+  max-height: 860px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: #193323;
+}
+
+.moc-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  filter: brightness(0.96) contrast(1.05);
+  z-index: 1;
+}
+
+.moc-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    rgba(14, 28, 19, 0.72) 0%,
+    rgba(14, 28, 19, 0.5) 45%,
+    rgba(14, 28, 19, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+/* Top-left corner leaves */
+.moc-hero-leaf-accent-top {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 320px;
+  max-width: 35vw;
+  height: auto;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.moc-hero-leaf-accent-top img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(4px 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+/* Corner Torn Paper Overlay at bottom-left of Hero */
+.moc-hero-corner-tear-overlay {
+  position: absolute;
+  bottom: -22px;
+  left: -5px;
+  width: 290px;
+  max-width: 32vw;
+  height: auto;
+  z-index: 12;
+  pointer-events: none;
+  filter: drop-shadow(2px 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+.moc-hero-corner-tear-overlay img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Bottom leaves cluster draping over the corner tear */
+.moc-hero-leaf-bottom-cluster {
+  position: absolute;
+  bottom: -28px;
+  left: -12px;
+  width: 260px;
+  max-width: 28vw;
+  height: auto;
+  z-index: 14;
+  pointer-events: none;
+  filter: drop-shadow(4px 10px 18px rgba(0, 0, 0, 0.38));
+}
+
+.moc-hero-leaf-bottom-cluster img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Bottom Torn Paper Edge inside Hero */
+.moc-hero-bottom-torn {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 32px;
+  z-index: 10;
+  line-height: 0;
+  pointer-events: none;
+}
+
+.moc-hero-bottom-torn svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Slider indicator (01 | 02 | 03) */
+.moc-hero-slider-nav {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  font-family: var(--moc-sans);
+  letter-spacing: 1px;
+}
+
+.moc-hero-slider-nav span.active {
+  color: #ffffff;
+  font-weight: 700;
+  position: relative;
+}
+
+.moc-hero-slider-line {
+  width: 1px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.moc-hero-content {
+  position: relative;
+  z-index: 5;
+  max-width: 640px;
+  padding-left: 48px;
+}
+
+.moc-hero-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3.2px;
+  text-transform: uppercase;
+  color: #eeddbb;
+  margin-bottom: 22px;
+  opacity: 0.95;
+}
+
+.moc-hero-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(40px, 4.6vw, 62px);
+  line-height: 1.14;
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-weight: 400;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.38);
+}
+
+.moc-hero-title span {
+  display: block;
+  font-weight: 400;
+}
+
+.moc-hero-title strong {
+  display: block;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.moc-hero-title em {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  color: #f7eee0;
+}
+
+.moc-hero-subtitle {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 34px;
+  max-width: 480px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+.moc-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.moc-hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #faf6ed;
+  color: #1a3927;
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.moc-hero-btn-primary:hover {
+  background-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.moc-hero-btn-story {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+
+.moc-hero-btn-story:hover {
+  opacity: 0.85;
+}
+
+.moc-play-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+/* Hero Right Side Stamp & Script */
+.moc-hero-right-stamp {
+  position: absolute;
+  right: 90px;
+  top: 90px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.moc-hero-curved-text {
+  font-family: var(--moc-script);
+  font-size: 28px;
+  line-height: 1.2;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  transform: rotate(-6deg);
+  margin-bottom: 8px;
+  margin-right: 18px;
+  white-space: nowrap;
+}
+
+.moc-hero-seal-badge {
+  color: #ffffff;
+  opacity: 0.92;
+}
+
+/* --------------------------------------------------------------------------
+   Value Proposition Strip with Torn Edge & Left Leaf Overlay
+   -------------------------------------------------------------------------- */
+.moc-values-section-wrap {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  background: #ffffff;
+  box-shadow: 0 10px 32px rgba(22, 43, 31, 0.06);
+  border-bottom: 1px solid #ebe5da;
+}
+
+.moc-values-leaf-cluster {
+  position: absolute;
+  left: 10px;
+  bottom: -15px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.moc-values-leaf-cluster img,
+.moc-values-leaf-cluster svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.moc-values-inner {
+  display: grid;
+  grid-template-columns: 240px repeat(4, 1fr);
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0 24px 70px;
+}
+
+.moc-values-script {
+  font-family: var(--moc-script);
+  font-size: 21px;
+  line-height: 1.25;
+  color: #244633;
+  padding-right: 20px;
+  border-right: 1px solid #ece6dc;
+}
+
+.moc-value-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.moc-value-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f7f5ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--moc-forest);
+  flex-shrink: 0;
+}
+
+.moc-value-item-text b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #223c2d;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.moc-value-item-text small {
+  display: block;
+  font-size: 11.5px;
+  color: #7b857d;
+  line-height: 1.3;
+}
+
+@media (max-width: 1024px) {
+  .moc-values-inner {
+    grid-template-columns: 1fr 1fr;
+    padding-left: 0;
+  }
+  .moc-values-script {
+    grid-column: 1 / -1;
+    border-right: none;
+    border-bottom: 1px solid #ece6dc;
+    padding-bottom: 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 1: SẢN PHẨM NỔI BẬT ("Thích là chốt deal.")
+   -------------------------------------------------------------------------- */
+.moc-deal-section {
+  padding: 80px 0 75px;
+  background-color: var(--moc-cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.moc-deal-layout {
+  display: grid;
+  grid-template-columns: 290px 1fr 60px;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+.moc-deal-left {
+  padding-top: 10px;
+}
+
+.moc-eyebrow {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: #79857d;
+  margin-bottom: 14px;
+}
+
+.moc-deal-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(34px, 3.6vw, 48px);
+  line-height: 1.15;
+  color: #1e3a29;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.moc-deal-title em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.moc-deal-leaf-inline {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  vertical-align: -3px;
+  margin-left: 6px;
+  margin-right: 2px;
+  transform: rotate(20deg);
+  animation: leafFloat 4s ease-in-out infinite alternate;
+  object-fit: contain;
+}
+
+@keyframes leafFloat {
+  0% { transform: rotate(16deg) translateY(0); }
+  100% { transform: rotate(24deg) translateY(-3px); }
+}
+
+.moc-deal-desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #68756c;
+  margin-bottom: 28px;
+}
+
+.moc-text-arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--moc-forest);
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid var(--moc-forest);
+  transition: gap 0.2s, color 0.2s;
+}
+
+.moc-text-arrow-link:hover {
+  gap: 12px;
+  color: var(--moc-forest-dark);
+}
+
+.moc-deal-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.moc-deal-nav-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.moc-round-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #dcd6cb;
+  background: #ffffff;
+  color: #4b5a50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.moc-round-nav-btn:hover {
+  background: var(--moc-forest);
+  border-color: var(--moc-forest);
+  color: #ffffff;
+}
+
+.moc-products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.moc-product-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ede7dc;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.25s, box-shadow 0.25s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.moc-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(27, 49, 36, 0.08);
+}
+
+.moc-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  background-color: var(--moc-coral);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+
+.moc-card-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #fbfaf6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.moc-card-img-wrap img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+
+.moc-product-card:hover .moc-card-img-wrap img {
+  transform: scale(1.06);
+}
+
+.moc-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f3729;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.moc-card-origin {
+  font-size: 11.5px;
+  color: #7b857e;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.moc-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #7f8a82;
+  margin-bottom: 14px;
+}
+
+.moc-stars {
+  color: #e5a73b;
+  display: flex;
+  gap: 2px;
+}
+
+.moc-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f2eee6;
+}
+
+.moc-card-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3928;
+}
+
+.moc-card-cart-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--moc-forest);
+  color: #ffffff;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.moc-card-cart-btn:hover {
+  background: var(--moc-forest-dark);
+  transform: scale(1.08);
+}
+
+/* Far right vertical slogan & tea twig */
+.moc-deal-far-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+}
+
+.moc-far-right-twig {
+  width: 32px;
+  height: auto;
+  opacity: 0.8;
+  margin-bottom: 16px;
+}
+
+.moc-far-right-twig-img {
+  width: 30px;
+  height: auto;
+  margin-bottom: 14px;
+  display: block;
+  filter: drop-shadow(1px 3px 8px rgba(0, 0, 0, 0.15));
+}
+
+.moc-red-diamond {
+  width: 6px;
+  height: 6px;
+  background-color: var(--moc-coral);
+  transform: rotate(45deg);
+  margin-bottom: 18px;
+}
+
+.moc-far-right-text {
+  font-family: var(--moc-script);
+  font-size: 19px;
+  line-height: 1.25;
+  color: #4b6253;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 1024px) {
+  .moc-deal-layout {
+    grid-template-columns: 1fr;
+  }
+  .moc-deal-far-right {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .moc-products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 2: BỘ QUÀ TẶNG ("Gói hương núi. Gửi tình mình.") with Warm Paper Tone
+   -------------------------------------------------------------------------- */
+.moc-gift-section {
+  padding: 85px 0 95px;
+  background-color: var(--moc-paper-warm);
+  position: relative;
+  overflow: hidden;
+}
+
+.moc-old-paper-texture-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/old_paper_overlay.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.18;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.moc-gift-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1.1fr;
+  gap: 36px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Left Open Box with Pinned Craft Tag */
+.moc-gift-left-visual {
+  position: relative;
+}
+
+.moc-gift-left-img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(24, 46, 32, 0.14);
+  display: block;
+}
+
+/* Pinned Kraft Paper Tag with Stitch/Deckle Edge */
+.moc-craft-tag-pinned {
+  position: absolute;
+  top: -20px;
+  left: -22px;
+  background: #fbf7ef;
+  padding: 14px 18px;
+  border-radius: 4px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  transform: rotate(-5deg);
+  max-width: 160px;
+  z-index: 3;
+  border: 1px dashed #cbbda9;
+}
+
+.moc-pin-head {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #a13d2f;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.moc-tag-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--moc-forest);
+  margin-bottom: 2px;
+}
+
+.moc-tag-body {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #4a5a4e;
+  display: block;
+}
+
+.moc-gift-stamp-overlay {
+  position: absolute;
+  bottom: -24px;
+  left: 12px;
+  z-index: 3;
+  color: #32503d;
+}
+
+/* Center Column Copy */
+.moc-gift-center-copy {
+  padding: 0 10px;
+}
+
+.moc-gift-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(32px, 3.4vw, 46px);
+  line-height: 1.15;
+  color: #1b3726;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.moc-gift-desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #637167;
+  margin-bottom: 30px;
+}
+
+.moc-pill-btn-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--moc-forest);
+  color: #ffffff;
+  padding: 13px 28px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(22, 45, 31, 0.18);
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.moc-pill-btn-dark:hover {
+  background: var(--moc-forest-dark);
+  transform: translateY(-2px);
+}
+
+/* Right Kraft Box with Polaroid Card Overlay */
+.moc-gift-right-visual {
+  position: relative;
+}
+
+.moc-gift-right-img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(24, 46, 32, 0.12);
+  display: block;
+}
+
+.moc-polaroid-card {
+  position: absolute;
+  bottom: -26px;
+  right: -10px;
+  background: #ffffff;
+  padding: 18px 24px;
+  border-radius: 3px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  transform: rotate(2.5deg);
+  border: 1px solid #ede8de;
+  z-index: 3;
+}
+
+.moc-washi-tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 18px;
+  background: rgba(220, 205, 185, 0.65);
+  border-left: 2px dashed rgba(200, 185, 165, 0.8);
+  border-right: 2px dashed rgba(200, 185, 165, 0.8);
+}
+
+.moc-polaroid-line1 {
+  font-family: var(--moc-script);
+  font-size: 21px;
+  color: #2b4937;
+  line-height: 1.2;
+  display: block;
+}
+
+.moc-polaroid-line2 {
+  font-family: var(--moc-script);
+  font-size: 19px;
+  color: #435e4e;
+  line-height: 1.25;
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .moc-gift-grid {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+  .moc-craft-tag-pinned,
+  .moc-polaroid-card {
+    position: static;
+    transform: none;
+    margin-top: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 3: CÂU CHUYỆN MỘC with Torn-Photo Journal Overlay
+   -------------------------------------------------------------------------- */
+.moc-story-section {
+  padding: 90px 0 90px;
+  background-color: var(--moc-cream);
+  position: relative;
+}
+
+.moc-story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.moc-story-copy {
+  padding-right: 20px;
+}
+
+.moc-story-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(34px, 3.8vw, 50px);
+  line-height: 1.15;
+  color: #1b3726;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.moc-story-title em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.moc-story-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #637167;
+  margin-bottom: 28px;
+  max-width: 480px;
+}
+
+.moc-stats-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid #ebe5da;
+}
+
+.moc-stat-item b {
+  display: block;
+  font-size: 26px;
+  font-family: var(--moc-serif);
+  font-weight: 600;
+  color: #1e3a29;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.moc-stat-item small {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #748077;
+  max-width: 110px;
+}
+
+/* Torn Photo Frame using overlay_image_cauchuyenmoc.png */
+.moc-story-torn-photo-wrap {
+  position: relative;
+  filter: drop-shadow(0 18px 36px rgba(22, 45, 31, 0.16));
+}
+
+.moc-story-torn-paper-edge {
+  position: relative;
+  width: 100%;
+}
+
+.moc-story-paper-backdrop {
+  position: absolute;
+  inset: -6px -8px -10px -8px;
+  background-image: url('/images/overlay_image_cauchuyenmoc.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 10px 24px rgba(22, 45, 31, 0.12));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.moc-story-landscape-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  aspect-ratio: 16 / 9.6;
+  object-fit: cover;
+  display: block;
+  -webkit-mask-image: url('/images/overlay_image_cauchuyenmoc.png');
+  mask-image: url('/images/overlay_image_cauchuyenmoc.png');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.moc-story-script-overlay {
+  position: absolute;
+  top: 28px;
+  left: 36px;
+  font-family: var(--moc-script);
+  font-size: 27px;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  transform: rotate(-3deg);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.moc-story-stamp-overlay {
+  position: absolute;
+  bottom: -24px;
+  right: -16px;
+  color: #244633;
+  z-index: 3;
+}
+
+@media (max-width: 992px) {
+  .moc-story-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 4: TẠP CHÍ MỘC ("Đọc một chút chuyện núi rừng.")
+   -------------------------------------------------------------------------- */
+.moc-magazine-section {
+  padding: 85px 0 95px;
+  background-color: var(--moc-cream);
+  position: relative;
+}
+
+.moc-mag-grid {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+.moc-mag-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(32px, 3.4vw, 44px);
+  line-height: 1.15;
+  color: #1e3a29;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.moc-mag-title em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.moc-mag-desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #68756c;
+  margin-bottom: 26px;
+}
+
+.moc-articles-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.moc-article-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ece7dc;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s, box-shadow 0.25s;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+}
+
+.moc-article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(27, 49, 36, 0.08);
+}
+
+.moc-article-img-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #eee;
+}
+
+.moc-article-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.moc-article-card:hover .moc-article-img-wrap img {
+  transform: scale(1.05);
+}
+
+.moc-article-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.moc-article-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f3729;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.moc-article-excerpt {
+  font-size: 12px;
+  line-height: 1.55;
+  color: #748077;
+  margin-bottom: 16px;
+}
+
+.moc-article-link {
+  margin-top: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--moc-forest);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.15s;
+}
+
+.moc-article-link:hover {
+  gap: 9px;
+}
+
+@media (max-width: 992px) {
+  .moc-mag-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .moc-articles-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 5: Newsletter Banner (Organic Wavy Deep Green with Corner Leaves)
+   -------------------------------------------------------------------------- */
+.moc-newsletter-section {
+  position: relative;
+  background: var(--moc-forest-dark);
+  color: #ffffff;
+  padding: 70px 0 75px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.moc-newsletter-wave-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  line-height: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.moc-newsletter-wave-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.moc-newsletter-leaf-overlay {
+  position: absolute;
+  left: -20px;
+  top: -20px;
+  width: 260px;
+  height: 260px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.moc-newsletter-leaf-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(4px 8px 18px rgba(0, 0, 0, 0.45));
+}
+
+.moc-newsletter-content {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  z-index: 4;
+}
+
+.moc-newsletter-left {
+  max-width: 480px;
+}
+
+.moc-newsletter-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: #b5d5c0;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.moc-newsletter-title {
+  font-family: var(--moc-serif);
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1.25;
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.moc-newsletter-title em {
+  font-style: italic;
+}
+
+.moc-newsletter-right {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.moc-newsletter-form-col {
+  flex: 1;
+}
+
+.moc-newsletter-subtitle {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.moc-newsletter-form {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 4px 5px 4px 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+
+.moc-newsletter-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #1b3726;
+  font-size: 13px;
+  outline: none;
+  font-family: var(--moc-sans);
+}
+
+.moc-newsletter-input::placeholder {
+  color: #929d95;
+}
+
+.moc-newsletter-submit {
+  background: #183a26;
+  color: #ffffff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.moc-newsletter-submit:hover {
+  background: #11281a;
+}
+
+.moc-newsletter-script-col {
+  font-family: var(--moc-script);
+  font-size: 22px;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .moc-newsletter-content {
+    grid-template-columns: 1fr;
+  }
+  .moc-newsletter-right {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section 6: Site Footer (Deep Dark Green with Mountain Watermark)
+   -------------------------------------------------------------------------- */
+.moc-footer {
+  background: var(--moc-forest-deep);
+  color: #cbd5ce;
+  padding: 75px 0 35px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.moc-footer-watermark-svg {
+  position: absolute;
+  right: -40px;
+  bottom: 0;
+  width: 580px;
+  height: 240px;
+  pointer-events: none;
+  color: #edd9ba;
+  opacity: 0.15;
+  z-index: 1;
+}
+
+.moc-footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1.3fr;
+  gap: 36px;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.moc-footer-brand-col {
+  padding-right: 20px;
+}
+
+.moc-footer-slogan {
+  font-family: var(--moc-script);
+  font-size: 22px;
+  color: #edd9ba;
+  margin-top: 14px;
+  display: block;
+  opacity: 0.92;
+}
+
+.moc-footer-col h4 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 18px;
+  letter-spacing: 0.4px;
+}
+
+.moc-footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moc-footer-col a {
+  color: #a7b7ad;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s;
+}
+
+.moc-footer-col a:hover {
+  color: #ffffff;
+}
+
+.moc-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.moc-social-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.moc-social-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.moc-footer-script-tag {
+  font-family: var(--moc-script);
+  font-size: 20px;
+  color: #b5c7bc;
+  line-height: 1.25;
+  display: block;
+}
+
+.moc-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: #7b8e81;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 992px) {
+  .moc-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 580px) {
+  .moc-footer-grid {
+    grid-template-columns: 1fr;
+  }
+  .moc-footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

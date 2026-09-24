@@ -54,11 +54,11 @@ export default function Customizer() {
     <main className="customizer-page">
       <div className="container">
         <Link to="/" className="back-link">
-          <ArrowLeft size={16} /> Về nhà Mộc
+          <ArrowLeft size={16} /> Về nhà A Sỉn
         </Link>
         <div className="custom-heading">
           <span className="eyebrow">
-            <Sparkles size={14} /> MỘC — THEO CÁCH CỦA BẠN
+            <Sparkles size={14} /> A SỈN — THEO CÁCH CỦA BẠN
           </span>
           <h1>
             Món quà của bạn.
@@ -191,7 +191,7 @@ export default function Customizer() {
             {step === 2 && (
               <div className="step-content">
                 <div className="step-heading">
-                  <h2>Điều muốn nói, gửi cùng Mộc</h2>
+                  <h2>Điều muốn nói, gửi cùng A Sỉn</h2>
                   <p>Một lời nhắn nhỏ khiến món quà thêm đáng nhớ.</p>
                 </div>
                 <label className="field-label" htmlFor="recipient">

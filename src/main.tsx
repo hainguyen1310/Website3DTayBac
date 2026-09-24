@@ -10,6 +10,7 @@ import App from "./App";
 import { AuthProvider } from "./AuthContext";
 import "./styles.css";
 import "./store-expansion.css";
+import "./moc-landing.css";
 import "./admin.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

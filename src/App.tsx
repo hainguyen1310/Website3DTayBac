@@ -4,41 +4,40 @@ import { createPortal } from "react-dom";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
-  ArrowUpRight,
-  BadgePercent,
   Check,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
-  Clock3,
   Download,
+  Facebook,
   Gift,
   Heart,
+  Instagram,
   Leaf,
-  MapPin,
   Menu,
   Minus,
   Mountain,
-  PackageCheck,
+  Play,
   Plus,
   Search,
   ShoppingBag,
-  Sparkles,
   Sprout,
+  Star,
+  User,
   X,
+  Youtube,
 } from "lucide-react";
-import { colors, defaultDesign, linePrice, money } from "./catalog";
+import { colors, linePrice, money } from "./catalog";
 import type { CartLine, Product } from "./catalog";
-import { CatalogProvider, useCatalog } from "./CatalogContext";
+import { CatalogProvider } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
 import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
 import AdminPage from "./admin/AdminPage";
 import {
   AboutPage,
-  ContactSection,
   NewsDetailPage,
   NewsPage,
   ProductsPage,
@@ -46,21 +45,199 @@ import {
 import { usePublishedArticles } from "./hooks/usePublishedArticles";
 import { createCheckoutOrder } from "./services/storeApi";
 
+function TikTokIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743 2.896 2.896 0 0 1 2.31-4.636c.314 0 .618.05.903.142V9.432a6.34 6.34 0 0 0-.903-.065 6.341 6.341 0 0 0-6.34 6.34 6.341 6.341 0 0 0 10.774 4.545c1.61-1.396 2.05-3.69 1.905-5.753a8.167 8.167 0 0 0 4.767 1.503V12.55a4.78 4.78 0 0 1-1-.17 4.836 4.836 0 0 1-1.93-1.04 4.76 4.76 0 0 1-1.065-1.579 4.778 4.778 0 0 1-.345-1.925l.006-.05V6.686z" />
+    </svg>
+  );
+}
+
+function CircularSeal({
+  text = "TINH HOA TÂY BẮC • THIÊN NHIÊN THUẦN TÚY •",
+  size = 118,
+  className = "",
+  variant = "hero",
+}: {
+  text?: string;
+  size?: number;
+  className?: string;
+  variant?: "hero" | "gift" | "story";
+}) {
+  const pathId = `seal-path-${variant}`;
+  return (
+    <div className={`moc-circular-seal ${className}`} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 160 160" width={size} height={size}>
+        <defs>
+          <path
+            id={pathId}
+            d="M 80, 80 m -58, 0 a 58,58 0 1,1 116,0 a 58,58 0 1,1 -116,0"
+          />
+        </defs>
+        <circle cx="80" cy="80" r="76" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.65" />
+        <circle cx="80" cy="80" r="69" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="80" cy="80" r="45" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" opacity="0.75" />
+        <text fill="currentColor" fontSize="10.8" fontWeight="600" letterSpacing="2.8">
+          <textPath href={`#${pathId}`} startOffset="0%">
+            {text}
+          </textPath>
+        </text>
+        {variant === "hero" && (
+          <g transform="translate(67, 65) scale(1.1)" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round">
+            <path d="M12 21v-7m0-3a5 5 0 0 1 5-5c0 3.5-2.2 7-5 9m0-9a5 5 0 0 0-5 5c0 3.5 2.2 7 5 9" />
+          </g>
+        )}
+        {variant === "gift" && (
+          <g transform="translate(68, 66) scale(1.05)" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round">
+            <path d="M12 4v16m-8-8h16" />
+            <circle cx="12" cy="12" r="6.5" />
+          </g>
+        )}
+        {variant === "story" && (
+          <g transform="translate(67, 68) scale(1.05)" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round">
+            <path d="M2 18L10 6L16 14L20 9L26 18H2Z" />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
 function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link
       to="/"
-      className={`logo ${light ? "logo-light" : ""}`}
-      aria-label="Mộc Tây Bắc — Trang chủ"
+      className={`moc-logo ${light ? "logo-light" : ""}`}
+      aria-label="mộc. — Tinh hoa núi rừng Tây Bắc"
     >
-      <Mountain size={37} strokeWidth={1.1} />
-      <span>
-        <b>
-          mộc<span className="logo-dot">.</span>
-        </b>
-        <small>TÂY BẮC</small>
-      </span>
+      <div className="moc-logo-icon">
+        <svg
+          viewBox="0 0 46 26"
+          width="36"
+          height="22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 24L15 4L26 20L31 12L44 24H2Z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M15 4L19 12M31 12L36 19"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="moc-logo-text">
+        <span className="moc-logo-brand">
+          mộc<span className="moc-logo-dot">.</span>
+        </span>
+        <span className="moc-logo-sub">TÂY BẮC THUẦN KHIẾT</span>
+      </div>
     </Link>
+  );
+}
+
+function TornPaperDivider({
+  fill = "#faf9f6",
+  flip = false,
+  shadow = true,
+  className = "",
+}: {
+  fill?: string;
+  flip?: boolean;
+  shadow?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`moc-torn-divider-wrap ${flip ? "is-flipped" : ""} ${className}`}
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 1920 48"
+        preserveAspectRatio="none"
+        className="moc-torn-divider-svg"
+        style={{ filter: shadow ? "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05))" : "none" }}
+      >
+        <path
+          d="M0,0 L0,22 C40,16 80,26 120,18 C160,25 200,14 240,23 C280,15 320,26 360,17 C400,24 440,13 480,22 C520,15 560,27 600,18 C640,25 680,14 720,24 C760,16 800,27 840,19 C880,25 920,15 960,23 C1000,16 1040,28 1080,17 C1120,24 1160,14 1200,22 C1240,15 1280,27 1320,18 C1360,26 1400,15 1440,23 C1480,16 1520,27 1560,19 C1600,25 1640,14 1680,24 C1720,16 1760,26 1800,18 C1840,25 1880,15 1920,22 L1920,0 Z"
+          fill={fill}
+        />
+        <path
+          d="M0,22 C40,16 80,26 120,18 C160,25 200,14 240,23 C280,15 320,26 360,17 C400,24 440,13 480,22 C520,15 560,27 600,18 C640,25 680,14 720,24 C760,16 800,27 840,19 C880,25 920,15 960,23 C1000,16 1040,28 1080,17 C1120,24 1160,14 1200,22 C1240,15 1280,27 1320,18 C1360,26 1400,15 1440,23 C1480,16 1520,27 1560,19 C1600,25 1640,14 1680,24 C1720,16 1760,26 1800,18 C1840,25 1880,15 1920,22"
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.45)"
+          strokeWidth="1.2"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function WavyNewsletterEdge() {
+  return (
+    <div className="moc-newsletter-wave-wrap" aria-hidden="true">
+      <svg
+        viewBox="0 0 1920 60"
+        preserveAspectRatio="none"
+        className="moc-newsletter-wave-svg"
+      >
+        <path
+          d="M0,50 C240,15 480,58 720,26 C960,8 1200,45 1440,22 C1680,8 1820,38 1920,24 L1920,60 L0,60 Z"
+          fill="#183824"
+        />
+        <path
+          d="M0,50 C240,15 480,58 720,26 C960,8 1200,45 1440,22 C1680,8 1820,38 1920,24"
+          fill="none"
+          stroke="rgba(180, 215, 190, 0.2)"
+          strokeWidth="1.5"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function MountainWatermark() {
+  return (
+    <div className="moc-footer-watermark-svg" aria-hidden="true">
+      <svg viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M10 230 L110 90 L180 160 L280 40 L380 170 L460 70 L590 230"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          opacity="0.35"
+        />
+        <path
+          d="M60 230 L160 120 L230 180 L340 70 L430 190 L520 110 L580 230"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          opacity="0.25"
+        />
+        <path
+          d="M110 90 L140 135 M280 40 L320 120 M460 70 L490 130"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeDasharray="2 3"
+          opacity="0.2"
+        />
+        <path
+          d="M180 190 Q280 140 380 190 M200 210 Q280 170 360 210"
+          stroke="currentColor"
+          strokeWidth="0.8"
+          strokeDasharray="3 4"
+          opacity="0.18"
+        />
+      </svg>
+    </div>
   );
 }
 
@@ -119,86 +296,112 @@ function Modal({
 
 function Header() {
   const { cart, setCartOpen, favoriteIds } = useShop();
-  const { notice } = useCatalog();
   const [searchOpen, setSearchOpen] = useState(false);
   const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
+
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <>
-      <div className="announcement">
-        <span>
-          <Leaf size={13} /> {notice}
-        </span>
-        <Link to="/thiet-ke">
-          Một món quà, ngàn lời thương <ArrowUpRight size={13} />
-        </Link>
-      </div>
-      <header className="site-header">
-        <div className="nav-inner">
+      <header className="moc-header">
+        <div className="moc-header-inner">
           <Logo />
-          <nav className="desktop-nav" aria-label="Điều hướng chính">
-            <Link to="/san-pham" className={location.pathname === "/san-pham" ? "nav-active" : ""}>Sản phẩm</Link>
-            <Link to="/gioi-thieu" className={location.pathname === "/gioi-thieu" ? "nav-active" : ""}>Về Mộc</Link>
-            <Link to="/tin-tuc" className={location.pathname === "/tin-tuc" ? "nav-active" : ""}>Tin tức</Link>
+
+          <nav className="moc-nav" aria-label="Điều hướng chính">
             <Link
-              to="/thiet-ke"
-              className={location.pathname === "/thiet-ke" ? "nav-active" : ""}
+              to="/san-pham"
+              className={`moc-nav-link ${location.pathname === "/san-pham" ? "active" : ""}`}
             >
-              Tự thiết kế quà <span className="new-label">MỚI</span>
+              Sản phẩm
             </Link>
+            <Link
+              to="/gioi-thieu"
+              className={`moc-nav-link ${location.pathname === "/gioi-thieu" ? "active" : ""}`}
+            >
+              Về Mộc
+            </Link>
+            <a href="#cau-chuyen" className="moc-nav-link">
+              Câu chuyện
+            </a>
+            <Link
+              to="/tin-tuc"
+              className={`moc-nav-link ${location.pathname === "/tin-tuc" ? "active" : ""}`}
+            >
+              Tạp chí
+            </Link>
+            <a href="#lien-he" className="moc-nav-link">
+              Liên hệ
+            </a>
           </nav>
-          <div className="nav-actions">
+
+          <div className="moc-header-actions">
             <button
-              className="icon-button"
+              className="moc-action-btn"
               aria-label="Tìm sản phẩm"
               onClick={() => setSearchOpen(true)}
             >
-              <Search size={20} />
+              <Search size={19} />
             </button>
             <button
-              className="icon-button favorites-nav"
-              aria-label={`Sản phẩm yêu thích (${favoriteIds.length})`}
+              className="moc-action-btn"
+              aria-label="Tài khoản & yêu thích"
               onClick={() => setFavoritesOpen(true)}
             >
-              <Heart size={20} />
-              {favoriteIds.length > 0 && <span className="favorite-dot" />}
+              <User size={19} />
+              {favoriteIds.length > 0 && (
+                <span className="moc-cart-count-badge" style={{ background: "#c04d3c" }}>
+                  {favoriteIds.length}
+                </span>
+              )}
             </button>
-            <span className="nav-divider" />
             <button
-              className="cart-button"
+              className="moc-action-btn"
               aria-label={`Giỏ hàng (${count})`}
               onClick={() => setCartOpen(true)}
             >
-              <ShoppingBag size={20} />
-              <span className="cart-label">Giỏ hàng</span>
-              <span className="cart-count">{count}</span>
+              <ShoppingBag size={19} />
+              {count > 0 && <span className="moc-cart-count-badge">{count}</span>}
             </button>
             <button
-              className="icon-button mobile-menu"
+              className="moc-pill-cart-btn"
+              onClick={() => setCartOpen(true)}
+            >
+              <span>Giỏ hàng</span>
+              <ArrowRight size={14} />
+            </button>
+            <button
+              className="moc-action-btn moc-menu-toggle"
               aria-label="Mở menu"
-              aria-expanded={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
+
         {menuOpen && (
           <nav className="mobile-nav" aria-label="Điều hướng điện thoại">
             <Link to="/san-pham">
-              Sản phẩm <ArrowUpRight size={16} />
+              Sản phẩm <ArrowRight size={16} />
             </Link>
             <Link to="/gioi-thieu">
               Về Mộc <Mountain size={16} />
             </Link>
+            <a href="#cau-chuyen">
+              Câu chuyện <ArrowRight size={16} />
+            </a>
             <Link to="/tin-tuc">
-              Tin tức <ArrowUpRight size={16} />
+              Tạp chí <ArrowRight size={16} />
             </Link>
+            <a href="#lien-he">
+              Liên hệ <ArrowRight size={16} />
+            </a>
             <Link to="/thiet-ke">
               Tự thiết kế quà <Gift size={16} />
             </Link>
@@ -271,7 +474,7 @@ function SearchModal({
           ? "Sản vật đã lưu"
           : query
             ? "Kết quả tìm kiếm"
-            : "Một vài gợi ý từ Mộc"}{" "}
+            : "Một vài gợi ý từ A Sỉn"}{" "}
         · {result.length}
       </p>
       <div className="search-results">
@@ -315,235 +518,510 @@ function SearchModal({
 }
 
 function Home() {
-  const { addProduct, products } = useShop();
-  const { deals } = useCatalog();
+  const { addProduct, setSelectedProduct, products } = useShop();
   const publishedArticles = usePublishedArticles();
+  const [sliderIndex, setSliderIndex] = useState(0);
+
+  // Bind to products from shop context with showcase badges & mock reviews
+  const showcaseDefinitions = [
+    {
+      id: "tea",
+      badge: "Bán chạy",
+      fallbackName: "Trà Shan Tuyết cổ thụ",
+      fallbackOrigin: "Hương vị thuần khiết từ đỉnh núi.",
+      displayPrice: 160000,
+      rating: 5,
+      reviews: 120,
+      fallbackImage: "/images/tea.webp",
+    },
+    {
+      id: "honey",
+      badge: "Mới",
+      fallbackName: "Mật ong hoa rừng",
+      fallbackOrigin: "Ngọt lành từ thiên nhiên.",
+      displayPrice: 250000,
+      rating: 5,
+      reviews: 96,
+      fallbackImage: "/images/honey.webp",
+    },
+    {
+      id: "spice",
+      badge: "Yêu thích",
+      fallbackName: "Mắc khén rừng",
+      fallbackOrigin: "Hương vị đặc trưng Tây Bắc.",
+      displayPrice: 85000,
+      rating: 5,
+      reviews: 78,
+      fallbackImage: "/images/spice.webp",
+    },
+  ];
+
   return (
-    <main>
-      <section className="hero">
+    <main className="moc-landing">
+      {/* 1. HERO SECTION (Desktop Full-Width) */}
+      <section className="moc-hero">
         <img
-          className="hero-image"
+          className="moc-hero-bg"
           src="/images/hero.webp"
           alt="Những triền ruộng bậc thang xanh giữa núi rừng và mây sớm"
-          width={1672}
-          height={941}
+          width={1920}
+          height={1080}
           fetchPriority="high"
         />
-        <div className="hero-shade" />
-        <div className="hero-content">
-          <span className="hero-eyebrow">
-            <span /> TINH HOA TỪ MIỀN SƠN CƯỚC
-          </span>
-          <h1>
-            Một chút Tây Bắc,
-            <br />
-            <em>một trời thương nhớ.</em>
-          </h1>
-          <p>
-            Hương vị của núi rừng. Tấm lòng của người bản.
-            <br />
-            Những điều mộc mạc, gói ghém thành món quà.
-          </p>
-          <div className="hero-actions">
-            <Link to="/san-pham" className="button button-cream">
-              Khám phá sản vật <ArrowUpRight size={19} />
-            </Link>
-            <Link to="/thiet-ke" className="button button-glass">
-              <Gift size={18} /> Tự tay gói quà
-            </Link>
+        <div className="moc-hero-overlay" />
+
+        {/* Decorative corner leaves using user's transparent PNG */}
+        <div className="moc-hero-leaf-accent-top">
+          <img src="/images/hero_leaves_top.png" alt="" />
+        </div>
+
+        {/* Corner torn paper overlay at bottom-left of Hero */}
+        <div className="moc-hero-corner-tear-overlay">
+          <img src="/images/paper_tear_hero.png" alt="" />
+        </div>
+
+        {/* Bottom leaves cluster draping over the corner tear */}
+        <div className="moc-hero-leaf-bottom-cluster">
+          <img src="/images/hero_leaves_bottom.png" alt="" />
+        </div>
+
+        {/* Vertical slide indicator on the far left */}
+        <div className="moc-hero-slider-nav">
+          <span className={sliderIndex === 0 ? "active" : ""}>01</span>
+          <span className="moc-hero-slider-line" />
+          <span className={sliderIndex === 1 ? "active" : ""}>02</span>
+          <span className="moc-hero-slider-line" />
+          <span className={sliderIndex === 2 ? "active" : ""}>03</span>
+        </div>
+
+        {/* Hero text content */}
+        <div className="moc-container">
+          <div className="moc-hero-content">
+            <span className="moc-hero-eyebrow">— TINH HOA NÚI RỪNG VIỆT NAM —</span>
+            <h1 className="moc-hero-title">
+              <span>Một chút</span>
+              <strong>Tây Bắc,</strong>
+              <em>một trời thương nhớ.</em>
+            </h1>
+            <p className="moc-hero-subtitle">
+              Hương vị từ núi rừng, được gìn giữ bởi những con người chân chất, và nâng niu trong từng sản phẩm.
+            </p>
+            <div className="moc-hero-actions">
+              <Link to="/san-pham" className="moc-hero-btn-primary">
+                <span>Khám phá Mộc ngay</span>
+                <ArrowRight size={16} />
+              </Link>
+              <a href="#cau-chuyen" className="moc-hero-btn-story">
+                <span className="moc-play-icon-wrap">
+                  <Play size={13} fill="currentColor" />
+                </span>
+                <span>Xem câu chuyện thương hiệu</span>
+              </a>
+            </div>
           </div>
         </div>
-        <div className="hero-seal">
-          <Sprout size={30} strokeWidth={1} />
-          <span>
-            TỪ ĐẤT LÀNH
-            <br />
-            ĐẾN TAY BẠN
+
+        {/* Hero Right side circular seal badge and curved handwriting */}
+        <div className="moc-hero-right-stamp">
+          <span className="moc-hero-curved-text">
+            Từ núi rừng<br />đến cuộc sống an lành
           </span>
+          <CircularSeal
+            text="TINH HOA TÂY BẮC • THIÊN NHIÊN THUẦN TÚY •"
+            variant="hero"
+            size={124}
+            className="moc-hero-seal-badge"
+          />
         </div>
-        <div className="hero-bottom">
-          <span>
-            <MapPin size={14} /> CẢM HỨNG TỪ MÙ CANG CHẢI, TÂY BẮC
-          </span>
-          <Link to="/#deal-hoi">
-            Khám phá deal hời <ArrowDown size={16} />
-          </Link>
+
+        {/* Bottom Torn Paper Edge inside Hero - completely seamless, no gaps */}
+        <div className="moc-hero-bottom-torn" aria-hidden="true">
+          <svg viewBox="0 0 1920 40" preserveAspectRatio="none">
+            <path
+              d="M0,20 C40,14 80,24 120,16 C160,23 200,12 240,21 C280,13 320,24 360,15 C400,22 440,11 480,20 C520,13 560,25 600,16 C640,23 680,12 720,22 C760,14 800,25 840,17 C880,23 920,13 960,21 C1000,14 1040,26 1080,15 C1120,22 1160,12 1200,20 C1240,13 1280,25 1320,16 C1360,24 1400,13 1440,21 C1480,14 1520,25 1560,17 C1600,23 1640,12 1680,22 C1720,14 1760,24 1800,16 C1840,23 1880,13 1920,20 L1920,40 L0,40 Z"
+              fill="#ffffff"
+            />
+          </svg>
         </div>
-        <div className="hero-coordinates">21°46′ N &nbsp; 104°07′ E</div>
       </section>
-      <div className="values-strip container">
-        <div>
-          <Leaf size={25} strokeWidth={1.4} />
-          <span>
-            <b>Trọn vị tự nhiên</b>
-            <small>Nâng niu sản vật bản địa</small>
-          </span>
-        </div>
-        <div>
-          <Mountain size={27} strokeWidth={1.3} />
-          <span>
-            <b>Đậm hồn Tây Bắc</b>
-            <small>Mỗi sản vật, một câu chuyện</small>
-          </span>
-        </div>
-        <div>
-          <Gift size={25} strokeWidth={1.4} />
-          <span>
-            <b>Quà mang dấu ấn riêng</b>
-            <small>Tự thiết kế theo cách của bạn</small>
-          </span>
-        </div>
-        <div>
-          <PackageCheck size={26} strokeWidth={1.4} />
-          <span>
-            <b>Gói bằng sự tận tâm</b>
-            <small>Chỉn chu từ điều nhỏ nhất</small>
-          </span>
+
+      {/* 2. VALUE PROPOSITION STRIP ("Những điều thuần khiết vẫn còn đây...") */}
+      <div className="moc-values-section-wrap">
+        <div className="moc-old-paper-texture-bg" style={{ opacity: 0.08 }} aria-hidden="true" />
+        <div className="moc-container">
+          <div className="moc-values-inner">
+            <div className="moc-values-script">
+              Những điều thuần khiết<br />vẫn còn đây...
+            </div>
+
+            <div className="moc-value-item">
+              <div className="moc-value-icon">
+                <Leaf size={21} strokeWidth={1.5} />
+              </div>
+              <div className="moc-value-item-text">
+                <b>Nguyên liệu bản địa</b>
+                <small>Chọn lọc từ núi rừng</small>
+              </div>
+            </div>
+
+            <div className="moc-value-item">
+              <div className="moc-value-icon">
+                <Mountain size={21} strokeWidth={1.5} />
+              </div>
+              <div className="moc-value-item-text">
+                <b>Sản xuất thủ công</b>
+                <small>Giữ trọn hương vị tự nhiên</small>
+              </div>
+            </div>
+
+            <div className="moc-value-item">
+              <div className="moc-value-icon">
+                <Heart size={21} strokeWidth={1.5} />
+              </div>
+              <div className="moc-value-item-text">
+                <b>An toàn & lành tính</b>
+                <small>Vì sức khỏe bền lâu</small>
+              </div>
+            </div>
+
+            <div className="moc-value-item">
+              <div className="moc-value-icon">
+                <Sprout size={21} strokeWidth={1.5} />
+              </div>
+              <div className="moc-value-item-text">
+                <b>Đồng hành cùng bản làng</b>
+                <small>Phát triển bền vững</small>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <section id="deal-hoi" className="landing-deals">
-        <div className="container">
-          <div className="section-heading landing-section-heading">
-            <div>
-              <span className="eyebrow"><BadgePercent size={14} /> DEAL HỜI GIÁ SỐC · MINH HỌA</span>
-              <h2>Thích là <em>chốt deal.</em></h2>
+
+      {/* 3. SECTION: SẢN PHẨM NỔI BẬT ("Thích là chốt deal.") */}
+      <section id="deal-hoi" className="moc-deal-section">
+        <div className="moc-container">
+          <div className="moc-deal-layout">
+            <div className="moc-deal-left">
+              <span className="moc-eyebrow">SẢN PHẨM NỔI BẬT</span>
+              <h2 className="moc-deal-title">
+                Thích là <br />
+                <em>chốt deal</em>
+                <img src="/images/single_leaf.png" className="moc-deal-leaf-inline" alt="" />
+                .
+              </h2>
+              <p className="moc-deal-desc">
+                Những hương vị thuần khiết từ núi rừng, gói trọn giá trị sức khỏe và cuộc sống an lành.
+              </p>
+              <Link to="/san-pham" className="moc-text-arrow-link">
+                <span>Xem toàn bộ sản phẩm</span>
+                <ArrowRight size={15} />
+              </Link>
             </div>
-            <p>Những ưu đãi vui vẻ mở đầu hành trình khám phá của bạn.</p>
-          </div>
-          <div className="deal-grid">
-            {deals.flatMap((deal) => {
-              const product = products.find((p) => p.id === deal.productId);
-              if (!product) return [];
-              return <article className={`deal-card deal-${deal.color}`} key={deal.id}>
-                <div className="deal-image"><img src={product.image} alt={product.name} /><span>-{deal.discount}%</span></div>
-                <div className="deal-copy"><small>{deal.label}</small><h2>{product.name}</h2><p>{product.weight} · {product.origin}</p><div className="deal-price"><del>{money(deal.originalPrice)}</del><strong>{money(product.price)}</strong></div><div className="deal-bottom"><span><Clock3 size={15} /> {deal.ending}</span><button className="button button-green" onClick={() => addProduct(product.id)}><ShoppingBag size={17} /> Chọn mua</button></div></div>
-              </article>;
-            })}
-          </div>
-        </div>
-      </section>
-      <section className="gift-feature container" id="qua-tang">
-        <div className="gift-feature-copy">
-          <span className="eyebrow">
-            <Sparkles size={14} /> KHÔNG CHỈ LÀ MỘT MÓN QUÀ
-          </span>
-          <h2>
-            Gói hương núi.
-            <br />
-            <em>Gửi tình mình.</em>
-          </h2>
-          <p>
-            Có những lời thương không cần nói thành lời.
-            <br />
-            Chọn sản vật, phối sắc màu, viết lời nhắn —<br />
-            để mỗi món quà là một phần của bạn.
-          </p>
-          <div className="mini-steps">
-            <span>
-              <b>01</b> Chọn sản vật
-            </span>
-            <i />
-            <span>
-              <b>02</b> Thêm sắc riêng
-            </span>
-            <i />
-            <span>
-              <b>03</b> Gửi lời thương
-            </span>
-          </div>
-          <Link to="/thiet-ke" className="button button-green">
-            Thiết kế hộp quà của bạn <ArrowUpRight size={18} />
-          </Link>
-          <small className="gift-feature-note">
-            Một chút sáng tạo. Thật nhiều yêu thương.
-          </small>
-        </div>
-        <div className="gift-feature-visual">
-          <span className="handwritten">made with love ♡</span>
-          <GiftPreview design={defaultDesign} products={products} compact />
-          <div className="floating-label">
-            <span className="tiny-diamond" /> Mang dấu ấn của riêng bạn
-          </div>
-          <div className="feature-color-dots">
-            {colors.map((c) => (
-              <span key={c.value} style={{ background: c.value }} />
-            ))}
-          </div>
-        </div>
-      </section>
-      <section id="cau-chuyen" className="story-section container">
-        <div className="story-visual">
-          <img
-            src="/images/hero.webp"
-            alt="Sắc xanh của núi rừng, cảm hứng của Mộc Tây Bắc"
-            loading="lazy"
-          />
-          <span className="story-image-caption">
-            MỘT MIỀN ĐẤT. MUÔN ĐIỀU THƯƠNG.
-          </span>
-          <div className="story-stamp">
-            <Mountain size={29} strokeWidth={1.2} />
-            <span>
-              MỘC MẠC
-              <br />
-              TỪ CỘI NGUỒN
-            </span>
-          </div>
-        </div>
-        <div className="story-copy">
-          <span className="eyebrow">
-            <span className="tiny-diamond" /> CÂU CHUYỆN CỦA MỘC
-          </span>
-          <h2>
-            Đi từ những điều
-            <br />
-            <em>thật mộc.</em>
-          </h2>
-          <p>
-            Chúng tôi yêu những buổi sớm mây ngang lưng núi, chén trà còn ấm và
-            căn bếp thơm mùi mắc khén.
-          </p>
-          <p>
-            Mộc bắt đầu từ mong muốn gói ghém những điều bình dị ấy. Để dù ở
-            đâu, bạn cũng có thể chạm đến một chút hồn Tây Bắc — qua một hương
-            vị, một món quà, một câu chuyện.
-          </p>
-          <div className="story-signature">
-            Từ núi rừng, bằng cả tấm lòng.
-            <Leaf size={22} strokeWidth={1.2} />
-          </div>
-        </div>
-      </section>
-      <section id="tin-tuc" className="landing-news">
-        <div className="container">
-          <div className="section-heading landing-section-heading">
-            <div>
-              <span className="eyebrow"><span className="tiny-diamond" /> NHẬT KÝ CỦA MỘC</span>
-              <h2>Đọc một chút <em>chuyện núi rừng.</em></h2>
+
+            <div className="moc-deal-right">
+              <div className="moc-deal-nav-row">
+                <button
+                  className="moc-round-nav-btn"
+                  aria-label="Trước"
+                  onClick={() => setSliderIndex((prev) => (prev > 0 ? prev - 1 : 2))}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  className="moc-round-nav-btn"
+                  aria-label="Tiếp"
+                  onClick={() => setSliderIndex((prev) => (prev < 2 ? prev + 1 : 0))}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+
+              <div className="moc-products-grid">
+                {showcaseDefinitions.map((item) => {
+                  const apiProduct = products.find((prod) => prod.id === item.id);
+                  const productName = apiProduct?.name || item.fallbackName;
+                  const productOrigin = apiProduct?.origin || item.fallbackOrigin;
+                  const productImage = apiProduct?.image || item.fallbackImage;
+                  const currentPrice = item.displayPrice;
+
+                  const fullProduct = apiProduct || {
+                    id: item.id,
+                    name: productName,
+                    price: currentPrice,
+                    image: productImage,
+                    category: "Đặc sản",
+                    origin: productOrigin,
+                    weight: "Hộp chuẩn",
+                    tag: productOrigin,
+                    description: productOrigin,
+                  };
+
+                  return (
+                    <article className="moc-product-card" key={item.id}>
+                      <span className="moc-badge">{item.badge}</span>
+                      <div
+                        className="moc-card-img-wrap"
+                        onClick={() => setSelectedProduct(fullProduct)}
+                      >
+                        <img src={productImage} alt={productName} loading="lazy" />
+                      </div>
+                      <h3
+                        className="moc-card-title"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setSelectedProduct(fullProduct)}
+                      >
+                        {productName}
+                      </h3>
+                      <p className="moc-card-origin">{productOrigin}</p>
+                      <div className="moc-card-rating">
+                        <div className="moc-stars">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={12} fill="currentColor" />
+                          ))}
+                        </div>
+                        <span>({item.reviews})</span>
+                      </div>
+                      <div className="moc-card-bottom">
+                        <strong className="moc-card-price">{money(currentPrice)}</strong>
+                        <button
+                          className="moc-card-cart-btn"
+                          aria-label={`Thêm ${productName} vào giỏ`}
+                          onClick={() => addProduct(item.id)}
+                        >
+                          <ShoppingBag size={17} />
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
-            <Link className="text-link" to="/tin-tuc">Xem tất cả tin tức <ArrowUpRight size={17} /></Link>
-          </div>
-          <div className="news-grid home-news-grid">
-            {publishedArticles.map((story) => <article className="news-card" key={story.id}><img src={story.image} alt="" loading="lazy" /><div><span>{story.tag} · {story.date}</span><h2>{story.title}</h2><p>{story.excerpt}</p><Link className="article-link" to={`/tin-tuc/${story.id}`}>Đọc bài viết <ChevronRight size={16} /></Link></div></article>)}
+
+            {/* Far right vertical note with real tea twig PNG */}
+            <div className="moc-deal-far-right">
+              <img src="/images/tea_twig_vertical.png" className="moc-far-right-twig-img" alt="" />
+              <span className="moc-red-diamond" />
+              <span className="moc-far-right-text">
+                Tinh túy đất trời, trong từng sản phẩm nhỏ.
+              </span>
+            </div>
           </div>
         </div>
       </section>
-      <section className="landing-contact" aria-labelledby="contact-heading">
-        <div className="container landing-contact-heading">
-          <span className="eyebrow"><Leaf size={14} /> KẾT NỐI CÙNG MỘC</span>
-          <h2 id="contact-heading">Một lời nhắn, <em>một kết nối.</em></h2>
-          <p>Các thông tin bên dưới đều là minh họa — nhưng Mộc luôn muốn lắng nghe điều bạn đang cần.</p>
+
+      {/* TORN PAPER DIVIDER 2: Deal Section to Warm Gift Section */}
+      <TornPaperDivider fill="#f2ece1" />
+
+      {/* 4. SECTION: BỘ QUÀ TẶNG ("Gói hương núi. Gửi tình mình.") */}
+      <section className="moc-gift-section" id="qua-tang">
+        <div className="moc-old-paper-texture-bg" aria-hidden="true" />
+        <div className="moc-container">
+          <div className="moc-gift-grid">
+            {/* Left open luxury box with pinned craft tag and seal */}
+            <div className="moc-gift-left-visual">
+              <div className="moc-craft-tag-pinned">
+                <span className="moc-pin-head" />
+                <b className="moc-tag-title">MÓN QUÀ</b>
+                <span className="moc-tag-body">từ núi rừng cho những điều ý nghĩa.</span>
+              </div>
+              <img
+                className="moc-gift-left-img"
+                src="/images/gift_box_open.jpg"
+                alt="Hộp quà cao cấp mộc. tinh hoa Tây Bắc mở nắp"
+                loading="lazy"
+              />
+              <CircularSeal
+                text="QUÀ TỪ TÂY BẮC • TRAO GỬI YÊU THƯƠNG •"
+                variant="gift"
+                size={114}
+                className="moc-gift-stamp-overlay"
+              />
+            </div>
+
+            {/* Center copy */}
+            <div className="moc-gift-center-copy">
+              <span className="moc-eyebrow">BỘ QUÀ TẶNG</span>
+              <h2 className="moc-gift-title">
+                Gói hương núi.<br />
+                Gửi tình mình.
+              </h2>
+              <p className="moc-gift-desc">
+                Mỗi hộp quà là một câu chuyện về con người, về thiên nhiên và những giá trị bền vững từ Tây Bắc - món quà của sự chân thành.
+              </p>
+              <Link to="/thiet-ke" className="moc-pill-btn-dark">
+                <span>Khám phá bộ quà tặng</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            {/* Right kraft wrapped parcel with washi tape polaroid card */}
+            <div className="moc-gift-right-visual">
+              <img
+                className="moc-gift-right-img"
+                src="/images/gift_box_kraft.jpg"
+                alt="Gói quà thủ công bọc giấy kraft buộc dây gai"
+                loading="lazy"
+              />
+              <div className="moc-polaroid-card">
+                <span className="moc-washi-tape" />
+                <span className="moc-polaroid-line1">Trao giá trị</span>
+                <span className="moc-polaroid-line2">Giữ mãi những điều thuần khiết.</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <ContactSection id="lien-he" />
       </section>
-      <section className="closing-section">
-        <span className="tiny-diamond" />
-        <p>
-          Món quà đẹp nhất, là món quà <em>có tâm tình.</em>
-        </p>
-        <Link to="/thiet-ke">
-          Cùng Mộc gói một món quà <ArrowRight size={18} />
-        </Link>
+
+      {/* TORN PAPER DIVIDER 3: Gift Section to Story Section */}
+      <TornPaperDivider fill="#faf9f6" />
+
+      {/* 5. SECTION: CÂU CHUYỆN MỘC ("Đi từ những điều thật mộc.") */}
+      <section id="cau-chuyen" className="moc-story-section">
+        <div className="moc-container">
+          <div className="moc-story-grid">
+            <div className="moc-story-copy">
+              <span className="moc-eyebrow">CÂU CHUYỆN MỘC</span>
+              <h2 className="moc-story-title">
+                Đi từ những<br />
+                <em>điều thật mộc.</em>
+              </h2>
+              <p className="moc-story-desc">
+                Từ những bản làng giữa núi rừng Tây Bắc, chúng tôi mang đến những sản phẩm thuần khiết và câu chuyện về con người, văn hóa và thiên nhiên - để những giá trị tốt đẹp được lan tỏa và tiếp nối.
+              </p>
+              <Link to="/gioi-thieu" className="moc-pill-btn-dark">
+                <span>Xem hành trình của Mộc</span>
+                <ArrowRight size={15} />
+              </Link>
+
+              <div className="moc-stats-row">
+                <div className="moc-stat-item">
+                  <b>3+</b>
+                  <small>Năm đồng hành cùng người bản địa</small>
+                </div>
+                <div className="moc-stat-item">
+                  <b>20+</b>
+                  <small>Sản phẩm thuần khiết từ Tây Bắc</small>
+                </div>
+                <div className="moc-stat-item">
+                  <b>100%</b>
+                  <small>Nguyên liệu tự nhiên và bền vững</small>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side torn-photo journal layout with script overlay and seal */}
+            <div className="moc-story-visual-wrap moc-story-torn-photo-wrap">
+              <div className="moc-story-torn-paper-edge">
+                <div className="moc-story-paper-backdrop" aria-hidden="true" />
+                <img
+                  className="moc-story-landscape-img"
+                  src="/images/story_landscape.jpg"
+                  alt="Bản làng và triền núi Tây Bắc"
+                  loading="lazy"
+                />
+              </div>
+              <span className="moc-story-script-overlay">
+                Nơi những giá trị bắt đầu từ con người
+              </span>
+              <CircularSeal
+                text="VỀ TÂY BẮC ĐI • NHÀ LÀ NHÀ •"
+                variant="story"
+                size={118}
+                className="moc-story-stamp-overlay"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. SECTION: TẠP CHÍ MỘC ("Đọc một chút chuyện núi rừng.") */}
+      <section id="tin-tuc" className="moc-magazine-section">
+        <div className="moc-container">
+          <div className="moc-mag-grid">
+            <div className="moc-mag-left">
+              <span className="moc-eyebrow">TẠP CHÍ MỘC</span>
+              <h2 className="moc-mag-title">
+                Đọc một chút<br />
+                <em>chuyện núi rừng.</em>
+              </h2>
+              <p className="moc-mag-desc">
+                Những câu chuyện, hương vị và con người từ Tây Bắc - nơi thiên nhiên vẫn luôn có thể kể những điều thật đẹp.
+              </p>
+              <Link to="/tin-tuc" className="moc-text-arrow-link">
+                <span>Xem tất cả bài viết</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
+            <div className="moc-articles-row">
+              {publishedArticles.slice(0, 3).map((story) => (
+                <article className="moc-article-card" key={story.id}>
+                  <div className="moc-article-img-wrap">
+                    <img src={story.image} alt={story.title} loading="lazy" />
+                  </div>
+                  <div className="moc-article-body">
+                    <h3 className="moc-article-title">{story.title}</h3>
+                    <p className="moc-article-excerpt">{story.excerpt}</p>
+                    <Link className="moc-article-link" to={`/tin-tuc/${story.id}`}>
+                      <span>Đọc thêm</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. SECTION: NEWSLETTER BANNER (Organic Full-Width Wavy Deep Green) */}
+      <section className="moc-newsletter-section">
+        <WavyNewsletterEdge />
+        <div className="moc-newsletter-leaf-overlay">
+          <img src="/images/newsletter_leaves.png" alt="" />
+        </div>
+        <div className="moc-container">
+          <div className="moc-newsletter-content">
+            <div className="moc-newsletter-left">
+              <span className="moc-newsletter-eyebrow">CÙNG MỘC GIỮ TRỌN ĐIỀU THUẦN KHIẾT</span>
+              <h2 className="moc-newsletter-title">
+                Mộc luôn muốn kể cho bạn<br />
+                nhiều câu <em>chuyện hơn...</em>
+              </h2>
+            </div>
+
+            <div className="moc-newsletter-right">
+              <div className="moc-newsletter-form-col">
+                <p className="moc-newsletter-subtitle">
+                  Đăng ký nhận tin để không bỏ lỡ những câu chuyện, sản phẩm mới và ưu đãi đặc biệt từ Mộc.
+                </p>
+                <form
+                  className="moc-newsletter-form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    alert("Cảm ơn bạn đã đăng ký nhận tin từ Mộc Tây Bắc!");
+                  }}
+                >
+                  <input
+                    type="email"
+                    required
+                    placeholder="Nhập email của bạn"
+                    className="moc-newsletter-input"
+                  />
+                  <button type="submit" className="moc-newsletter-submit">
+                    <span>Đăng ký</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </form>
+              </div>
+
+              <div className="moc-newsletter-script-col">
+                Sống chậm hơn<br />
+                Để cảm nhận nhiều hơn...
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   );
@@ -686,7 +1164,7 @@ function PaymentQR({
         <span>Số tiền minh họa</span><strong>{money(order.subtotal)}</strong>
       </div>
       <div className="demo-payment-methods">
-        <span className="active">VietQR demo</span><span>Ví Mộc demo</span><span>Ngân hàng demo</span>
+        <span className="active">VietQR demo</span><span>Ví A Sỉn demo</span><span>Ngân hàng demo</span>
       </div>
       <button className="button button-green full-width" onClick={complete} disabled={saving}>
         <CheckCircle2 size={18} /> {saving ? "Đang ghi nhận…" : "Mô phỏng đã thanh toán"}
@@ -942,56 +1420,85 @@ function Cart() {
 
 function Footer() {
   const [faqOpen, setFaqOpen] = useState(false);
+
   return (
     <>
-      <footer className="site-footer">
-        <div className="container footer-main">
-          <div className="footer-brand">
-            <Logo light />
-            <p>
-              Gói trọn tinh hoa núi rừng.
-              <br />
-              Gửi trao những điều mộc mạc.
-            </p>
-            <span>
-              ĐƯỢC LÀM BẰNG TÌNH YÊU TÂY BẮC <Heart size={12} />
-            </span>
+      <footer className="moc-footer">
+        <MountainWatermark />
+        <div className="moc-container">
+          <div className="moc-footer-grid">
+            {/* Col 1: Brand & Slogan */}
+            <div className="moc-footer-col moc-footer-brand-col">
+              <Logo light />
+              <span className="moc-footer-slogan">
+                Từ núi rừng đến cuộc sống an lành.
+              </span>
+            </div>
+
+            {/* Col 2: Về Mộc */}
+            <div className="moc-footer-col">
+              <h4>Về Mộc</h4>
+              <ul>
+                <li><Link to="/gioi-thieu">Câu chuyện thương hiệu</Link></li>
+                <li><Link to="/gioi-thieu">Hành trình phát triển</Link></li>
+                <li><Link to="/gioi-thieu">Con người Mộc</Link></li>
+                <li><Link to="/gioi-thieu">Giá trị bền vững</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Sản phẩm */}
+            <div className="moc-footer-col">
+              <h4>Sản phẩm</h4>
+              <ul>
+                <li><Link to="/san-pham">Trà</Link></li>
+                <li><Link to="/san-pham">Mật ong</Link></li>
+                <li><Link to="/san-pham">Gia vị núi rừng</Link></li>
+                <li><Link to="/thiet-ke">Bộ quà tặng</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 4: Hỗ trợ */}
+            <div className="moc-footer-col">
+              <h4>Hỗ trợ</h4>
+              <ul>
+                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left" }}>Chính sách vận chuyển</button></li>
+                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left" }}>Chính sách đổi trả</button></li>
+                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left" }}>Hướng dẫn mua hàng</button></li>
+                <li><a href="#lien-he">Liên hệ</a></li>
+              </ul>
+            </div>
+
+            {/* Col 5: Kết nối với Mộc */}
+            <div className="moc-footer-col">
+              <h4>Kết nối với Mộc</h4>
+              <div className="moc-social-links">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Facebook">
+                  <Facebook size={16} />
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Instagram">
+                  <Instagram size={16} />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="YouTube">
+                  <Youtube size={16} />
+                </a>
+                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="TikTok">
+                  <TikTokIcon size={16} />
+                </a>
+              </div>
+              <span className="moc-footer-script-tag">
+                Những giá trị tốt đẹp<br />vẫn còn tiếp nối...
+              </span>
+            </div>
           </div>
-          <div className="footer-links">
-            <h3>Khám phá Mộc</h3>
-            <Link to="/san-pham">Sản phẩm</Link>
-            <Link to="/#deal-hoi">Deal hời giá sốc</Link>
-            <Link to="/gioi-thieu">Câu chuyện & nguồn gốc</Link>
-            <Link to="/tin-tuc">Tin tức của Mộc</Link>
+
+          <div className="moc-footer-bottom">
+            <span>© 2024 Mộc. Tinh hoa núi rừng Việt Nam.</span>
+            <span>Thiết kế từ tình yêu Tây Bắc.</span>
           </div>
-          <div className="footer-links">
-            <h3>Một món quà riêng</h3>
-            <Link to="/thiet-ke">Tự thiết kế hộp quà</Link>
-            <Link to="/#lien-he">Liên hệ & hỗ trợ</Link>
-            <button onClick={() => setFaqOpen(true)}>Câu hỏi thường gặp</button>
-          </div>
-          <div className="footer-invitation">
-            <span>
-              <Sprout size={24} strokeWidth={1.2} />
-            </span>
-            <h3>
-              Một chút Mộc,
-              <br />
-              cho ngày thêm lành.
-            </h3>
-            <Link to="/san-pham">
-              Ghé cửa hàng <ArrowUpRight size={18} />
-            </Link>
-          </div>
-        </div>
-        <div className="container footer-bottom">
-          <span>© 2026 Mộc Tây Bắc.</span>
-          <span>Bản trải nghiệm · Hình ảnh & giá sản phẩm minh họa</span>
-          <span>Thương từ những điều mộc.</span>
         </div>
       </footer>
       {faqOpen && (
-        <Modal title="Mộc giải đáp" onClose={() => setFaqOpen(false)}>
+        <Modal title="A Sỉn giải đáp" onClose={() => setFaqOpen(false)}>
           <div className="faq-list">
             <details open>
               <summary>Tôi có thể tự thiết kế những gì?</summary>
@@ -1037,10 +1544,10 @@ function Shell() {
   useEffect(() => {
     document.title =
       location.pathname === "/thiet-ke"
-        ? "Tự thiết kế hộp quà — Mộc Tây Bắc"
+        ? "Tự thiết kế hộp quà — A Sỉn"
         : location.pathname === "/admin"
-          ? "Quản trị — Mộc Tây Bắc"
-          : "Mộc Tây Bắc — Gói trọn tinh hoa núi rừng";
+          ? "Quản trị — A Sỉn"
+          : "A Sỉn — Gói trọn tinh hoa núi rừng";
     const id = requestAnimationFrame(() => {
       if (location.hash)
         document
@@ -1077,9 +1584,9 @@ function Shell() {
               <main className="not-found">
                 <Mountain size={48} />
                 <h1>Hình như bạn đã lạc đường.</h1>
-                <p>Mộc vẫn ở đây, chờ bạn ghé về.</p>
+                <p>A Sỉn vẫn ở đây, chờ bạn ghé về.</p>
                 <Link to="/" className="button button-green">
-                  Về nhà Mộc <ArrowRight size={18} />
+                  Về nhà A Sỉn <ArrowRight size={18} />
                 </Link>
               </main>
             }

@@ -43,7 +43,7 @@ export default function AdminLogin() {
         <span className="admin-login-badge">
           <ShieldCheck size={16} /> KHU VỰC QUẢN TRỊ
         </span>
-        <h1>Đăng nhập Mộc.</h1>
+        <h1>Đăng nhập A Sỉn.</h1>
         <p>
           Chỉ tài khoản có vai trò <b>admin</b> hoặc <b>staff</b> trong bảng
           profiles mới truy cập được dữ liệu vận hành.

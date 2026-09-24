@@ -76,7 +76,7 @@ export async function uploadImage(
 
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) {
-    throw new Error("Phiên đăng nhập đã hết hạn. Đăng nhập lại giúp Mộc.");
+    throw new Error("Phiên đăng nhập đã hết hạn. Đăng nhập lại giúp A Sỉn.");
   }
 
   const path = buildPath(file.name, folder, file.type);

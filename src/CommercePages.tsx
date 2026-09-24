@@ -110,7 +110,7 @@ export function ProductsPage() {
   );
   return (
     <main>
-      <PageIntro eyebrow="CỬA HÀNG MỘC TÂY BẮC" title="Sản vật gọi tên miền nhớ.">
+      <PageIntro eyebrow="CỬA HÀNG A SỈN" title="Sản vật gọi tên miền nhớ.">
         Chọn một vị trà, một hũ mật rừng, hay chút gia vị từ núi cao. Giá và nội dung trong bản này đều là minh họa.
       </PageIntro>
       <section className="container catalog-page">
@@ -166,7 +166,7 @@ export function DealsPage() {
         <div className="container deal-hero-content">
           <span><BadgePercent size={17} /> ƯU ĐÃI MINH HỌA</span>
           <h1>Deal hời.<br /><em>Giá thật vui.</em></h1>
-          <p>Ba niềm vui nho nhỏ từ Mộc — chỉ dùng để trải nghiệm giao diện, không phải chương trình khuyến mãi thực tế.</p>
+          <p>Ba niềm vui nho nhỏ từ A Sỉn — chỉ dùng để trải nghiệm giao diện, không phải chương trình khuyến mãi thực tế.</p>
           <a href="#deal-list" className="button button-cream">Xem deal hôm nay <ArrowRight size={17} /></a>
         </div>
       </section>
@@ -190,15 +190,15 @@ export function DealsPage() {
 export function AboutPage() {
   return (
     <main>
-      <PageIntro eyebrow="VỀ MỘC TÂY BẮC" title="Từ miền đất lành, đến những món quà lành.">
+      <PageIntro eyebrow="VỀ A SỈN" title="Từ miền đất lành, đến những món quà lành.">
         Đây là câu chuyện thương hiệu minh họa: một chuyến đi tưởng tượng qua những bản làng và mùa hương núi.
       </PageIntro>
       <section className="container origin-layout">
         <div className="origin-photo"><img src="/images/hero.webp" alt="Ruộng bậc thang Tây Bắc" /><span>21°46′ N · 104°07′ E</span></div>
-        <div className="origin-story"><span className="eyebrow"><Mountain size={14} /> NGUỒN GỐC MINH HỌA</span><h2>Từ những ngày đi tìm <em>vị thật.</em></h2><p>Mộc được kể như một thương hiệu nhỏ mang sản vật Tây Bắc đến gần hơn với nhịp sống thành thị. Chúng tôi chọn trà, mật ong, gia vị và những câu chuyện đi cùng chúng.</p><p>Trong bản demo này, địa danh, đối tác sản xuất, con người và số liệu đều là hư cấu — được dùng để thể hiện cách một thương hiệu có thể kể câu chuyện nguồn gốc rõ ràng, ấm áp.</p><div className="origin-signature"><Leaf size={21} /> Từ núi rừng, bằng cả tấm lòng.</div></div>
+        <div className="origin-story"><span className="eyebrow"><Mountain size={14} /> NGUỒN GỐC MINH HỌA</span><h2>Từ những ngày đi tìm <em>vị thật.</em></h2><p>A Sỉn được kể như một thương hiệu nhỏ mang sản vật Tây Bắc đến gần hơn với nhịp sống thành thị. Chúng tôi chọn trà, mật ong, gia vị và những câu chuyện đi cùng chúng.</p><p>Trong bản demo này, địa danh, đối tác sản xuất, con người và số liệu đều là hư cấu — được dùng để thể hiện cách một thương hiệu có thể kể câu chuyện nguồn gốc rõ ràng, ấm áp.</p><div className="origin-signature"><Leaf size={21} /> Từ núi rừng, bằng cả tấm lòng.</div></div>
       </section>
-      <section className="brand-values"><div className="container"><span className="eyebrow">ĐIỀU MỘC TIN</span><div className="brand-value-grid"><article><Sprout size={29} /><h3>Gần tự nhiên</h3><p>Ưu tiên câu chuyện mùa vụ, nguyên liệu và cách làm mộc mạc.</p></article><article><HeartHandshake size={29} /><h3>Đủ chân thành</h3><p>Mỗi món quà là một cách gửi đi sự quan tâm vừa vặn.</p></article><article><Store size={29} /><h3>Rõ nguồn gốc</h3><p>Trang thông tin thật sẽ cần công khai vùng trồng, tiêu chuẩn và đối tác.</p></article></div></div></section>
-      <section className="container timeline-section"><span className="eyebrow">HÀNH TRÌNH TƯỞNG TƯỢNG</span><div className="timeline"><div><b>2022</b><h3>Một chuyến đi</h3><p>Ý tưởng gom góp hương vị Tây Bắc thành những món quà nhỏ.</p></div><div><b>2024</b><h3>Những hộp quà đầu tiên</h3><p>Thử phối trà, mật rừng và thiệp viết tay cho mùa đoàn viên.</p></div><div><b>2026</b><h3>Mộc trên không gian số</h3><p>Ra mắt trải nghiệm mua sắm và thiết kế quà trực tuyến — bản demo.</p></div></div></section>
+      <section className="brand-values"><div className="container"><span className="eyebrow">ĐIỀU A SỈN TIN</span><div className="brand-value-grid"><article><Sprout size={29} /><h3>Gần tự nhiên</h3><p>Ưu tiên câu chuyện mùa vụ, nguyên liệu và cách làm mộc mạc.</p></article><article><HeartHandshake size={29} /><h3>Đủ chân thành</h3><p>Mỗi món quà là một cách gửi đi sự quan tâm vừa vặn.</p></article><article><Store size={29} /><h3>Rõ nguồn gốc</h3><p>Trang thông tin thật sẽ cần công khai vùng trồng, tiêu chuẩn và đối tác.</p></article></div></div></section>
+      <section className="container timeline-section"><span className="eyebrow">HÀNH TRÌNH TƯỞNG TƯỢNG</span><div className="timeline"><div><b>2022</b><h3>Một chuyến đi</h3><p>Ý tưởng gom góp hương vị Tây Bắc thành những món quà nhỏ.</p></div><div><b>2024</b><h3>Những hộp quà đầu tiên</h3><p>Thử phối trà, mật rừng và thiệp viết tay cho mùa đoàn viên.</p></div><div><b>2026</b><h3>A Sỉn trên không gian số</h3><p>Ra mắt trải nghiệm mua sắm và thiết kế quà trực tuyến — bản demo.</p></div></div></section>
     </main>
   );
 }
@@ -207,14 +207,14 @@ export function NewsPage() {
   const publishedArticles = usePublishedArticles();
   return (
     <main>
-      <PageIntro eyebrow="NHẬT KÝ CỦA MỘC" title="Những mẩu chuyện từ núi về phố.">
+      <PageIntro eyebrow="NHẬT KÝ CỦA A SỈN" title="Những mẩu chuyện từ núi về phố.">
         Cùng đọc vài bài viết giả lập về hương vị, những dịp tặng quà và cảm hứng sống chậm.
       </PageIntro>
       <section className="container news-page">
         <article className="featured-story"><img src="/images/hero.webp" alt="Núi rừng Tây Bắc" /><div><span className="eyebrow">CÂU CHUYỆN NỔI BẬT</span><h2>Đôi khi, một món quà là chiếc cầu nối ta về với những điều thân thương.</h2><p>Những chất liệu nhỏ bé có thể giữ lại cảm giác của một sáng mây, một bếp lửa, hay lời cảm ơn chưa kịp nói.</p><Link className="text-link" to={`/tin-tuc/${publishedArticles[0].id}`}>Đọc câu chuyện minh họa <ArrowRight size={17} /></Link></div></article>
         <div className="news-grid">{publishedArticles.map((story) => <article className="news-card" key={story.id}><img src={story.image} alt="" /><div><span>{story.tag} · {story.date}</span><h2>{story.title}</h2><p>{story.excerpt}</p><Link className="article-link" to={`/tin-tuc/${story.id}`}>Đọc bài viết <ChevronRight size={16} /></Link></div></article>)}</div>
       </section>
-      <section className="newsletter"><div className="container newsletter-inner"><div><span className="eyebrow">THƯ TỪ MỘC</span><h2>Thỉnh thoảng nhận một câu chuyện hay?</h2><p>Biểu mẫu đăng ký minh họa — không thu thập email.</p></div><div className="newsletter-fake"><span>hello@vi-du.vn</span><button aria-label="Đăng ký bản tin minh họa"><Send size={18} /></button></div></div></section>
+      <section className="newsletter"><div className="container newsletter-inner"><div><span className="eyebrow">THƯ TỪ A SỈN</span><h2>Thỉnh thoảng nhận một câu chuyện hay?</h2><p>Biểu mẫu đăng ký minh họa — không thu thập email.</p></div><div className="newsletter-fake"><span>hello@vi-du.vn</span><button aria-label="Đăng ký bản tin minh họa"><Send size={18} /></button></div></div></section>
     </main>
   );
 }
@@ -224,13 +224,13 @@ export function NewsDetailPage() {
   const publishedArticles = usePublishedArticles();
   const story = publishedArticles.find((item) => item.id === storyId);
   if (!story) {
-    return <main className="article-not-found"><div className="container"><span className="eyebrow">NHẬT KÝ CỦA MỘC</span><h1>Bài viết này chưa có ở đây.</h1><Link to="/tin-tuc" className="button button-green">Về trang tin tức <ArrowRight size={17} /></Link></div></main>;
+    return <main className="article-not-found"><div className="container"><span className="eyebrow">NHẬT KÝ CỦA A SỈN</span><h1>Bài viết này chưa có ở đây.</h1><Link to="/tin-tuc" className="button button-green">Về trang tin tức <ArrowRight size={17} /></Link></div></main>;
   }
   return <main className="article-detail">
     <header className="article-hero"><div className="container"><Link className="article-back" to="/tin-tuc">← Trở về Tin tức</Link><span>{story.tag} · {story.date} · {story.readTime}</span><h1>{story.title}</h1><p>{story.excerpt}</p></div></header>
     <div className="article-cover container"><img src={story.image} alt={story.title} /></div>
-    <article className="article-body"><p className="article-lead">Đây là bài viết minh họa được tạo để hoàn thiện trải nghiệm đọc tin của Mộc Tây Bắc.</p>{story.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<div className="article-note"><Leaf size={19} /><p>Toàn bộ câu chuyện, con người và thông tin sản vật trong bài đang là dữ liệu giả lập.</p></div></article>
-    <section className="container article-more"><div><span className="eyebrow">ĐỌC TIẾP</span><h2>Còn vài câu chuyện nhỏ của Mộc.</h2></div><Link className="button button-green" to="/tin-tuc">Xem tất cả bài viết <ArrowRight size={17} /></Link></section>
+    <article className="article-body"><p className="article-lead">Đây là bài viết minh họa được tạo để hoàn thiện trải nghiệm đọc tin của A Sỉn.</p>{story.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<div className="article-note"><Leaf size={19} /><p>Toàn bộ câu chuyện, con người và thông tin sản vật trong bài đang là dữ liệu giả lập.</p></div></article>
+    <section className="container article-more"><div><span className="eyebrow">ĐỌC TIẾP</span><h2>Còn vài câu chuyện nhỏ của A Sỉn.</h2></div><Link className="button button-green" to="/tin-tuc">Xem tất cả bài viết <ArrowRight size={17} /></Link></section>
   </main>;
 }
 
@@ -251,20 +251,20 @@ export function ContactSection({ id }: { id?: string }) {
       });
       setSent(true);
     } catch {
-      setError("Mộc chưa thể nhận lời nhắn. Vui lòng thử lại sau.");
+      setError("A Sỉn chưa thể nhận lời nhắn. Vui lòng thử lại sau.");
     } finally {
       setSending(false);
     }
   };
   return (
       <section id={id} className="container contact-layout">
-        <div className="contact-options"><article><span><Phone size={20} /></span><div><small>HOTLINE MINH HỌA</small><h2>0900 000 001</h2><p>Thứ Hai – Chủ Nhật · 08:30 – 20:30</p></div></article><article><span><Mail size={20} /></span><div><small>HÒM THƯ MINH HỌA</small><h2>hello@moctaybac.demo</h2><p>Để lại lời nhắn, Mộc sẽ phản hồi trong một ngày.</p></div></article><article><span><MapPin size={20} /></span><div><small>GÓC NHỎ MINH HỌA</small><h2>12 Đường Mây, Hà Nội</h2><p>Chỉ là địa chỉ giả để hoàn thiện giao diện.</p></div></article></div>
+        <div className="contact-options"><article><span><Phone size={20} /></span><div><small>HOTLINE MINH HỌA</small><h2>0900 000 001</h2><p>Thứ Hai – Chủ Nhật · 08:30 – 20:30</p></div></article><article><span><Mail size={20} /></span><div><small>HÒM THƯ MINH HỌA</small><h2>hello@moctaybac.demo</h2><p>Để lại lời nhắn, A Sỉn sẽ phản hồi trong một ngày.</p></div></article><article><span><MapPin size={20} /></span><div><small>GÓC NHỎ MINH HỌA</small><h2>12 Đường Mây, Hà Nội</h2><p>Chỉ là địa chỉ giả để hoàn thiện giao diện.</p></div></article></div>
         <form className="contact-form" onSubmit={sendMessage}>
-          <span className="eyebrow"><MessageCircle size={14} /> GỬI LỜI NHẮN</span><h2>Điều bạn muốn Mộc biết?</h2>{sent ? <div className="contact-success"><CheckCircle2 size={38} /><h3>Mộc đã nhận được lời nhắn.</h3><p>Thông tin được lưu an toàn trong hệ thống để đội ngũ phản hồi.</p><button className="text-link" type="button" onClick={() => setSent(false)}>Gửi thêm một lời nhắn</button></div> : <><label htmlFor="contact-name">Tên của bạn</label><input id="contact-name" name="name" required placeholder="Nguyễn An Nhiên" /><label htmlFor="contact-email">Email</label><input id="contact-email" name="email" type="email" required placeholder="an.nhien@vi-du.vn" /><label htmlFor="contact-message">Lời nhắn</label><textarea id="contact-message" name="message" required rows={5} placeholder="Mình muốn được Mộc tư vấn…" /><button className="button button-green" type="submit" disabled={sending}>{sending ? "Đang gửi…" : <>Gửi lời nhắn <ArrowRight size={17} /></>}</button>{error && <p role="alert">{error}</p>}<small>Lời nhắn được lưu để Mộc phản hồi; không hiển thị công khai.</small></>}</form>
+          <span className="eyebrow"><MessageCircle size={14} /> GỬI LỜI NHẮN</span><h2>Điều bạn muốn A Sỉn biết?</h2>{sent ? <div className="contact-success"><CheckCircle2 size={38} /><h3>A Sỉn đã nhận được lời nhắn.</h3><p>Thông tin được lưu an toàn trong hệ thống để đội ngũ phản hồi.</p><button className="text-link" type="button" onClick={() => setSent(false)}>Gửi thêm một lời nhắn</button></div> : <><label htmlFor="contact-name">Tên của bạn</label><input id="contact-name" name="name" required placeholder="Nguyễn An Nhiên" /><label htmlFor="contact-email">Email</label><input id="contact-email" name="email" type="email" required placeholder="an.nhien@vi-du.vn" /><label htmlFor="contact-message">Lời nhắn</label><textarea id="contact-message" name="message" required rows={5} placeholder="Mình muốn được A Sỉn tư vấn…" /><button className="button button-green" type="submit" disabled={sending}>{sending ? "Đang gửi…" : <>Gửi lời nhắn <ArrowRight size={17} /></>}</button>{error && <p role="alert">{error}</p>}<small>Lời nhắn được lưu để A Sỉn phản hồi; không hiển thị công khai.</small></>}</form>
       </section>
   );
 }
 
 export function ContactPage() {
-  return <main><PageIntro eyebrow="KẾT NỐI CÙNG MỘC" title="Mình luôn ở đây để lắng nghe.">Các kênh liên hệ dưới đây là dữ liệu minh họa; biểu mẫu không gửi thông tin đi bất cứ đâu.</PageIntro><ContactSection /></main>;
+  return <main><PageIntro eyebrow="KẾT NỐI CÙNG A SỈN" title="Mình luôn ở đây để lắng nghe.">Các kênh liên hệ dưới đây là dữ liệu minh họa; biểu mẫu không gửi thông tin đi bất cứ đâu.</PageIntro><ContactSection /></main>;
 }

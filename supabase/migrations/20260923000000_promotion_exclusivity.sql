@@ -1,4 +1,4 @@
--- Mộc Tây Bắc: mỗi thời điểm chỉ được có MỘT khuyến mãi đang chạy.
+-- A Sỉn: mỗi thời điểm chỉ được có MỘT khuyến mãi đang chạy.
 --
 -- Vì sao cần migration này:
 --   Bảng `promotions` cho phép nhiều dòng `is_active = true` cùng lúc, và

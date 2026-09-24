@@ -1,5 +1,5 @@
 -- =====================================================================
--- Mộc Tây Bắc — DỮ LIỆU MẪU CHO TOÀN BỘ BẢNG
+-- A Sỉn — DỮ LIỆU MẪU CHO TOÀN BỘ BẢNG
 -- =====================================================================
 -- Cách chạy: Supabase Dashboard → SQL Editor → dán toàn bộ tệp → Run.
 --           (hoặc `supabase db reset` sẽ tự chạy migrations rồi tới tệp này)
@@ -162,13 +162,13 @@ values
   ('hanh-trinh-tra', 'Từ bản làng', 'Theo mây lên Suối Giàng, tìm vị trà Shan tuyết',
    'Một buổi sớm se lạnh, búp trà phủ sương và câu chuyện giữ rừng của những người làm trà.',
    '/images/tea.webp', 5,
-   '["Sớm ở Suối Giàng, mây đi rất thấp. Từ hiên nhà nhìn ra, những tán trà cổ thụ nằm yên trong màn sương mỏng, như thể đang chờ nắng gọi dậy.","Trong câu chuyện minh họa của Mộc, mỗi búp trà được hái bằng một nhịp chậm. Không phải để làm ra thật nhiều, mà để giữ lại cảm giác dịu dàng của buổi sớm miền cao.","Pha một ấm trà Shan tuyết, điều đáng nhớ nhất không chỉ là vị ngọt hậu. Đó còn là khoảng lặng nho nhỏ, khi ta đặt điện thoại xuống và để hương trà dẫn mình trở về với hiện tại."]'::jsonb,
+   '["Sớm ở Suối Giàng, mây đi rất thấp. Từ hiên nhà nhìn ra, những tán trà cổ thụ nằm yên trong màn sương mỏng, như thể đang chờ nắng gọi dậy.","Trong câu chuyện minh họa của A Sỉn, mỗi búp trà được hái bằng một nhịp chậm. Không phải để làm ra thật nhiều, mà để giữ lại cảm giác dịu dàng của buổi sớm miền cao.","Pha một ấm trà Shan tuyết, điều đáng nhớ nhất không chỉ là vị ngọt hậu. Đó còn là khoảng lặng nho nhỏ, khi ta đặt điện thoại xuống và để hương trà dẫn mình trở về với hiện tại."]'::jsonb,
    true, '2026-09-18T00:00:00Z'),
 
   ('mon-qua-nho', 'Gợi ý tặng quà', 'Ba cách gói một lời cảm ơn thật dịu dàng',
    'Không cần cầu kỳ. Chỉ cần một món quà nhỏ được chọn bằng sự thấu hiểu.',
    '/images/honey.webp', 4,
-   '["Một món quà không nhất thiết phải lớn. Có khi chỉ là hũ mật ong hoa rừng, gói cùng một tấm thiệp viết tay và một lời cảm ơn thật lòng.","Khi chọn quà, Mộc thường bắt đầu bằng một câu hỏi đơn giản: người ấy đang cần được nhắc nhớ điều gì?","Trong phiên bản minh họa này, chúng tôi gợi ý ba cách gói quà: dịu dàng với trà, ấm áp với mật, và thật riêng với lời nhắn của bạn."]'::jsonb,
+   '["Một món quà không nhất thiết phải lớn. Có khi chỉ là hũ mật ong hoa rừng, gói cùng một tấm thiệp viết tay và một lời cảm ơn thật lòng.","Khi chọn quà, A Sỉn thường bắt đầu bằng một câu hỏi đơn giản: người ấy đang cần được nhắc nhớ điều gì?","Trong phiên bản minh họa này, chúng tôi gợi ý ba cách gói quà: dịu dàng với trà, ấm áp với mật, và thật riêng với lời nhắn của bạn."]'::jsonb,
    true, '2026-09-12T00:00:00Z'),
 
   ('bep-nha', 'Vị Tây Bắc', 'Mắc khén: hạt gia vị đánh thức căn bếp',
@@ -180,14 +180,14 @@ values
   ('gac-bep-mua-gio', 'Từ bản làng', 'Gác bếp mùa gió: khi khói giữ lại vị núi',
    'Người Tây Bắc gác thịt trên bếp từ độ tháng Mười, để khói và thời gian làm nên món ăn.',
    '/images/jerky.webp', 6,
-   '["Tháng Mười, gió bắt đầu se. Đó cũng là lúc những gác bếp vùng cao bắt đầu đỏ lửa.","Thịt được ướp mắc khén, hạt dổi rồi treo lên gác. Khói bếp không chỉ sấy khô mà còn thơm vào từng thớ thịt.","Trong bản minh họa này, quy trình được kể lại một cách đơn giản; khi bán thật, Mộc sẽ công bố đầy đủ tiêu chuẩn an toàn thực phẩm."]'::jsonb,
+   '["Tháng Mười, gió bắt đầu se. Đó cũng là lúc những gác bếp vùng cao bắt đầu đỏ lửa.","Thịt được ướp mắc khén, hạt dổi rồi treo lên gác. Khói bếp không chỉ sấy khô mà còn thơm vào từng thớ thịt.","Trong bản minh họa này, quy trình được kể lại một cách đơn giản; khi bán thật, A Sỉn sẽ công bố đầy đủ tiêu chuẩn an toàn thực phẩm."]'::jsonb,
    true, '2026-08-30T00:00:00Z'),
 
   -- Hẹn giờ: RLS yêu cầu published_at <= now() nên bài này chỉ hiện trong /admin.
   ('qua-tet-tu-nui', 'Gợi ý tặng quà', 'Một hộp quà Tết đi từ bản làng về xuôi',
    'Chuyện chuẩn bị những hộp quà Tết, viết sẵn nhưng chưa tới ngày đăng.',
    '/images/hero.webp', 5,
-   '["Mỗi mùa Tết, Mộc lại bắt đầu chuẩn bị từ rất sớm: chọn món, đặt hộp, viết thiệp.","Bài viết này đang ở trạng thái hẹn giờ để kiểm tra luồng xuất bản.","Khi tới ngày, bài sẽ tự xuất hiện trên trang Tin tức."]'::jsonb,
+   '["Mỗi mùa Tết, A Sỉn lại bắt đầu chuẩn bị từ rất sớm: chọn món, đặt hộp, viết thiệp.","Bài viết này đang ở trạng thái hẹn giờ để kiểm tra luồng xuất bản.","Khi tới ngày, bài sẽ tự xuất hiện trên trang Tin tức."]'::jsonb,
    true, '2026-12-01T00:00:00Z'),
 
   -- Bản nháp: published = false nên published_at phải để trống.
@@ -291,8 +291,8 @@ select
   jsonb_build_object('full_name', d.full_name),
   timezone('utc', now()), timezone('utc', now())
 from (values
-  ('11111111-1111-4111-8111-111111111111'::uuid, 'admin@moctaybac.demo', 'Quản trị Mộc'),
-  ('22222222-2222-4222-8222-222222222222'::uuid, 'staff@moctaybac.demo', 'Nhân viên Mộc'),
+  ('11111111-1111-4111-8111-111111111111'::uuid, 'admin@moctaybac.demo', 'Quản trị A Sỉn'),
+  ('22222222-2222-4222-8222-222222222222'::uuid, 'staff@moctaybac.demo', 'Nhân viên A Sỉn'),
   ('33333333-3333-4333-8333-333333333333'::uuid, 'khach@moctaybac.demo', 'Đỗ Thanh Tùng')
 ) as d(id, email, full_name)
 on conflict (id) do nothing;
@@ -374,8 +374,8 @@ end $$;
 insert into public.profiles (id, full_name, role)
 select d.id, d.full_name, d.role::public.app_role
 from (values
-  ('11111111-1111-4111-8111-111111111111'::uuid, 'Quản trị Mộc',   'admin'),
-  ('22222222-2222-4222-8222-222222222222'::uuid, 'Nhân viên Mộc',  'staff'),
+  ('11111111-1111-4111-8111-111111111111'::uuid, 'Quản trị A Sỉn',   'admin'),
+  ('22222222-2222-4222-8222-222222222222'::uuid, 'Nhân viên A Sỉn',  'staff'),
   ('33333333-3333-4333-8333-333333333333'::uuid, 'Đỗ Thanh Tùng',  'customer')
 ) as d(id, full_name, role)
 where exists (select 1 from auth.users u where u.id = d.id)
@@ -728,7 +728,7 @@ insert into public.contact_messages (name, email, message, status, created_at, u
 values
   ('Nguyễn An Nhiên', 'an.nhien@vi-du.vn', 'Mình muốn đặt 5 hộp quà mùa thu để biếu đối tác, không biết có đủ hàng không ạ?', 'new', '2026-09-23T07:40:00Z', '2026-09-23T07:40:00Z'),
   ('Trần Minh Khoa', 'minh.khoa@vi-du.vn', 'Cho mình hỏi trà Shan Tuyết ướp hoa khác gì so với loại cổ thụ thường ngày?', 'new', '2026-09-22T16:12:00Z', '2026-09-22T16:12:00Z'),
-  ('Lê Thu Hà', 'thu.ha@vi-du.vn', 'Đơn MOCTB-DEMO-20260918-0010 mình nhận được rồi, hộp gói rất đẹp. Cảm ơn Mộc nhiều!', 'resolved', '2026-09-19T09:05:00Z', '2026-09-19T14:30:00Z'),
+  ('Lê Thu Hà', 'thu.ha@vi-du.vn', 'Đơn MOCTB-DEMO-20260918-0010 mình nhận được rồi, hộp gói rất đẹp. Cảm ơn A Sỉn nhiều!', 'resolved', '2026-09-19T09:05:00Z', '2026-09-19T14:30:00Z'),
   ('Phạm Quốc Bảo', 'quoc.bao@vi-du.vn', 'Mắc khén rang sẵn bảo quản được bao lâu sau khi mở nắp ạ?', 'in_progress', '2026-09-18T11:48:00Z', '2026-09-18T15:20:00Z'),
   ('Hoàng Mai Phương', 'mai.phuong@vi-du.vn', 'Mình ở Điện Biên, phí giao hàng tính thế nào và mất mấy ngày?', 'in_progress', '2026-09-17T13:25:00Z', '2026-09-17T18:00:00Z'),
   ('Vũ Đình Nam', 'dinh.nam@vi-du.vn', 'Có xuất hoá đơn VAT cho đơn hàng số lượng lớn không?', 'resolved', '2026-09-15T10:02:00Z', '2026-09-16T08:45:00Z'),
@@ -744,7 +744,7 @@ values
 --     `storefront_notice` là object {"text": ...} theo cách cửa hàng đọc.
 -- ---------------------------------------------------------------------
 insert into public.site_settings (key, value, is_public) values
-  ('store_name',          '"Mộc Tây Bắc"'::jsonb,                              false),
+  ('store_name',          '"A Sỉn"'::jsonb,                              false),
   ('order_email',         '"orders@moctaybac.vn"'::jsonb,                      false),
   ('hotline',             '"0900 000 001"'::jsonb,                             false),
   ('currency',            '"VND"'::jsonb,                                      false),

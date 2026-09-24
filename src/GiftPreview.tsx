@@ -29,8 +29,8 @@ export default function GiftPreview({
           <div className="box-pattern top-pattern" />
           <div className="box-brand">
             <Mountain strokeWidth={1} />
-            <span>mộc</span>
-            <small>TÂY BẮC</small>
+            <span>A Sỉn</span>
+            <small>----Đặc sản tây bắc----</small>
           </div>
           <div className="box-motto">GÓI TRỌN TINH HOA NÚI RỪNG</div>
           <div className="box-pattern bottom-pattern" />
@@ -38,7 +38,7 @@ export default function GiftPreview({
           <div className="gift-note">
             <span>Gửi {design.recipient || "người thương"},</span>
             <p>{design.message || "Một món quà từ núi rừng."}</p>
-            <i>Thương mến, Mộc</i>
+            <i>Thương mến, A Sỉn</i>
           </div>
         </div>
       </div>

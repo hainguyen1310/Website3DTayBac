@@ -260,8 +260,8 @@ html {
   color: #a88754;
 }
 .logo small {
-  font-size: 8px;
-  letter-spacing: 3.2px;
+  font-size: 7.5px;
+  letter-spacing: 1px;
   margin-top: 5px;
   padding-left: 4px;
 }
@@ -865,8 +865,8 @@ html {
   letter-spacing: -2px;
 }
 .box-brand small {
-  font-size: 7px;
-  letter-spacing: 2.8px;
+  font-size: 6.5px;
+  letter-spacing: 1.2px;
   padding-left: 3px;
   margin-top: 5px;
 }
@@ -2584,8 +2584,8 @@ textarea::placeholder {
     font-size: 31px;
   }
   .logo small {
-    font-size: 6.5px;
-    letter-spacing: 2.8px;
+    font-size: 6px;
+    letter-spacing: 0.7px;
   }
   .logo {
     gap: 6px;
@@ -3033,6 +3033,7 @@ textarea::placeholder {
   }
   .preview-panel .box-brand > small {
     font-size: 6px;
+    letter-spacing: 1px;
   }
   .preview-panel .box-motto {
     font-size: 4px;

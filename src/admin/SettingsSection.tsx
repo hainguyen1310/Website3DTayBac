@@ -19,7 +19,7 @@ import {
 } from "./ui";
 
 const INFO_KEYS = [
-  { key: "store_name", label: "Tên hiển thị", fallback: "Mộc Tây Bắc" },
+  { key: "store_name", label: "Tên hiển thị", fallback: "A Sỉn" },
   { key: "order_email", label: "Email nhận đơn", fallback: "orders@moctaybac.vn" },
   { key: "hotline", label: "Hotline", fallback: "0900 000 001" },
   { key: "currency", label: "Đơn vị tiền tệ", fallback: "VND" },

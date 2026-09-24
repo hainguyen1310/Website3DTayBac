@@ -14,7 +14,7 @@
 .admin-alert.ok { color: #2f6b3d; background: #e8f4ea; border-color: #cbe4cf; }
 .admin-alert.note { color: #725f39; background: #fbf3dd; border-color: #f0e2bd; }
 
-/* Danh sách và workspace CRUD theo hệ thống quản trị Mộc. */
+/* Danh sách và workspace CRUD theo hệ thống quản trị A Sỉn. */
 .admin-editor-page { min-height: calc(100vh - 140px); }
 .admin-editor-crumb { display: flex; gap: 6px; align-items: center; margin: -11px 0 18px; color: #8a978b; font-size: 11px; }
 .admin-editor-crumb b { color: #31523b; }
