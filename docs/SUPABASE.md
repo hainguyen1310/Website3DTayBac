@@ -1,14 +1,16 @@
 # Vận hành A Sỉn với Supabase
 
+> Bản cập nhật quản trị/CRM/COD/SMTP ngày 25/09/2026 được mô tả tại [ADMIN_OPERATIONS.md](ADMIN_OPERATIONS.md), gồm ma trận quyền, các migration mới và hướng dẫn kích hoạt Vercel API. Các ghi chú lịch sử phía dưới không thay thế quy trình này.
+
 ## Những gì đã có
 
 - Migration tại `supabase/migrations/20260921000000_moc_storefront.sql` tạo toàn bộ bảng vận hành: danh mục, sản phẩm, tồn kho, tin tức, khuyến mãi, khách hàng, đơn hàng, chi tiết đơn, thanh toán, lịch sử trạng thái, liên hệ và cấu hình cửa hàng.
 - Tất cả bảng đều bật Row Level Security (RLS). Khách chỉ đọc sản phẩm/bài viết/khuyến mãi đã công khai; dữ liệu đơn, khách và lời nhắn chỉ dành cho `admin` hoặc `staff`.
-- Cửa hàng đọc dữ liệu thật từ cơ sở dữ liệu: sản phẩm, danh mục, ưu đãi (`promotions` + `promotion_products`), bài viết và câu thông báo (`site_settings.storefront_notice`). Khi Supabase chưa sẵn sàng, cửa hàng tự dùng dữ liệu tĩnh trong `src/catalog.ts` và `src/shopData.ts`.
+- Cửa hàng đọc dữ liệu thật từ cơ sở dữ liệu: sản phẩm, danh mục, ưu đãi (`promotions` + `promotion_products`), bài viết và câu thông báo (`site_settings.storefront_notice`). Khi tải lỗi hoặc database trống, giao diện hiện trạng thái lỗi/trống; không thay bằng sản phẩm giả.
 - `create_checkout_order` nhận giỏ hàng nhưng tự đọc giá sản phẩm từ PostgreSQL. Giá gửi từ trình duyệt không được sử dụng.
 - `submit_contact_message` là RPC ghi tối thiểu: khách gửi được lời nhắn nhưng không thể đọc lại hộp thư.
 - `confirm_gateway_payment` chỉ dành cho `service_role`, dùng trong Edge Function/webhook sau khi nhà cung cấp QR xác thực thanh toán.
-- Dashboard `/admin` đăng nhập bằng Supabase Auth và CRUD trực tiếp qua RLS: sản phẩm + tồn kho, danh mục, đơn hàng (đổi trạng thái, xóa), khách hàng, khuyến mãi, bài viết, hộp thư liên hệ, cài đặt cửa hàng.
+- Dashboard `/admin` đăng nhập bằng Supabase Auth. Dữ liệu được bảo vệ bằng RLS và RPC theo admin/vận hành/marketing. Đơn hàng đổi trạng thái qua RPC; không xóa lịch sử đơn. Giao diện khách hàng, liên hệ, website và cài đặt đã mở rộng theo tài liệu mới.
 
 ## Khởi tạo cơ sở dữ liệu
 
@@ -32,7 +34,7 @@ Không cấp quyền bằng cách thay policy, và không để bất kỳ khóa
 - Sau khi đăng nhập, ứng dụng đọc `profiles.role` của chính tài khoản đó:
   - `admin` hoặc `staff`: vào được dashboard, mọi truy vấn gửi kèm JWT và được RLS cho phép.
   - `customer` hoặc không có dòng `profiles`: hiện màn hình “không đủ quyền” kèm nút đăng xuất.
-- Không cần cấu hình redirect URL riêng; đăng nhập mật khẩu không dùng liên kết email. Nếu bật xác thực email, hãy xác thực trước khi đăng nhập.
+- Đăng nhập mật khẩu không cần redirect riêng. Tính năng mời nhân viên cần thêm `/admin?setup=password` của domain thật vào Auth Redirect URLs; xem tài liệu mới.
 - Nút bấm trên tên tài khoản ở góc phải (và ở chân sidebar) để đăng xuất.
 
 ### Xử lý sự cố đăng nhập

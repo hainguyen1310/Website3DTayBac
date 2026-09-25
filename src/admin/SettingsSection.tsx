@@ -1,378 +1,374 @@
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Pencil, Plus, Save, Trash2 } from "lucide-react";
+import StaffInvite from "./StaffInvite";
+import { Link } from "react-router-dom";
+import { RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { useAuth } from "../AuthContext";
+import { useWebsite } from "../WebsiteContext";
+import { supabase } from "../utils/supabase";
+import { listAdminSettings, upsertSetting } from "../services/adminApi";
+import { getMailStatus } from "../services/careApi";
 import {
-  deleteSetting,
-  listAdminSettings,
-  upsertSetting,
-} from "../services/adminApi";
-import type { AdminSetting } from "../services/adminApi";
-import {
-  AdminConfirmDialog,
-  AdminEmpty,
   AdminError,
   AdminLoading,
-  AdminModal,
-  formatDateTime,
   SectionHeader,
+  formatDateTime,
   useAsync,
 } from "./ui";
-
-const INFO_KEYS = [
-  { key: "store_name", label: "Tên hiển thị", fallback: "A Sỉn" },
-  { key: "order_email", label: "Email nhận đơn", fallback: "orders@moctaybac.vn" },
-  { key: "hotline", label: "Hotline", fallback: "0900 000 001" },
-  { key: "currency", label: "Đơn vị tiền tệ", fallback: "VND" },
-];
-
-const asText = (value: unknown, fallback: string) =>
-  typeof value === "string" ? value : fallback;
-
+async function staffAccounts() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,full_name,role,staff_scope")
+    .order("created_at");
+  if (error) throw error;
+  return data as {
+    id: string;
+    full_name: string;
+    role: string;
+    staff_scope: string;
+  }[];
+}
+async function audit() {
+  const { data, error } = await supabase
+    .from("admin_audit_log")
+    .select("id,actor_id,entity,entity_id,action,created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return data ?? [];
+}
 export default function SettingsSection() {
   const { profile } = useAuth();
-  const { data, error, loading, reload } = useAsync(listAdminSettings, []);
-  const [info, setInfo] = useState<Record<string, string>>({});
+  const { refresh } = useWebsite();
+  const settings = useAsync(listAdminSettings);
+  const mail = useAsync(getMailStatus);
+  const staff = useAsync(staffAccounts);
+  const logs = useAsync(audit);
+  const [shipping, setShipping] = useState({
+    shippingFee: 30000,
+    freeShippingFrom: 500000,
+  });
   const [notice, setNotice] = useState("");
-  const [form, setForm] = useState<{
-    key: string;
-    value: string;
-    isPublic: boolean;
-    isNew: boolean;
-  } | null>(null);
-  const [actionError, setActionError] = useState("");
-  const [saved, setSaved] = useState("");
   const [busy, setBusy] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<AdminSetting | null>(null);
-
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState("");
   useEffect(() => {
-    if (!data) return;
-    setInfo(
-      Object.fromEntries(
-        INFO_KEYS.map((entry) => [
-          entry.key,
-          asText(
-            data.find((setting) => setting.key === entry.key)?.value,
-            entry.fallback,
-          ),
-        ]),
-      ),
-    );
-    setNotice(
-      asText(
-        (data.find((setting) => setting.key === "storefront_notice")
-          ?.value as { text?: unknown } | undefined)?.text,
-        "Từ bản làng, gửi đến bạn.",
-      ),
-    );
-  }, [data]);
-
-  const saveInfo = async () => {
+    if (settings.data) {
+      const value = settings.data.find((s) => s.key === "commerce")?.value as
+        | typeof shipping
+        | undefined;
+      if (value) setShipping(value);
+      const n = settings.data.find((s) => s.key === "storefront_notice")
+        ?.value as { text?: string } | undefined;
+      setNotice(n?.text ?? "");
+    }
+  }, [settings.data]);
+  const action = async (task: () => Promise<unknown>, message: string) => {
     setBusy(true);
-    setActionError("");
+    setError("");
+    setSaved("");
     try {
-      for (const entry of INFO_KEYS) {
-        await upsertSetting(
-          entry.key,
-          info[entry.key] ?? entry.fallback,
-          false,
-          profile?.id ?? null,
-        );
-      }
-      setSaved("Đã lưu thông tin cửa hàng.");
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không lưu được cài đặt.",
-      );
+      await task();
+      setSaved(message);
+      refresh();
+      logs.reload();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Không lưu được cài đặt.");
     } finally {
       setBusy(false);
     }
   };
-
-  const saveNotice = async () => {
-    setBusy(true);
-    setActionError("");
-    try {
-      await upsertSetting(
-        "storefront_notice",
-        { text: notice.trim() },
-        true,
-        profile?.id ?? null,
-      );
-      setSaved("Đã lưu câu thông báo. Cửa hàng sẽ hiển thị ngay ở lần tải tới.");
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không lưu được thông báo.",
-      );
-    } finally {
-      setBusy(false);
-    }
+  const roles = {
+    admin: "Quản trị viên",
+    operations: "Nhân viên vận hành",
+    marketing: "Marketing",
+    customer: "Không có quyền quản trị",
   };
-
-  const saveSetting = async () => {
-    if (!form) return;
-    if (!form.key.trim()) {
-      setActionError("Key không được để trống.");
-      return;
-    }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(form.value);
-    } catch {
-      setActionError("Giá trị phải là JSON hợp lệ, ví dụ \"abc\" hoặc {\"text\":\"...\"}.");
-      return;
-    }
-    setBusy(true);
-    setActionError("");
-    try {
-      await upsertSetting(form.key, parsed, form.isPublic, profile?.id ?? null);
-      setSaved(`Đã lưu cài đặt ${form.key}.`);
-      setForm(null);
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không lưu được cài đặt.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const remove = async (setting: AdminSetting) => {
-    setBusy(true);
-    setActionError("");
-    try {
-      await deleteSetting(setting.key);
-      setSaved(`Đã xóa ${setting.key}.`);
-      setPendingDelete(null);
-      reload();
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error ? caught.message : "Không xóa được cài đặt.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <>
       <SectionHeader
-        eyebrow="THIẾT LẬP CỬA HÀNG"
-        title="Cài đặt"
-        action={
-          <button
-            className="admin-primary"
-            onClick={() =>
-              setForm({ key: "", value: '""', isPublic: false, isNew: true })
-            }
-          >
-            <Plus size={17} /> Thêm cài đặt
-          </button>
-        }
+        eyebrow="QUẢN TRỊ HỆ THỐNG"
+        title="Cài đặt & quyền truy cập"
       />
-
-      <AdminError message={actionError} />
-      {saved && <p className="admin-alert ok">{saved}</p>}
-
-      {loading ? (
+      <AdminError message={error || settings.error} />
+      {saved && (
+        <p role="status" className="admin-alert ok">
+          {saved}
+        </p>
+      )}
+      {settings.loading ? (
         <AdminLoading />
-      ) : error ? (
-        <AdminError message={error} />
       ) : (
         <>
-          <section className="admin-card settings-card">
-            <h2>Thông tin cửa hàng</h2>
-            <div className="settings-fields">
-              {INFO_KEYS.map((entry) => (
-                <label key={entry.key}>
-                  {entry.label}
-                  {entry.key === "currency" ? (
-                    <select
-                      value={info[entry.key] ?? "VND"}
-                      onChange={(event) =>
-                        setInfo((current) => ({
-                          ...current,
-                          [entry.key]: event.target.value,
-                        }))
-                      }
-                    >
-                      <option value="VND">VND — Việt Nam đồng</option>
-                    </select>
-                  ) : (
+          <div className="care-detail-grid">
+            <div>
+              <form
+                className="admin-card"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void action(
+                    () =>
+                      upsertSetting(
+                        "commerce",
+                        shipping,
+                        true,
+                        profile?.id ?? null,
+                      ),
+                    "Đã lưu chính sách giao hàng.",
+                  );
+                }}
+              >
+                <h2>Giao hàng & thanh toán</h2>
+                <p className="admin-help">
+                  Thanh toán COD. Phí được tính lại tại database khi khách đặt
+                  hàng.
+                </p>
+                <div className="admin-form-grid">
+                  <label>
+                    Phí giao hàng mặc định (đ)
                     <input
-                      value={info[entry.key] ?? ""}
-                      onChange={(event) =>
-                        setInfo((current) => ({
-                          ...current,
-                          [entry.key]: event.target.value,
-                        }))
+                      type="number"
+                      required
+                      min={0}
+                      max={1000000}
+                      step={1000}
+                      value={shipping.shippingFee}
+                      onChange={(e) =>
+                        setShipping({
+                          ...shipping,
+                          shippingFee: Number(e.target.value),
+                        })
                       }
                     />
-                  )}
+                  </label>
+                  <label>
+                    Miễn phí từ giá trị đơn (đ)
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      max={100000000}
+                      step={1000}
+                      value={shipping.freeShippingFrom}
+                      onChange={(e) =>
+                        setShipping({
+                          ...shipping,
+                          freeShippingFrom: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+                <div className="admin-modal-actions">
+                  <button className="admin-primary" disabled={busy}>
+                    <Save size={16} />
+                    Lưu chính sách
+                  </button>
+                </div>
+              </form>
+              <form
+                className="admin-card"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void action(
+                    () =>
+                      upsertSetting(
+                        "storefront_notice",
+                        { text: notice.trim() },
+                        true,
+                        profile?.id ?? null,
+                      ),
+                    "Đã lưu thông báo.",
+                  );
+                }}
+              >
+                <h2>Thông báo cửa hàng</h2>
+                <label>
+                  Nội dung thông báo
+                  <input
+                    value={notice}
+                    maxLength={200}
+                    onChange={(e) => setNotice(e.target.value)}
+                  />
                 </label>
-              ))}
+                <div className="admin-modal-actions">
+                  <button className="admin-primary" disabled={busy}>
+                    <Save size={16} />
+                    Lưu thông báo
+                  </button>
+                </div>
+                <p className="admin-help">
+                  Thông tin liên hệ và nội dung các section được quản lý tại{" "}
+                  <Link
+                    className="care-ticket-link"
+                    to="/admin?section=website"
+                  >
+                    Nội dung website
+                  </Link>
+                  .
+                </p>
+              </form>
             </div>
-            <button className="admin-primary" onClick={() => void saveInfo()} disabled={busy}>
-              <Save size={16} /> Lưu thông tin
-            </button>
-          </section>
-
-          <section className="admin-card settings-card">
-            <h2>Câu thông báo trên cửa hàng</h2>
-            <div className="settings-fields one">
-              <label>
-                Nội dung thanh thông báo trên cùng
-                <input
-                  value={notice}
-                  onChange={(event) => setNotice(event.target.value)}
-                />
-              </label>
-            </div>
-            <button className="admin-primary" onClick={() => void saveNotice()} disabled={busy}>
-              <Save size={16} /> Lưu thông báo
-            </button>
-          </section>
-
+            <aside className="care-sidebar">
+              <section className="admin-card">
+                <h2>Email chăm sóc khách hàng</h2>
+                {mail.loading ? (
+                  <AdminLoading />
+                ) : (
+                  <>
+                    <span className="admin-tag">
+                      {mail.data?.configured
+                        ? "Đã có cấu hình SMTP"
+                        : "Chưa cấu hình đủ SMTP"}
+                    </span>
+                    <p>{mail.data?.from || "noreply@asintaybac.com"}</p>
+                    <dl className="care-facts">
+                      <dt>Máy chủ SMTP dự kiến</dt>
+                      <dd>smtp.gmail.com · 587 · STARTTLS</dd>
+                      <dt>Nhận thư trả lời</dt>
+                      <dd>
+                        {mail.data?.inbound
+                          ? "Đã có cấu hình IMAP"
+                          : "Cần cấu hình IMAP"}
+                      </dd>
+                    </dl>
+                    <p>
+                      Cấu hình không đồng nghĩa đã kiểm tra gửi thành công. Kết
+                      quả từng thư hiển thị trong Hộp thư liên hệ.
+                    </p>
+                    <p className="admin-help">
+                      Quản trị viên đặt SMTP_USER, SMTP_PASSWORD và SMTP_FROM
+                      trong biến môi trường máy chủ. Mật khẩu không lưu trong
+                      trình duyệt.
+                    </p>
+                    <AdminError message={mail.error} />
+                    <button className="admin-ghost" onClick={mail.reload}>
+                      <RefreshCw size={15} />
+                      Kiểm tra cấu hình
+                    </button>
+                  </>
+                )}
+              </section>
+            </aside>
+          </div>
           <section className="admin-card">
-            <div className="admin-card-heading">
-              <div>
-                <h2>Toàn bộ cài đặt ({data?.length ?? 0})</h2>
-                <p>Cài đặt công khai sẽ được cửa hàng đọc.</p>
-              </div>
-              <button onClick={reload}>
-                Làm mới <ArrowUpRight size={15} />
-              </button>
-            </div>
-            {data?.length ? (
+            <h2>
+              <ShieldCheck size={19} />
+              Tài khoản & phân quyền
+            </h2>
+            <p className="admin-help">
+              Vận hành: đơn hàng, tồn kho, khách hàng, hộp thư, báo cáo.
+              Marketing: sản phẩm, khuyến mãi, bài viết và nội dung website.
+              Quản trị viên quản lý toàn bộ.
+            </p>
+            <AdminError message={staff.error} />
+            {staff.loading ? (
+              <AdminLoading />
+            ) : (
               <div className="admin-table-wrap">
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Key</th>
-                      <th>Giá trị</th>
-                      <th>Công khai</th>
-                      <th>Cập nhật</th>
-                      <th />
+                      <th>Nhân viên</th>
+                      <th>Quyền truy cập</th>
+                      <th>Tài khoản</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.map((setting) => (
-                      <tr key={setting.key}>
+                    {staff.data?.map((s) => (
+                      <tr key={s.id}>
                         <td>
-                          <b>{setting.key}</b>
+                          <b>{s.full_name}</b>
                         </td>
                         <td>
-                          <code className="admin-code">
-                            {JSON.stringify(setting.value)}
-                          </code>
+                          <select
+                            aria-label={`Vai trò ${s.full_name}`}
+                            disabled={busy || s.id === profile?.id}
+                            value={s.role === "staff" ? s.staff_scope : s.role}
+                            onChange={(e) => {
+                              const role = e.target.value;
+                              void action(async () => {
+                                const result = await supabase.rpc(
+                                  "set_staff_access",
+                                  { p_id: s.id, p_role: role },
+                                );
+                                if (result.error) throw result.error;
+                                staff.reload();
+                              }, "Đã cập nhật quyền truy cập.");
+                            }}
+                          >
+                            {Object.entries(roles).map(([v, l]) => (
+                              <option key={v} value={v}>
+                                {l}
+                              </option>
+                            ))}
+                          </select>
                         </td>
-                        <td>{setting.isPublic ? "Có" : "Không"}</td>
-                        <td>{formatDateTime(setting.updatedAt)}</td>
                         <td>
-                          <div className="admin-row-actions">
-                            <button
-                              onClick={() =>
-                                setForm({
-                                  key: setting.key,
-                                  value: JSON.stringify(setting.value, null, 2),
-                                  isPublic: setting.isPublic,
-                                  isNew: false,
-                                })
-                              }
-                              aria-label={`Sửa ${setting.key}`}
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            <button
-                              className="danger"
-                              onClick={() => setPendingDelete(setting)}
-                              aria-label={`Xóa ${setting.key}`}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
+                          {s.id === profile?.id
+                            ? "Bạn đang đăng nhập"
+                            : "Đã có tài khoản"}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <AdminEmpty>Chưa có cài đặt nào.</AdminEmpty>
             )}
+            <StaffInvite onCreated={staff.reload} />
+            <p className="admin-help">
+              Nhân viên tự xác thực email và đặt mật khẩu qua lời mời. Không
+              thay đổi quyền của chính phiên đang đăng nhập.
+            </p>
+          </section>
+          <section className="admin-card">
+            <div className="admin-card-heading">
+              <h2>Nhật ký quản trị</h2>
+              <button className="admin-ghost" onClick={logs.reload}>
+                Làm mới
+              </button>
+            </div>
+            <AdminError message={logs.error} />
+            {logs.loading ? (
+              <AdminLoading />
+            ) : (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Thời gian</th>
+                      <th>Người thực hiện</th>
+                      <th>Đối tượng</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.data?.map((l) => (
+                      <tr key={String(l.id)}>
+                        <td>{formatDateTime(String(l.created_at))}</td>
+                        <td>
+                          {staff.data?.find((s) => s.id === l.actor_id)
+                            ?.full_name || "Website / hệ thống"}
+                        </td>
+                        <td>{String(l.entity)}</td>
+                        <td>
+                          {{
+                            INSERT: "Tạo mới",
+                            UPDATE: "Cập nhật",
+                            DELETE: "Xóa",
+                          }[String(l.action)] || String(l.action)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <p className="admin-help">
+              50 thao tác gần nhất. Nhật ký lưu tại database và không cho phép
+              nhân viên sửa.
+            </p>
           </section>
         </>
-      )}
-
-      {form && (
-        <AdminModal
-          title={form.isNew ? "Thêm cài đặt" : `Sửa ${form.key}`}
-          onClose={() => setForm(null)}
-        >
-          <AdminError message={actionError} />
-          <div className="admin-form-grid">
-            <label>
-              Key
-              <input
-                value={form.key}
-                disabled={!form.isNew}
-                onChange={(event) =>
-                  setForm({ ...form, key: event.target.value })
-                }
-              />
-            </label>
-            <label className="admin-check">
-              <input
-                type="checkbox"
-                checked={form.isPublic}
-                onChange={(event) =>
-                  setForm({ ...form, isPublic: event.target.checked })
-                }
-              />
-              Cho phép khách đọc (is_public)
-            </label>
-            <label className="full">
-              Giá trị JSONB
-              <textarea
-                rows={5}
-                value={form.value}
-                onChange={(event) =>
-                  setForm({ ...form, value: event.target.value })
-                }
-              />
-            </label>
-          </div>
-          <div className="admin-modal-actions">
-            <button
-              className="admin-primary"
-              onClick={() => void saveSetting()}
-              disabled={busy}
-            >
-              {busy ? "Đang lưu…" : "Lưu cài đặt"}
-            </button>
-            <button className="admin-ghost" onClick={() => setForm(null)}>
-              Hủy
-            </button>
-          </div>
-        </AdminModal>
-      )}
-      {pendingDelete && (
-        <AdminConfirmDialog
-          title="Xóa cấu hình"
-          description={
-            <>
-              Xóa cấu hình <b>{pendingDelete.key}</b>? Nếu cửa hàng đang dùng
-              giá trị này, hệ thống sẽ quay về giá trị mặc định hoặc không còn
-              hiển thị dữ liệu tương ứng.
-            </>
-          }
-          confirmLabel="Xóa cấu hình"
-          onConfirm={() => void remove(pendingDelete)}
-          onClose={() => setPendingDelete(null)}
-          busy={busy}
-        />
       )}
     </>
   );

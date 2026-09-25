@@ -7,4 +7,5 @@ export type AdminSection =
   | "content"
   | "messages"
   | "reports"
+  | "website"
   | "settings";

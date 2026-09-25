@@ -31,7 +31,7 @@ export const deals = [
 export const stories = [
   {
     id: "tra-shan-tuyet-hon-ca-mot-loai-tra",
-    tag: "Tạp chí Mộc",
+    tag: "Tạp chí A Sỉn",
     date: "18.09.2026",
     title: "Trà Shan Tuyết – hơn cả một loại trà",
     excerpt:
@@ -55,7 +55,7 @@ export const stories = [
     readTime: "4 phút đọc",
     body: [
       "Tiếng chim hót ríu rít khi bình minh ló rạng trên triền ruộng bậc thang. Một ngày mới ở bản xa bắt đầu nhẹ nhàng bên bếp lửa bập bùng và làn khói lam chiều.",
-      "Ở đây, con người sống hòa hợp cùng cỏ cây, trân trọng từng hạt gạo, từng giọt mật hoa rừng. Sự chân thành và mộc mạc ấy chính là nguồn cảm hứng lớn nhất để Mộc ra đời.",
+      "Ở đây, con người sống hòa hợp cùng cỏ cây, trân trọng từng hạt gạo, từng giọt mật hoa rừng. Sự chân thành và mộc mạc ấy chính là nguồn cảm hứng lớn nhất để A Sỉn ra đời.",
       "Hành trình tìm về những giá trị nguyên bản giúp ta nhận ra: hạnh phúc đôi khi chỉ giản đơn là được sống chậm lại và cảm nhận cuộc sống nhiều hơn.",
     ],
   },

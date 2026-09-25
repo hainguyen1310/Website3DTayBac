@@ -4,6 +4,7 @@ import { AlertCircle, ArrowLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { invalidateCache } from "../services/cache";
 import { ORDER_STATUS_LABELS } from "../services/adminApi";
 import type { OrderStatus } from "../services/adminApi";
+import { csvCell, localDateTime } from "../operations";
 
 export function SectionHeader({
   eyebrow,
@@ -95,7 +96,7 @@ export function useAsync<T>(
           setError(
             caught instanceof Error
               ? caught.message
-              : "Không tải được dữ liệu.",
+              : typeof caught === "object" && caught && "message" in caught ? String(caught.message) : "Không tải được dữ liệu.",
           );
         }
       })
@@ -273,17 +274,13 @@ export const formatDate = (value: string | null) =>
     : "—";
 
 export const toDateTimeInput = (value: string | null) =>
-  value ? new Date(value).toISOString().slice(0, 16) : "";
+  localDateTime(value);
 
 export const fromDateTimeInput = (value: string) =>
   value ? new Date(value).toISOString() : null;
 
 export function downloadCsv(filename: string, rows: Array<Array<string | number>>) {
-  const escape = (cell: string | number) => {
-    const text = String(cell ?? "");
-    return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
-  };
-  const csv = rows.map((row) => row.map(escape).join(",")).join("\n");
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
   const url = URL.createObjectURL(
     new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }),
   );

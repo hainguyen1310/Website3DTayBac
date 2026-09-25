@@ -282,14 +282,16 @@ on conflict (promotion_id, product_id) do update set
 -- ---------------------------------------------------------------------
 insert into auth.users (
   id, instance_id, aud, role, email, encrypted_password,
-  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token,recovery_token,email_change_token_new,email_change_token_current,
+  phone_change_token,reauthentication_token,email_change,phone_change
 )
 select
   d.id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
   d.email, extensions.crypt('MocDemo@2026', extensions.gen_salt('bf')),
   jsonb_build_object('provider', 'email', 'providers', jsonb_build_array('email')),
   jsonb_build_object('full_name', d.full_name),
-  timezone('utc', now()), timezone('utc', now())
+  timezone('utc', now()), timezone('utc', now()),'','','','','','','',''
 from (values
   ('11111111-1111-4111-8111-111111111111'::uuid, 'admin@moctaybac.demo', 'Quản trị A Sỉn'),
   ('22222222-2222-4222-8222-222222222222'::uuid, 'staff@moctaybac.demo', 'Nhân viên A Sỉn'),

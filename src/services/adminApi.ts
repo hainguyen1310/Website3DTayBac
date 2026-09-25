@@ -1,5 +1,7 @@
 import { supabase } from "../utils/supabase";
 import { cached, invalidateCache } from "./cache";
+import { readPages } from "./pagination";
+import { vietnamDay } from "../operations";
 
 export type OrderStatus =
   | "awaiting_payment"
@@ -35,14 +37,14 @@ export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   awaiting_payment: ["cancelled"],
   paid: ["packing", "cancelled"],
   packing: ["shipping", "cancelled"],
-  shipping: ["completed", "cancelled"],
+  shipping: ["completed"],
   completed: [],
   cancelled: [],
 };
 
 /** Bước chỉ đơn COD mới có: nhân viên xác nhận đã thu tiền mặt. */
 const COD_ONLY_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
-  awaiting_payment: ["paid"],
+  awaiting_payment: ["packing"],
 };
 
 export const getAvailableOrderStatuses = (
@@ -55,7 +57,7 @@ export const getAvailableOrderStatuses = (
 ];
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  awaiting_payment: "Chờ thanh toán",
+  awaiting_payment: "Chờ xác nhận / thanh toán",
   paid: "Đã thanh toán",
   packing: "Đang đóng gói",
   shipping: "Đang giao",
@@ -83,9 +85,9 @@ export const CONTACT_STATUSES: ContactStatus[] = [
 ];
 
 export const CONTACT_STATUS_LABELS: Record<ContactStatus, string> = {
-  new: "Mới",
-  in_progress: "Đang xử lý",
-  resolved: "Đã phản hồi",
+  new: "Cần trả lời",
+  in_progress: "Đang chăm sóc",
+  resolved: "Đã giải quyết",
   spam: "Spam",
 };
 
@@ -328,35 +330,16 @@ function productPayload(input: ProductInput) {
   };
 }
 
-export async function createProduct(input: ProductInput): Promise<void> {
-  const { data, error } = await supabase
-    .from("products")
-    .insert(productPayload(input))
-    .select("id")
-    .single();
-  fail(error);
-  if (!data) throw new Error("Không tạo được sản phẩm.");
-  await saveInventory(
-    data.id as string,
-    input.quantity,
-    input.lowStockThreshold,
-  );
-  afterWrite();
+async function saveProduct(id: string | null, input: ProductInput, expectedQuantity?: number): Promise<void> {
+  if (![input.priceVnd,input.quantity,input.lowStockThreshold,input.sortOrder].every(v => Number.isSafeInteger(v) && v >= 0)) throw new Error("Giá, tồn kho và thứ tự phải là số nguyên không âm.");
+  const { error } = await supabase.rpc("save_admin_product", { p_id: id, p_product: productPayload(input), p_quantity: input.quantity, p_threshold: input.lowStockThreshold, p_expected_quantity: expectedQuantity ?? null });
+  fail(error); afterWrite();
 }
-
-export async function updateProduct(
-  id: string,
-  input: ProductInput,
-): Promise<void> {
-  const { data, error } = await supabase
-    .from("products")
-    .update(productPayload(input))
-    .eq("id", id)
-    .select("id");
-  fail(error);
-  ensureAffected(data, "cập nhật sản phẩm");
-  await saveInventory(id, input.quantity, input.lowStockThreshold);
-  afterWrite();
+export const createProduct = (input: ProductInput) => saveProduct(null,input);
+export const updateProduct = (id: string, input: ProductInput, expectedQuantity: number) => saveProduct(id,input,expectedQuantity);
+export async function setProductActive(id: string, active: boolean) {
+  const { data, error } = await supabase.from("products").update({ active }).eq("id", id).select("id");
+  fail(error); ensureAffected(data, "đổi trạng thái sản phẩm"); afterWrite();
 }
 
 export async function deleteProduct(id: string): Promise<void> {
@@ -401,6 +384,8 @@ export type AdminOrderItem = {
 };
 
 export type AdminOrder = {
+  carrier: string;
+  trackingNumber: string;
   id: string;
   orderNumber: string;
   status: OrderStatus;
@@ -428,6 +413,11 @@ export type AdminOrderEvent = {
 };
 
 type OrderRow = {
+  recipient_name: string | null;
+  recipient_phone: string | null;
+  recipient_email: string | null;
+  carrier: string;
+  tracking_number: string;
   id: string;
   order_number: string;
   status: OrderStatus;
@@ -456,16 +446,16 @@ type OrderRow = {
   }> | null;
 };
 
-export function listAdminOrders(limit = 200): Promise<AdminOrder[]> {
+export function listAdminOrders(limit = Infinity): Promise<AdminOrder[]> {
   return cached(`admin:orders:${limit}`, async () => {
-    const { data, error } = await supabase
+    const data = await readPages((start,end) => supabase
       .from("orders")
       .select(
-        "id, order_number, status, payment_status, payment_method, subtotal_vnd, discount_vnd, shipping_vnd, total_vnd, shipping_address, customer_note, created_at, customer_id, customers(full_name, phone, email), order_items(id, product_name, sku, unit_price_vnd, quantity, line_total_vnd, metadata)",
+        "recipient_name, recipient_phone, recipient_email, carrier, tracking_number, id, order_number, status, payment_status, payment_method, subtotal_vnd, discount_vnd, shipping_vnd, total_vnd, shipping_address, customer_note, created_at, customer_id, customers(full_name, phone, email), order_items(id, product_name, sku, unit_price_vnd, quantity, line_total_vnd, metadata)",
       )
       .order("created_at", { ascending: false })
-      .limit(limit);
-    fail(error);
+      .order("id")
+      .range(start,end),limit);
 
     return ((data ?? []) as OrderRow[]).map((row) => {
       const customer = first(row.customers);
@@ -483,9 +473,11 @@ export function listAdminOrders(limit = 200): Promise<AdminOrder[]> {
         customerNote: row.customer_note,
         createdAt: row.created_at,
         customerId: row.customer_id,
-        customerName: customer?.full_name ?? "Khách lẻ",
-        customerPhone: customer?.phone ?? "",
-        customerEmail: customer?.email ?? null,
+        customerName: row.recipient_name ?? customer?.full_name ?? "Khách lẻ",
+        carrier: row.carrier,
+        trackingNumber: row.tracking_number,
+        customerPhone: row.recipient_phone ?? customer?.phone ?? "",
+        customerEmail: row.recipient_email ?? customer?.email ?? null,
         items: (row.order_items ?? []).map((item) => ({
           id: item.id,
           productName: item.product_name,
@@ -500,33 +492,11 @@ export function listAdminOrders(limit = 200): Promise<AdminOrder[]> {
   });
 }
 
-export async function updateOrderStatus(
-  id: string,
-  currentStatus: OrderStatus,
-  status: OrderStatus,
-  paymentMethod: PaymentMethod,
-): Promise<void> {
-  if (!getAvailableOrderStatuses(currentStatus, paymentMethod).includes(status)) {
-    throw new Error("Trạng thái này không phải là bước xử lý hợp lệ của đơn.");
-  }
-
-  // Xác nhận thu tiền COD là chốt luôn thanh toán: nếu chỉ đổi `status` thì
-  // đơn hiện "Đã thanh toán" trong khi tiền vẫn "Chờ", và đơn không được tính
-  // vào doanh thu ở trang Báo cáo.
-  const patch =
-    status === "paid"
-      ? { status, payment_status: "paid" as const }
-      : { status };
-
-  const { data, error } = await supabase
-    .from("orders")
-    .update(patch)
-    .eq("id", id)
-    .eq("status", currentStatus)
-    .select("id");
-  fail(error);
-  ensureAffected(data, "cập nhật trạng thái đơn");
-  afterWrite();
+export async function updateOrderStatus(id: string,currentStatus: OrderStatus,status: OrderStatus,paymentMethod: PaymentMethod,
+  details: {note: string; carrier: string; tracking: string; codCollected: boolean} = {note:"",carrier:"",tracking:"",codCollected:false}): Promise<void> {
+  if (!getAvailableOrderStatuses(currentStatus,paymentMethod).includes(status)) throw new Error("Bước xử lý không hợp lệ.");
+  const {error}=await supabase.rpc("advance_order",{p_id:id,p_expected:currentStatus,p_status:status,p_note:details.note,p_carrier:details.carrier,p_tracking:details.tracking,p_cod_collected:details.codCollected});
+  fail(error);afterWrite();
 }
 
 export async function deleteOrder(id: string): Promise<void> {
@@ -873,6 +843,10 @@ export function listAdminPromotions(): Promise<AdminPromotion[]> {
   });
 }
 
+export async function savePromotion(id: string | null, input: PromotionInput, items: PromotionProductInput[]): Promise<void> {
+ const {error}=await supabase.rpc("save_admin_promotion",{p_id:id,p_promotion:input,p_items:items}); fail(error);afterWrite();
+}
+
 export async function createPromotion(input: PromotionInput): Promise<string> {
   const { data, error } = await supabase
     .from("promotions")
@@ -1086,7 +1060,7 @@ export type DashboardSnapshot = {
 export function getDashboardSnapshot(): Promise<DashboardSnapshot> {
   return cached("admin:dashboard", async () => {
     const [orders, products, customers, messages] = await Promise.all([
-      listAdminOrders(100),
+      listAdminOrders(),
       listAdminProducts(),
       supabase.from("customers").select("id", { count: "exact", head: true }),
       supabase
@@ -1119,23 +1093,21 @@ export type ReportData = {
 };
 
 async function loadReportData(days = 30): Promise<ReportData> {
-  const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const [orderResult, itemResult] = await Promise.all([
-    supabase
+  const since = new Date(`${vietnamDay(Date.now() - (days - 1) * 86_400_000)}T00:00:00+07:00`).toISOString();
+  const [orderRows, itemRows] = await Promise.all([
+    readPages((start,end)=>supabase
       .from("orders")
       .select("status, payment_status, payment_method, total_vnd, created_at")
-      .gte("created_at", since),
-    supabase
+      .gte("created_at", since).order("id").range(start,end)),
+    readPages((start,end)=>supabase
       .from("order_items")
       .select("product_name, quantity, line_total_vnd, orders!inner(status, payment_status, created_at)")
       .gte("orders.created_at", since)
       .neq("orders.status", "cancelled")
-      .eq("orders.payment_status", "paid"),
+      .eq("orders.payment_status", "paid").order("id").range(start,end)),
   ]);
-  fail(orderResult.error);
-  fail(itemResult.error);
 
-  const orders = (orderResult.data ?? []) as Array<{
+  const orders = orderRows as Array<{
     status: OrderStatus;
     payment_status: PaymentStatus;
     payment_method: PaymentMethod;
@@ -1149,13 +1121,11 @@ async function loadReportData(days = 30): Promise<ReportData> {
 
   const daily = new Map<string, number>();
   for (let index = days - 1; index >= 0; index -= 1) {
-    const date = new Date(Date.now() - index * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    const date = vietnamDay(Date.now() - index * 86_400_000);
     daily.set(date, 0);
   }
   for (const order of revenueOrders) {
-    const date = order.created_at.slice(0, 10);
+    const date = vietnamDay(order.created_at);
     if (daily.has(date)) daily.set(date, (daily.get(date) ?? 0) + Number(order.total_vnd));
   }
 
@@ -1173,7 +1143,7 @@ async function loadReportData(days = 30): Promise<ReportData> {
   }
 
   const productTotals = new Map<string, { quantity: number; revenue: number }>();
-  for (const item of (itemResult.data ?? []) as Array<{
+  for (const item of itemRows as Array<{
     product_name: string;
     quantity: number;
     line_total_vnd: number;

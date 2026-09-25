@@ -61,7 +61,7 @@ export default function Customizer() {
         <Link to="/" className="back-link">
           <ArrowLeft size={16} /> Về nhà A Sỉn
         </Link>
-        <div className="custom-heading">
+        <div className="custom-heading" data-reveal="rise">
           <span className="eyebrow">
             <Sparkles size={14} /> A SỈN — THEO CÁCH CỦA BẠN
           </span>
@@ -73,7 +73,7 @@ export default function Customizer() {
           <p>Chọn chút hương rừng, thêm một sắc màu, gửi ngàn lời thương.</p>
         </div>
         <div className="customizer-grid">
-          <section className="preview-panel" aria-label="Xem trước hộp quà">
+          <section className="preview-panel" data-reveal="landscape" aria-label="Xem trước hộp quà">
             <div className="preview-top">
               <span>
                 <span className="live-dot" /> XEM TRƯỚC TRỰC TIẾP

@@ -9,6 +9,8 @@ import {
 import type { ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./utils/supabase";
+import { invalidateCache } from "./services/cache";
+import type { StaffScope } from "./operations";
 
 export type StaffRole = "admin" | "staff" | "customer";
 
@@ -16,6 +18,7 @@ export type Profile = {
   id: string;
   fullName: string;
   role: StaffRole;
+  staffScope: StaffScope;
 };
 
 type Auth = {
@@ -33,7 +36,7 @@ export const useAuth = () => useContext(AuthContext)!;
 async function loadProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, role, staff_scope")
     .eq("id", userId)
     .maybeSingle();
 
@@ -43,6 +46,7 @@ async function loadProfile(userId: string): Promise<Profile | null> {
     id: data.id as string,
     fullName: (data.full_name as string | null) ?? "",
     role: data.role as StaffRole,
+    staffScope: data.staff_scope as StaffScope,
   };
 }
 
@@ -79,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (_event, nextSession) => {
+        invalidateCache("admin:");
         setSession(nextSession);
         // Đọc profiles sau khi Supabase Auth nhả khóa nội bộ.
         window.setTimeout(() => {
@@ -107,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    invalidateCache();
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);

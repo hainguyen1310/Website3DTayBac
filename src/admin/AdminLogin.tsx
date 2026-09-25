@@ -45,8 +45,7 @@ export default function AdminLogin() {
         </span>
         <h1>Đăng nhập A Sỉn.</h1>
         <p>
-          Chỉ tài khoản có vai trò <b>admin</b> hoặc <b>staff</b> trong bảng
-          profiles mới truy cập được dữ liệu vận hành.
+          Dành cho đội ngũ quản trị và vận hành A Sỉn. Sử dụng tài khoản đã được quản trị viên cấp quyền.
         </p>
         <label>
           Email
@@ -56,7 +55,7 @@ export default function AdminLogin() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="admin@moctaybac.vn"
+            placeholder="admin@example.com"
           />
         </label>
         <label>
@@ -98,9 +97,7 @@ export function AdminNoAccess() {
         <h1>Tài khoản chưa được cấp quyền.</h1>
         <p>
           <b>{session?.user.email}</b> đã đăng nhập nhưng vai trò hiện tại là{" "}
-          <b>{profile?.role ?? "không xác định"}</b>. Hãy cập nhật cột{" "}
-          <code>profiles.role</code> thành <code>admin</code> hoặc{" "}
-          <code>staff</code> trong Supabase.
+          <b>{profile?.role === "customer" ? "chưa có quyền quản trị" : "chưa xác định"}</b>. Liên hệ quản trị viên để được cấp quyền phù hợp.
         </p>
         <button className="admin-primary full" onClick={() => void signOut()}>
           <LogOut size={16} /> Đăng xuất

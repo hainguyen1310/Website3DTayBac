@@ -1,5 +1,9 @@
 # Kiểm tra bản dựng
 
+## Cập nhật 25/09/2026 — quản trị và CRM
+
+Xem [ADMIN_OPERATIONS.md](ADMIN_OPERATIONS.md) để biết các luồng kiểm thử với Supabase/Storage/Auth cục bộ, browser UAT và SMTP giả lập. Các migration ngày 25/09 được áp dụng trên local; không suy ra đã chạy trên hosted Supabase. Chưa xác minh gửi/nhận Gmail thật hoặc triển khai các API email lên Vercel.
+
 Ngày kiểm tra: 22/09/2026.
 
 ## Lần kiểm tra gần nhất (sau khi nối admin với Supabase)

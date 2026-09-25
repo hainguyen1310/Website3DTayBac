@@ -1,0 +1,334 @@
+/* Shared paper, typography and forest palette from the A Sỉn landing page. */
+.moc-page {
+  --page-line: #243f2d26;
+  --page-muted: #657060;
+  color: var(--moc-text);
+  background: var(--moc-cream) linear-gradient(#f6f3eac2, #f6f3eac2) center / auto;
+  background-image: linear-gradient(#f6f3eac2, #f6f3eac2), url('/images/paper-do-warm-crumpled.png');
+  background-size: auto, 1000px;
+  font-family: var(--moc-serif);
+  overflow: clip;
+}
+
+.moc-page :is(h1, h2, h3, em) { font-family: var(--moc-serif); font-weight: 400; }
+.moc-page h1 { font-size: clamp(46px, 4.8vw, 76px); line-height: 1.04; letter-spacing: -.035em; }
+.moc-page h2 { font-size: clamp(34px, 3.25vw, 50px); line-height: 1.1; letter-spacing: -.025em; }
+.moc-page p { font-size: 17px; line-height: 1.65; }
+.moc-page section { position: relative; scroll-margin-top: 90px; }
+.moc-page .moc-eyebrow { font-size: 10px; letter-spacing: .23em; margin-bottom: 18px; }
+.moc-page .moc-btn-dark { min-height: 46px; padding: 13px 22px; font-size: 12px; }
+.moc-page .moc-text-arrow-link { min-height: 32px; font-size: 12px; }
+.moc-page :is(a, button, input, select):focus-visible { outline: 2px solid #a77536; outline-offset: 4px; }
+.moc-page-breadcrumb { display: flex; flex-wrap: wrap; gap: 12px; padding: 28px 0; font: 11px/1.5 var(--moc-sans); color: var(--page-muted); }
+.moc-page-breadcrumb a:hover { color: #a34a36; }
+.moc-page-handwritten { font: 29px/1.25 var(--moc-script); transform: rotate(-9deg); color: #727960; }
+.moc-page-state { min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 60px 20px; text-align: center; }
+.moc-page-state h2 { font-size: 30px; }
+.moc-page-state p { color: var(--page-muted); }
+.moc-page-tabs { display: flex; flex-wrap: wrap; gap: 9px; }
+.moc-page-tabs button { padding: 11px 18px; min-height: 42px; border: 1px solid var(--page-line); border-radius: 2px; font: 11px/1.5 var(--moc-sans); transition: background .2s, color .2s; }
+.moc-page-tabs button:hover { background: #e9e7da; }
+.moc-page-tabs button.is-active { background: var(--moc-forest); border-color: var(--moc-forest); color: #fff9ec; }
+
+/* Shop: a quiet landscape introduction followed by a practical catalog. */
+.moc-shop-intro { isolation: isolate; min-height: 395px; border-bottom: 1px solid var(--page-line); }
+.moc-shop-intro-copy { position: relative; padding: 24px 0 66px; max-width: 63%; z-index: 1; }
+.moc-shop-intro-copy p { margin-top: 24px; color: #52624e; }
+.moc-shop-intro-art { position: absolute; inset: 0 0 0 auto; width: 39%; z-index: -1; }
+.moc-shop-intro-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #f6f3ea, #f6f3ea00 30%, #0d251d25); }
+.moc-shop-intro-art img { width: 100%; height: 100%; object-fit: cover; clip-path: polygon(12% 0, 100% 0, 100% 100%, 2% 100%, 7% 82%, 1% 60%, 8% 35%); }
+.moc-shop-intro-art>span { position: absolute; z-index: 1; bottom: 42px; right: 18%; color: #fff5dc; font: 27px/1.25 var(--moc-script); transform: rotate(-8deg); text-shadow: 0 2px 10px #15271d; }
+.moc-shop-intro-leaf { position: absolute; width: 70px; left: 53%; top: 15%; transform: rotate(26deg); opacity: .85; pointer-events: none; }
+.moc-shop-catalog { padding-block: 54px 88px; }
+.moc-shop-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; font: 12px/1.5 var(--moc-sans); }
+.moc-page-search { display: flex; align-items: center; gap: 12px; min-height: 48px; width: min(430px, 100%); padding: 0 16px; background: #fffdf7ba; border: 1px solid var(--page-line); border-radius: 2px; }
+.moc-page-search input { flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; outline: none; padding: 13px 0; color: var(--moc-text); }
+.moc-page-search:focus-within { border-color: #7a8b68; box-shadow: 0 0 0 2px #7a8b681c; }
+.moc-page-search button { display: grid; place-items: center; padding: 4px; }
+.moc-shop-sort { display: flex; align-items: center; gap: 14px; color: var(--page-muted); }
+.moc-shop-sort select { background: #fffdf7ba; border: 1px solid var(--page-line); border-radius: 2px; min-height: 48px; padding: 10px 30px 10px 14px; color: var(--moc-text); }
+.moc-shop-result { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 27px 0 22px; font: 11px/1.6 var(--moc-sans); color: var(--page-muted); }
+.moc-shop-result>span:last-child { font: italic 16px/1.4 var(--moc-serif); }
+.moc-shop-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px 22px; }
+.moc-shop-card { display: flex; flex-direction: column; background: #fffdf8; border-radius: 3px; box-shadow: 0 6px 18px #452f1810; overflow: hidden; border: 1px solid #e6e0d485; }
+.moc-shop-card-photo { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: #e9e6db; }
+.moc-shop-card-photo>button:first-child { width: 100%; height: 100%; display: block; padding: 0; }
+.moc-shop-card-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+.moc-shop-card-photo>button:first-child:hover img { transform: scale(1.035); }
+.moc-shop-discount { position: absolute; top: 14px; left: 13px; background: #ac4c36; border-radius: 20px; padding: 4px 11px; color: #fff9ef; font: 11px/1.5 var(--moc-sans); pointer-events: none; }
+.moc-shop-save { position: absolute; top: 11px; right: 11px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #fffdf2df; }
+.moc-shop-save.is-saved { color: #ac4c36; }
+.moc-shop-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; align-items: start; }
+.moc-shop-origin { font: 9px/1.5 var(--moc-sans); letter-spacing: .12em; color: #758064; text-transform: uppercase; }
+.moc-shop-card h2 { font-size: 25px; line-height: 1.13; letter-spacing: -.025em; margin: 10px 0; }
+.moc-shop-card h2 button { text-align: left; padding: 0; font: inherit; }
+.moc-shop-card h2 button:hover { color: #96633b; }
+.moc-shop-card-body>p { font-size: 15px; line-height: 1.45; color: #6c7361; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
+.moc-shop-weight { font: 10px/1.5 var(--moc-sans); color: #777c70; margin-top: auto; }
+.moc-shop-card-bottom { width: 100%; display: flex; align-items: end; justify-content: space-between; gap: 10px; margin-top: 18px; }
+.moc-shop-card-bottom strong { display: block; color: #9b452e; font: 600 14px/1.5 var(--moc-sans); }
+.moc-shop-card-bottom del { display: block; margin-bottom: 3px; color: #8e8e7d; font: 10px/1.5 var(--moc-sans); }
+.moc-shop-add { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--moc-forest); color: #fff7e5; }
+.moc-shop-add:hover { background: #356043; }
+
+/* The gift invitation uses the same photographs and handwritten notes as Home. */
+.moc-page-gift { padding-block: 36px 72px; }
+.moc-page-gift-inner { display: grid; grid-template-columns: 42% 1fr; gap: 6%; align-items: center; padding-right: 9%; }
+.moc-page-gift-inner>img { width: 100%; height: auto; aspect-ratio: 1.2; object-fit: cover; clip-path: polygon(0 2%, 26% 0, 65% 2%, 100% 0, 99% 44%, 100% 97%, 70% 100%, 28% 98%, 0 100%); }
+.moc-page-gift p { margin: 20px 0 26px; color: #57614f; max-width: 410px; }
+.moc-page-gift .moc-page-handwritten { position: absolute; right: 0; bottom: 0; font-size: 23px; }
+
+/* About: mountain panorama, paper photographs, and three editorial values. */
+.moc-about-hero { isolation: isolate; color: #f7f1df; }
+.moc-about-hero::after { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, #051e18b8, #0a251840 70%, #112e0d05); }
+.moc-about-hero::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 26px; background: var(--moc-cream); clip-path: polygon(0 48%, 4% 63%, 9% 32%, 15% 58%, 23% 34%, 32% 52%, 41% 25%, 49% 56%, 57% 37%, 66% 63%, 75% 25%, 85% 53%, 94% 34%, 100% 50%, 100% 100%, 0 100%); }
+.moc-about-hero-image { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.moc-about-hero .moc-page-breadcrumb { color: #e4e2ca; }
+.moc-about-hero-copy { padding: 38px 0 90px; }
+.moc-about-hero h1 { font-size: clamp(58px, 6.1vw, 88px); }
+.moc-about-hero-copy p { color: #eee8d4; margin: 24px 0 28px; font-size: 18px; }
+.moc-page-light-link { display: inline-flex; align-items: center; gap: 22px; border-bottom: 1px solid #e2e0c790; padding-bottom: 7px; font: 11px/1.5 var(--moc-sans); }
+.moc-about-hero-seal { position: absolute; right: 0; top: 30%; color: #ede4bc; transform: rotate(10deg); }
+.moc-about-origin { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 9%; padding-block: 100px; }
+.moc-about-photo { position: relative; padding: 13px 13px 54px; background: #fffdf6; box-shadow: 0 10px 35px #49351c13; transform: rotate(-3deg); }
+.moc-about-photo>img { aspect-ratio: 1.13; width: 100%; height: auto; object-fit: cover; }
+.moc-about-photo>span { position: absolute; bottom: 14px; left: 22px; font: 25px/1 var(--moc-script); color: #66725b; }
+.moc-about-photo .moc-circular-seal { position: absolute; right: -28px; bottom: -26px; transform: rotate(18deg); }
+.moc-about-copy p { margin-top: 22px; color: #576250; }
+.moc-about-signature { display: block; margin-top: 28px; font: 28px/1.4 var(--moc-script); color: #758061; }
+.moc-about-values { isolation: isolate; color: #f5eedb; background: #153c2d; padding-block: 76px 88px; }
+.moc-about-values::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('/images/paper-do-warm-crumpled.png') center/800px; mix-blend-mode: soft-light; opacity: .12; pointer-events: none; }
+.moc-page-section-heading { display: grid; grid-template-columns: 1fr 1fr; column-gap: 9%; }
+.moc-page-section-heading .moc-eyebrow { grid-column: 1 / -1; color: #d2c89b; }
+.moc-page-section-heading p { max-width: 375px; align-self: end; color: #d4ddc9; }
+.moc-about-value-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5%; margin-top: 52px; }
+.moc-about-value-grid article { border-top: 1px solid #e0dec938; padding-top: 28px; }
+.moc-about-value-grid article>div { display: flex; justify-content: space-between; align-items: center; color: #c3bf98; }
+.moc-about-value-grid article>div>span { font-size: 16px; font-style: italic; }
+.moc-about-value-grid h3 { font-size: 30px; line-height: 1.2; margin: 24px 0 13px; }
+.moc-about-value-grid p { font-size: 16px; color: #ced9c6; }
+.moc-about-craft { display: grid; grid-template-columns: 1fr 1fr; gap: 9%; align-items: center; padding-block: 96px 64px; }
+.moc-about-craft .moc-text-arrow-link { margin-top: 28px; }
+.moc-about-craft-photo { margin: 0; padding: 12px 12px 20px; background: #fffdf6; box-shadow: 0 8px 30px #49351c13; transform: rotate(3deg); }
+.moc-about-craft-photo img { aspect-ratio: 1.12; width: 100%; height: auto; object-fit: cover; }
+.moc-about-craft-photo figcaption { margin-top: 18px; text-align: center; font: 26px/1.4 var(--moc-script); color: #6b745b; }
+.moc-about-quote { padding: 30px 0 80px; text-align: center; }
+.moc-about-quote svg { color: #7b8566; }
+.moc-about-quote blockquote { margin: 22px auto 30px; max-width: 800px; font: italic clamp(25px, 2.7vw, 40px)/1.3 var(--moc-serif); }
+
+/* Journal: a masthead and magazine layout; every story comes from the feed. */
+.moc-journal-masthead { position: relative; text-align: center; padding: 28px 80px 54px; }
+.moc-journal-masthead h1 { font-size: clamp(52px, 5.6vw, 84px); }
+.moc-journal-masthead p { margin: 24px 0 0; color: #62705a; }
+.moc-journal-masthead>img { position: absolute; width: 145px; height: 235px; object-fit: contain; left: -30px; bottom: 18px; transform: rotate(-16deg); }
+.moc-journal-masthead .moc-page-handwritten { position: absolute; right: 0; top: 42%; font-size: 25px; }
+.moc-journal-feed { padding-bottom: 92px; }
+.moc-journal-index { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-block: 1px solid #233f2c50; padding: 12px 0; font: 9px/1.4 var(--moc-sans); letter-spacing: .2em; }
+.moc-journal-index>svg { color: #788363; }
+.moc-journal-tabs { justify-content: center; margin: 28px 0 34px; }
+.moc-journal-tabs button { border-color: transparent; }
+.moc-journal-feature { display: grid; grid-template-columns: 1.12fr 1fr; align-items: stretch; background: #e9e6d885; }
+.moc-journal-feature-image { position: relative; display: block; min-height: 440px; overflow: hidden; }
+.moc-journal-feature-image img { position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover; transition: transform .4s; }
+.moc-journal-feature-image:hover img { transform: scale(1.025); }
+.moc-journal-feature-copy { display: flex; flex-direction: column; align-items: start; justify-content: center; padding: 42px; }
+.moc-journal-feature-copy .moc-eyebrow { font-size: 9px; color: #966947; }
+.moc-journal-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px 18px; font: 10px/1.65 var(--moc-sans); color: #748064; }
+.moc-journal-meta>span+span { color: #7b7f72; }
+.moc-journal-feature h2 { font-size: clamp(31px, 3.1vw, 46px); line-height: 1.12; margin: 18px 0; }
+.moc-journal-feature p { color: #626d59; }
+.moc-journal-readtime { display: flex; align-items: center; gap: 7px; margin: 20px 0 26px; font: 10px/1.5 var(--moc-sans); color: #7a806e; }
+.moc-journal-latest { margin-top: 64px; }
+.moc-journal-section-title { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+.moc-journal-section-title h2 { font-size: 36px; }
+.moc-journal-section-title>span { font: 10px/1.6 var(--moc-sans); color: #717c65; }
+.moc-journal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.moc-journal-card { background: #fffdf7; box-shadow: 0 5px 16px #573b1a09; display: flex; flex-direction: column; }
+.moc-journal-card-image { display: block; overflow: hidden; aspect-ratio: 1.47; }
+.moc-journal-card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+.moc-journal-card-image:hover img { transform: scale(1.035); }
+.moc-journal-card-body { flex: 1; padding: 22px 24px 28px; display: flex; flex-direction: column; align-items: start; }
+.moc-journal-card h2 { font-size: 27px; line-height: 1.14; margin: 14px 0; }
+.moc-journal-card h2 a:hover { color: #9b633d; }
+.moc-journal-card p { font-size: 16px; line-height: 1.5; margin-bottom: 20px; color: #6b7462; }
+.moc-journal-card .moc-text-arrow-link { margin-top: auto; font-size: 10px; }
+
+/* The reading view is part of the same journal, with a restrained line length. */
+.moc-article-heading { max-width: 940px; padding-block: 28px 42px; text-align: center; }
+.moc-article-back { display: flex; align-items: center; gap: 10px; width: fit-content; margin: 0 auto 45px; font: 11px/1.5 var(--moc-sans); color: #64745c; }
+.moc-article-heading .moc-journal-meta { justify-content: center; }
+.moc-article-heading h1 { margin: 22px auto; font-size: clamp(40px, 4.4vw, 64px); }
+.moc-article-heading>p { max-width: 680px; margin-inline: auto; color: #67725e; font-size: 20px; }
+.moc-article-cover { margin-block: 0; }
+.moc-article-cover img { width: 100%; height: auto; max-height: 590px; aspect-ratio: 1.95; object-fit: cover; }
+.moc-article-prose { width: min(700px, 84.4%); margin: 52px auto 0; }
+.moc-article-prose>p { font-size: 20px; line-height: 1.85; margin-bottom: 24px; }
+.moc-article-prose>p:first-child::first-letter { float: left; font-size: 66px; line-height: .85; padding: 9px 10px 0 0; color: #506545; }
+.moc-article-end { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--page-line); color: #77816b; font-style: italic; }
+.moc-article-related { padding-block: 80px; }
+.moc-article-return { margin-bottom: 64px; }
+
+.moc-page .moc-newsletter-section { position: relative; }
+.moc-page .moc-newsletter-left h2 { font-size: clamp(24px, 2.15vw, 34px); }
+.moc-page .moc-newsletter-form-col>p { font-size: clamp(12px, .88vw, 14px); }
+.moc-page .moc-newsletter-left .moc-eyebrow { font-size: clamp(8px, .7vw, 11px); margin-bottom: 8px; }
+
+@media (min-width: 1700px) {
+  .moc-shop-intro-art { width: 42%; }
+}
+
+@media (max-width: 1199px) {
+  .moc-shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .moc-shop-card-body { padding: 18px; }
+  .moc-shop-intro-copy { max-width: 69%; }
+  .moc-shop-intro-art { width: 35%; }
+  .moc-shop-intro-art>span { font-size: 23px; right: 9%; }
+  .moc-shop-intro-leaf { left: 58%; width: 54px; }
+  .moc-journal-feature-copy { padding: 30px; }
+  .moc-journal-feature-image { min-height: 410px; }
+  .moc-journal-masthead .moc-page-handwritten { font-size: 21px; right: -20px; }
+  .moc-journal-masthead>img { width: 100px; height: 180px; }
+  .moc-journal-card-body { padding: 20px; }
+  .moc-journal-card h2 { font-size: 25px; }
+}
+
+@media (max-width: 900px) {
+  .moc-page .moc-container { width: 90%; }
+  .moc-page h1 { font-size: 53px; }
+  .moc-page h2 { font-size: 37px; }
+  .moc-shop-intro { min-height: 360px; }
+  .moc-shop-intro-copy { max-width: 75%; padding-block: 25px 56px; }
+  .moc-shop-intro-copy p { max-width: 80%; }
+  .moc-shop-intro-art::after { background: linear-gradient(90deg, #f6f3ea, #f6f3ea22 75%); }
+  .moc-shop-intro-art>span, .moc-shop-intro-leaf { display: none; }
+  .moc-shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .moc-shop-card h2 { font-size: 27px; }
+  .moc-shop-sort { flex-direction: column; align-items: start; gap: 4px; }
+  .moc-shop-toolbar { align-items: end; }
+  .moc-page-gift-inner { padding-right: 0; gap: 5%; }
+  .moc-page-gift .moc-page-handwritten { display: none; }
+  .moc-page-gift p { font-size: 16px; }
+  .moc-about-hero h1 { font-size: 70px; }
+  .moc-about-origin { gap: 7%; padding-block: 76px; }
+  .moc-about-photo .moc-circular-seal { right: -12px; }
+  .moc-about-photo>span { font-size: 20px; }
+  .moc-about-copy p { font-size: 16px; }
+  .moc-about-value-grid { gap: 24px; }
+  .moc-about-value-grid h3 { font-size: 26px; }
+  .moc-about-craft { gap: 7%; padding-block: 76px 45px; }
+  .moc-about-craft-photo figcaption { font-size: 21px; }
+  .moc-journal-masthead { padding-inline: 36px; }
+  .moc-journal-masthead h1 { font-size: 66px; }
+  .moc-journal-masthead .moc-page-handwritten { display: none; }
+  .moc-journal-masthead>img { left: -40px; opacity: .7; }
+  .moc-journal-feature { grid-template-columns: 1fr 1fr; }
+  .moc-journal-feature-copy { padding: 24px; }
+  .moc-journal-feature h2 { font-size: 33px; }
+  .moc-journal-feature p { font-size: 16px; }
+  .moc-journal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .moc-journal-card h2 { font-size: 27px; }
+  .moc-journal-section-title h2 { font-size: 33px; }
+}
+
+@media (max-width: 580px) {
+  .moc-page .moc-container { width: calc(100% - 40px); }
+  .moc-page h1 { font-size: clamp(39px, 10.7vw, 54px); }
+  .moc-page h2 { font-size: 34px; }
+  .moc-page p { font-size: 17px; }
+  .moc-page-breadcrumb { padding-block: 22px; font-size: 10px; }
+  .moc-page .moc-eyebrow { font-size: 9px; letter-spacing: .18em; }
+  .moc-page-desktop-break { display: none; }
+  .moc-shop-intro { min-height: 0; padding-bottom: 170px; }
+  .moc-shop-intro-copy { padding: 15px 0 25px; max-width: none; }
+  .moc-shop-intro-copy p { max-width: none; margin-top: 20px; }
+  .moc-shop-intro-art { top: auto; bottom: 0; height: 185px; width: 100%; }
+  .moc-shop-intro-art img { clip-path: none; object-position: center 55%; }
+  .moc-shop-intro-art::after { background: linear-gradient(#f6f3ea, #f6f3ea00 60%); }
+  .moc-shop-catalog { padding-block: 32px 48px; }
+  .moc-shop-toolbar { flex-direction: column; gap: 16px; align-items: stretch; }
+  .moc-page-search { width: 100%; }
+  .moc-shop-sort { flex-direction: row; align-items: center; justify-content: space-between; }
+  .moc-shop-sort select { min-height: 42px; }
+  .moc-page-tabs { flex-wrap: nowrap; overflow-x: auto; padding: 4px 3px 10px; margin-inline: -3px; }
+  .moc-page-tabs button { flex: 0 0 auto; padding: 10px 13px; font-size: 10px; }
+  .moc-shop-result { margin: 18px 0; }
+  .moc-shop-result>span:last-child { display: none; }
+  .moc-shop-grid { gap: 18px 12px; }
+  .moc-shop-card-body { padding: 14px 12px; }
+  .moc-shop-card h2 { font-size: 21px; margin-block: 9px; }
+  .moc-shop-card-body>p { font-size: 14px; }
+  .moc-shop-origin { font-size: 8px; letter-spacing: .07em; }
+  .moc-shop-weight { font-size: 9px; }
+  .moc-shop-card-bottom { gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .moc-shop-card-bottom strong { font-size: 12px; }
+  .moc-shop-card-bottom del { font-size: 9px; }
+  .moc-shop-add { width: 34px; height: 34px; }
+  .moc-shop-save { width: 32px; height: 32px; top: 7px; right: 7px; }
+  .moc-shop-discount { top: 10px; left: 8px; padding: 3px 7px; font-size: 9px; }
+  .moc-page-gift { padding-block: 15px 56px; }
+  .moc-page-gift-inner { grid-template-columns: 1fr; gap: 30px; }
+  .moc-page-gift-inner>img { aspect-ratio: 1.25; }
+  .moc-page-gift p { margin-block: 18px 24px; }
+  .moc-about-hero-image { object-position: 55% center; }
+  .moc-about-hero-copy { padding-block: 42px 86px; }
+  .moc-about-hero h1 { font-size: 57px; }
+  .moc-about-hero-copy p { font-size: 17px; }
+  .moc-about-hero-seal { display: none; }
+  .moc-about-origin { grid-template-columns: 1fr; gap: 66px; padding-block: 60px; }
+  .moc-about-photo { margin-inline: 8px; padding-bottom: 72px; }
+  .moc-about-photo>span { max-width: calc(100% - 95px); font-size: 22px; line-height: 1.15; }
+  .moc-about-photo .moc-circular-seal { width: 94px !important; height: 94px !important; right: -12px; }
+  .moc-about-signature { font-size: 26px; }
+  .moc-about-values { padding-block: 54px 58px; }
+  .moc-page-section-heading { grid-template-columns: 1fr; }
+  .moc-page-section-heading p { margin-top: 22px; }
+  .moc-about-value-grid { grid-template-columns: 1fr; gap: 30px; margin-top: 34px; }
+  .moc-about-value-grid h3 { font-size: 29px; margin-top: 17px; }
+  .moc-about-craft { grid-template-columns: 1fr; gap: 40px; padding-block: 56px 40px; }
+  .moc-about-craft-photo { margin-inline: 6px; }
+  .moc-about-craft-photo figcaption { font-size: 24px; }
+  .moc-about-quote { padding-block: 18px 56px; }
+  .moc-about-quote blockquote { font-size: 29px; }
+  .moc-journal-masthead { padding: 20px 0 42px; text-align: left; }
+  .moc-journal-masthead h1 { font-size: clamp(44px, 12vw, 64px); }
+  .moc-journal-masthead>img { display: none; }
+  .moc-journal-masthead .moc-eyebrow { font-size: 8px; }
+  .moc-journal-masthead p { margin-top: 22px; }
+  .moc-journal-index { font-size: 8px; letter-spacing: .1em; gap: 10px; }
+  .moc-journal-tabs { justify-content: start; margin-block: 20px 24px; }
+  .moc-journal-feature { grid-template-columns: 1fr; }
+  .moc-journal-feature-image { min-height: 0; aspect-ratio: 1.15; }
+  .moc-journal-feature-copy { padding: 27px 22px 32px; }
+  .moc-journal-feature h2 { font-size: 34px; }
+  .moc-journal-feature p { font-size: 17px; }
+  .moc-journal-latest { margin-top: 42px; }
+  .moc-journal-section-title { align-items: start; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .moc-journal-section-title h2 { font-size: 33px; }
+  .moc-journal-grid { grid-template-columns: 1fr; gap: 28px; }
+  .moc-journal-card h2 { font-size: 29px; }
+  .moc-journal-card-body { padding: 24px; }
+  .moc-journal-feed { padding-bottom: 56px; }
+  .moc-article-heading { padding-block: 26px 32px; }
+  .moc-article-back { margin-bottom: 30px; }
+  .moc-article-heading h1 { font-size: 40px; }
+  .moc-article-heading>p { font-size: 18px; }
+  .moc-article-cover img { aspect-ratio: 1.2; }
+  .moc-article-prose { width: calc(100% - 40px); margin-top: 32px; }
+  .moc-article-prose>p { font-size: 19px; line-height: 1.75; }
+  .moc-article-related { padding-block: 52px; }
+  .moc-page .moc-newsletter-left h2 { font-size: 29px; }
+  .moc-page .moc-newsletter-form-col>p { font-size: 13px; }
+}
+
+@media (max-width: 359px) {
+  .moc-shop-grid { grid-template-columns: 1fr; }
+  .moc-shop-card h2 { font-size: 27px; }
+  .moc-shop-card-body { padding: 20px; }
+  .moc-shop-card-body>p { font-size: 16px; }
+  .moc-shop-card-bottom strong { font-size: 14px; }
+  .moc-about-hero h1 { font-size: 49px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moc-page *, .moc-page *::before, .moc-page *::after { transition: none !important; }
+}

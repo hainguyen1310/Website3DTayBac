@@ -1,0 +1,49 @@
+/* Each section keeps its own paper. Only its upper edge overlaps the previous
+   sheet; the image phase matches at y=0 so no plain-color strip is introduced. */
+.moc-landing > :is(.moc-deal-section, .moc-gift-section, .moc-story-section,
+  .moc-magazine-section, .asin-contact) {
+  --paper-edge-height: clamp(16px, 1.8vw, 26px);
+  --paper-edge-mask: url('/images/paper-edge-soft.svg');
+}
+
+.moc-landing > .moc-deal-section { --paper-edge-height: 14px; }
+.moc-landing > .moc-gift-section {
+  --paper-edge-height: clamp(24px, 2.6vw, 38px);
+  --paper-edge-mask: url('/images/paper-edge-deckled.svg');
+}
+.moc-landing > .moc-story-section { --paper-edge-height: clamp(20px, 2.1vw, 32px); }
+.moc-landing > .asin-contact { --paper-edge-mask: url('/images/paper-edge-deckled.svg'); }
+
+@supports (mask-image: url('/images/paper-edge-soft.svg')) {
+  .moc-landing > :is(.moc-deal-section, .moc-gift-section, .moc-story-section,
+    .moc-magazine-section, .asin-contact)::before,
+  .moc-landing > :is(.moc-deal-section, .moc-gift-section, .moc-story-section,
+    .moc-magazine-section, .asin-contact)::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--paper-edge-height);
+    pointer-events: none;
+    mask: var(--paper-edge-mask) center/100% 100% no-repeat;
+  }
+
+  .moc-landing > :is(.moc-deal-section, .moc-gift-section, .moc-story-section,
+    .moc-magazine-section, .asin-contact)::before {
+    top: calc(1px - var(--paper-edge-height));
+    background: inherit;
+    background-position: 0 calc(var(--paper-edge-height) - 1px);
+    z-index: 1;
+  }
+
+  .moc-landing > :is(.moc-deal-section, .moc-gift-section, .moc-story-section,
+    .moc-magazine-section, .asin-contact)::after {
+    top: calc(-1 * var(--paper-edge-height));
+    background: #78644316;
+    z-index: 0;
+  }
+}
+
+@media (max-width: 580px) {
+  .moc-landing > :is(.moc-gift-section, .moc-story-section) { --paper-edge-height: 22px; }
+}

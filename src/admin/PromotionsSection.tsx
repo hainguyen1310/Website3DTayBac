@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, ArrowUpRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
-  createPromotion,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpRight,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
+import {
   deletePromotion,
-  deletePromotionProduct,
+  savePromotion,
   listAdminProducts,
   listAdminPromotions,
-  savePromotionProduct,
-  updatePromotion,
 } from "../services/adminApi";
 import type { AdminPromotion } from "../services/adminApi";
 import {
@@ -67,27 +72,48 @@ export default function PromotionsSection() {
   const { data: products } = useAsync(listAdminProducts, []);
   const [form, setForm] = useState<PromotionForm | null>(null);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<AdminPromotion | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminPromotion | null>(
+    null,
+  );
   const promotions = data ?? [];
   const now = Date.now();
   const upcomingCount = promotions.filter(
-    (promotion) => promotion.startsAt && new Date(promotion.startsAt).getTime() > now,
+    (promotion) =>
+      promotion.isActive && promotion.startsAt && new Date(promotion.startsAt).getTime() > now,
   ).length;
   const endedCount = promotions.filter(
-    (promotion) => promotion.endsAt && new Date(promotion.endsAt).getTime() <= now,
+    (promotion) =>
+      promotion.endsAt && new Date(promotion.endsAt).getTime() <= now,
   ).length;
   const visiblePromotions = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return promotions.filter((promotion) => {
       if (statusFilter === "active" && !promotion.isActive) return false;
       if (statusFilter === "inactive" && promotion.isActive) return false;
-      return !needle || `${promotion.code} ${promotion.name}`.toLowerCase().includes(needle);
+      return (
+        !needle ||
+        `${promotion.code} ${promotion.name}`.toLowerCase().includes(needle)
+      );
     });
   }, [promotions, query, statusFilter]);
+
+  const changeRow = (index: number, value: Partial<RowForm>) =>
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            rows: current.rows.map((row, i) =>
+              i === index ? { ...row, ...value } : row,
+            ),
+          }
+        : null,
+    );
 
   const openEdit = (promotion: AdminPromotion) => {
     setActionError("");
@@ -123,12 +149,17 @@ export default function PromotionsSection() {
       return;
     }
     if (new Set(rows.map((row) => row.productId)).size !== rows.length) {
-      setActionError("Mỗi sản phẩm chỉ được xuất hiện một lần trong cùng chương trình.");
+      setActionError(
+        "Mỗi sản phẩm chỉ được xuất hiện một lần trong cùng chương trình.",
+      );
       return;
     }
     if (
       rows.some(
         (row) =>
+          !Number.isSafeInteger(Number(row.originalPriceVnd)) ||
+          !Number.isInteger(Number(row.discountPercent)) ||
+          !Number.isInteger(Number(row.sortOrder)) ||
           Number(row.originalPriceVnd) <= 0 ||
           Number(row.discountPercent) < 1 ||
           Number(row.discountPercent) > 100,
@@ -153,25 +184,19 @@ export default function PromotionsSection() {
         startsAt,
         endsAt,
       };
-      const promotionId = form.id ?? (await createPromotion(payload));
-      if (form.id) await updatePromotion(form.id, payload);
-
-      for (const productId of form.originalRows) {
-        if (!rows.some((row) => row.productId === productId)) {
-          await deletePromotionProduct(promotionId, productId);
-        }
-      }
-      for (const [index, row] of rows.entries()) {
-        await savePromotionProduct(promotionId, {
+      await savePromotion(
+        form.id,
+        payload,
+        rows.map((row, index) => ({
           productId: row.productId,
-          originalPriceVnd: Number(row.originalPriceVnd) || 0,
-          discountPercent: Number(row.discountPercent) || 1,
+          originalPriceVnd: Number(row.originalPriceVnd),
+          discountPercent: Number(row.discountPercent),
           displayLabel: row.displayLabel,
           displayEnding: row.displayEnding,
           accent: row.accent,
           sortOrder: (index + 1) * 10,
-        });
-      }
+        })),
+      );
       setNotice(`Đã lưu khuyến mãi ${payload.code.toUpperCase()}.`);
       setForm(null);
       reload();
@@ -211,8 +236,11 @@ export default function PromotionsSection() {
           ? {
               ...row,
               productId,
-              originalPriceVnd: product ? String(product.priceVnd) : row.originalPriceVnd,
-              displayLabel: product && !row.displayLabel ? product.tag : row.displayLabel,
+              originalPriceVnd: product
+                ? String(product.priceVnd)
+                : row.originalPriceVnd,
+              displayLabel:
+                product && !row.displayLabel ? product.tag : row.displayLabel,
             }
           : row,
       ),
@@ -230,133 +258,175 @@ export default function PromotionsSection() {
     <>
       {!form && (
         <>
-      <SectionHeader
-        eyebrow="ƯU ĐÃI & MÃ GIẢM"
-        title="Khuyến mãi"
-        action={
-          <button
-            className="admin-primary"
-            onClick={() => setForm({ ...emptyPromotion, rows: [] })}
-          >
-            <Plus size={17} /> Tạo khuyến mãi
-          </button>
-        }
-      />
-      <div className="metric-grid admin-list-metrics">
-        <article><span>Tổng chương trình</span><strong>{promotions.length}</strong><small>Đã tạo trong hệ thống</small></article>
-        <article><span>Đang chạy</span><strong>{promotions.filter((item) => item.isActive).length}</strong><small>Đang bật hiển thị</small></article>
-        <article><span>Sắp diễn ra</span><strong>{upcomingCount}</strong><small>Chưa đến thời gian áp dụng</small></article>
-        <article><span>Đã kết thúc</span><strong>{endedCount}</strong><small>Đã qua ngày kết thúc</small></article>
-        <article><span>Sản phẩm áp dụng</span><strong>{promotions.reduce((sum, item) => sum + item.products.length, 0)}</strong><small>Tổng dòng liên kết</small></article>
-      </div>
-      <div className="admin-card admin-filter-toolbar">
-        <div className="admin-search">
-          <Search size={16} />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm tên hoặc mã khuyến mãi…"
-            aria-label="Tìm khuyến mãi"
+          <SectionHeader
+            eyebrow="ƯU ĐÃI & MÃ GIẢM"
+            title="Khuyến mãi"
+            action={
+              <button
+                className="admin-primary"
+                onClick={() => setForm({ ...emptyPromotion, rows: [] })}
+              >
+                <Plus size={17} /> Tạo khuyến mãi
+              </button>
+            }
           />
-        </div>
-        <select
-          className="admin-toolbar-select"
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value as "all" | "active" | "inactive")}
-          aria-label="Lọc trạng thái khuyến mãi"
-        >
-          <option value="all">Tất cả trạng thái</option>
-          <option value="active">Đang bật</option>
-          <option value="inactive">Đang tắt</option>
-        </select>
-      </div>
-
-      <section className="admin-card">
-        <div className="admin-card-heading">
-          <div>
-            <h2>{visiblePromotions.length} chương trình</h2>
-            <p>Ưu đãi đang bật sẽ hiện ở mục Deal hời trên trang chủ.</p>
+          <div className="metric-grid admin-list-metrics">
+            <article>
+              <span>Tổng chương trình</span>
+              <strong>{promotions.length}</strong>
+              <small>Đã tạo trong hệ thống</small>
+            </article>
+            <article>
+              <span>Đang chạy</span>
+              <strong>
+                {promotions.filter(item=>item.isActive && (!item.startsAt || new Date(item.startsAt).getTime()<=now) && (!item.endsAt || new Date(item.endsAt).getTime()>now)).length}
+              </strong>
+              <small>Trong thời gian hiệu lực</small>
+            </article>
+            <article>
+              <span>Sắp diễn ra</span>
+              <strong>{upcomingCount}</strong>
+              <small>Chưa đến thời gian áp dụng</small>
+            </article>
+            <article>
+              <span>Đã kết thúc</span>
+              <strong>{endedCount}</strong>
+              <small>Đã qua ngày kết thúc</small>
+            </article>
+            <article>
+              <span>Sản phẩm áp dụng</span>
+              <strong>
+                {promotions.reduce(
+                  (sum, item) => sum + item.products.length,
+                  0,
+                )}
+              </strong>
+              <small>Tổng dòng liên kết</small>
+            </article>
           </div>
-          <button onClick={reload}>
-            Làm mới <ArrowUpRight size={15} />
-          </button>
-        </div>
-
-        <AdminError message={actionError} />
-        {notice && <p className="admin-alert ok">{notice}</p>}
-
-        {loading ? (
-          <AdminLoading />
-        ) : error ? (
-          <AdminError message={error} />
-        ) : visiblePromotions.length ? (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Chương trình</th>
-                  <th>Hiệu lực</th>
-                  <th>Sản phẩm</th>
-                  <th>Trạng thái</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {visiblePromotions.map((promotion) => (
-                  <tr key={promotion.id}>
-                    <td>
-                      <b>{promotion.code}</b>
-                      <small>{promotion.name}</small>
-                    </td>
-                    <td>
-                      {formatDate(promotion.startsAt)} →{" "}
-                      {formatDate(promotion.endsAt)}
-                    </td>
-                    <td>
-                      {promotion.products.length} dòng
-                      <small>
-                        {promotion.products
-                          .map((item) => item.productName)
-                          .join(" · ") || "Chưa gán sản phẩm"}
-                      </small>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          promotion.isActive
-                            ? "order-status status-paid"
-                            : "order-status"
-                        }
-                      >
-                        {promotion.isActive ? "Đang bật" : "Đang tắt"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="admin-row-actions">
-                        <button
-                          onClick={() => openEdit(promotion)}
-                          aria-label={`Sửa ${promotion.code}`}
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={() => setPendingDelete(promotion)}
-                          aria-label={`Xóa ${promotion.code}`}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="admin-card admin-filter-toolbar">
+            <div className="admin-search">
+              <Search size={16} />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Tìm tên hoặc mã khuyến mãi…"
+                aria-label="Tìm khuyến mãi"
+              />
+            </div>
+            <select
+              className="admin-toolbar-select"
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(
+                  event.target.value as "all" | "active" | "inactive",
+                )
+              }
+              aria-label="Lọc trạng thái khuyến mãi"
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="active">Đang bật</option>
+              <option value="inactive">Đang tắt</option>
+            </select>
           </div>
-        ) : (
-          <AdminEmpty>Không có chương trình phù hợp bộ lọc.</AdminEmpty>
-        )}
-      </section>
+
+          <section className="admin-card">
+            <div className="admin-card-heading">
+              <div>
+                <h2>{visiblePromotions.length} chương trình</h2>
+                <p>
+                  Chỉ ưu đãi đang bật và trong thời gian hiệu lực mới xuất hiện
+                  trên cửa hàng.
+                </p>
+              </div>
+              <button onClick={reload}>
+                Làm mới <ArrowUpRight size={15} />
+              </button>
+            </div>
+
+            <AdminError message={actionError} />
+            {notice && <p className="admin-alert ok">{notice}</p>}
+
+            {loading ? (
+              <AdminLoading />
+            ) : error ? (
+              <AdminError message={error} />
+            ) : visiblePromotions.length ? (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Chương trình</th>
+                      <th>Hiệu lực</th>
+                      <th>Sản phẩm</th>
+                      <th>Trạng thái</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visiblePromotions.map((promotion) => (
+                      <tr key={promotion.id}>
+                        <td>
+                          <b>{promotion.code}</b>
+                          <small>{promotion.name}</small>
+                        </td>
+                        <td>
+                          {formatDate(promotion.startsAt)} →{" "}
+                          {formatDate(promotion.endsAt)}
+                        </td>
+                        <td>
+                          {promotion.products.length} dòng
+                          <small>
+                            {promotion.products
+                              .map((item) => item.productName)
+                              .join(" · ") || "Chưa gán sản phẩm"}
+                          </small>
+                        </td>
+                        <td>
+                          <span
+                            className={
+                              promotion.isActive
+                                ? "order-status status-paid"
+                                : "order-status"
+                            }
+                          >
+                            {!promotion.isActive
+                              ? "Đang tắt"
+                              : promotion.startsAt &&
+                                  new Date(promotion.startsAt).getTime() > now
+                                ? "Sắp diễn ra"
+                                : promotion.endsAt &&
+                                    new Date(promotion.endsAt).getTime() <= now
+                                  ? "Đã kết thúc"
+                                  : "Đang áp dụng"}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="admin-row-actions">
+                            <button
+                              onClick={() => openEdit(promotion)}
+                              aria-label={`Sửa ${promotion.code}`}
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              className="danger"
+                              onClick={() => setPendingDelete(promotion)}
+                              aria-label={`Xóa ${promotion.code}`}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <AdminEmpty>Không có chương trình phù hợp bộ lọc.</AdminEmpty>
+            )}
+          </section>
         </>
       )}
 
@@ -375,7 +445,9 @@ export default function PromotionsSection() {
                   <label className="admin-switch-row">
                     <span>
                       <b>Bật chương trình</b>
-                      <small>Chỉ ưu đãi đang bật mới xuất hiện trên cửa hàng</small>
+                      <small>
+                        Chỉ ưu đãi đang bật mới xuất hiện trên cửa hàng
+                      </small>
                     </span>
                     <input
                       type="checkbox"
@@ -401,8 +473,16 @@ export default function PromotionsSection() {
               <button className="admin-ghost" onClick={() => setForm(null)}>
                 Hủy
               </button>
-              <button className="admin-primary" onClick={() => void save()} disabled={busy}>
-                {busy ? "Đang lưu…" : form.id ? "Cập nhật khuyến mãi" : "Tạo khuyến mãi"}
+              <button
+                className="admin-primary"
+                onClick={() => void save()}
+                disabled={busy}
+              >
+                {busy
+                  ? "Đang lưu…"
+                  : form.id
+                    ? "Cập nhật khuyến mãi"
+                    : "Tạo khuyến mãi"}
               </button>
             </>
           }
@@ -451,173 +531,156 @@ export default function PromotionsSection() {
           </div>
 
           <h3 className="admin-subheading">Sản phẩm trong chương trình</h3>
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Sản phẩm</th>
-                  <th>Giá gốc</th>
-                  <th>Giảm %</th>
-                  <th>Nhãn</th>
-                  <th>Dòng trạng thái</th>
-                  <th>Tông màu</th>
-                  <th>Vị trí</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {form.rows.map((row, index) => (
-                  <tr key={`${row.productId}-${index}`}>
-                    <td>
-                      <select
-                        value={row.productId}
-                        onChange={(event) => changeProduct(index, event.target.value)}
-                      >
-                        <option value="">— Chọn sản phẩm —</option>
-                        {(products ?? []).map((product) => (
-                          <option
-                            key={product.id}
-                            value={product.id}
-                            disabled={
-                              (!product.active && row.productId !== product.id) ||
-                              form.rows.some(
-                                (item, itemIndex) =>
-                                  itemIndex !== index && item.productId === product.id,
-                              )
-                            }
-                          >
-                            {product.name} · {product.categoryName}
-                            {!product.active ? " (đã ẩn)" : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        min={0}
-                        value={row.originalPriceVnd}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, originalPriceVnd: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        value={row.discountPercent}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, discountPercent: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        value={row.displayLabel}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, displayLabel: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        value={row.displayEnding}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, displayEnding: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <select
-                        value={row.accent}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...item, accent: event.target.value }
-                                : item,
-                            ),
-                          })
-                        }
-                      >
-                        {ACCENTS.map((accent) => (
-                          <option key={accent.value} value={accent.value}>
-                            {accent.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <div className="admin-row-actions">
-                        <button
-                          type="button"
-                          onClick={() => moveRow(index, index - 1)}
-                          disabled={index === 0}
-                          aria-label="Đưa sản phẩm lên trên"
+          <div className="promotion-row-list">
+            {form.rows.map((row, index) => (
+              <section className="promotion-editor-row" key={index}>
+                <header>
+                  <h4>Sản phẩm {index + 1}</h4>
+                  <div className="admin-row-actions">
+                    <button
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveRow(index, index - 1)}
+                      aria-label={`Đưa sản phẩm ${index + 1} lên trên`}
+                    >
+                      <ArrowUp size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === form.rows.length - 1}
+                      onClick={() => moveRow(index, index + 1)}
+                      aria-label={`Đưa sản phẩm ${index + 1} xuống dưới`}
+                    >
+                      <ArrowDown size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          rows: form.rows.filter((_, i) => i !== index),
+                        })
+                      }
+                      aria-label={`Bỏ sản phẩm ${index + 1}`}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </header>
+                <div className="admin-form-grid">
+                  <label className="full">
+                    Sản phẩm áp dụng *
+                    <select
+                      value={row.productId}
+                      onChange={(e) => changeProduct(index, e.target.value)}
+                    >
+                      <option value="">— Chọn sản phẩm —</option>
+                      {(products ?? []).map((product) => (
+                        <option
+                          key={product.id}
+                          value={product.id}
+                          disabled={
+                            (!product.active && row.productId !== product.id) ||
+                            form.rows.some(
+                              (item, i) =>
+                                i !== index && item.productId === product.id,
+                            )
+                          }
                         >
-                          <ArrowUp size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveRow(index, index + 1)}
-                          disabled={index === form.rows.length - 1}
-                          aria-label="Đưa sản phẩm xuống dưới"
-                        >
-                          <ArrowDown size={14} />
-                        </button>
-                      </div>
-                    </td>
-                    <td>
-                      <button
-                        className="danger"
-                        onClick={() =>
-                          setForm({
-                            ...form,
-                            rows: form.rows.filter(
-                              (_item, itemIndex) => itemIndex !== index,
+                          {product.name} · {product.categoryName}
+                          {!product.active ? " (đã ẩn)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Giá gốc (đ) *
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={row.originalPriceVnd}
+                      onChange={(e) =>
+                        changeRow(index, { originalPriceVnd: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Mức giảm (%) *
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      step={1}
+                      value={row.discountPercent}
+                      onChange={(e) =>
+                        changeRow(index, { discountPercent: e.target.value })
+                      }
+                    />
+                  </label>
+                  <p className="full promotion-price-preview">
+                    Giá áp dụng:{" "}
+                    <b>
+                      {new Intl.NumberFormat("vi-VN").format(
+                        Math.min(
+                          products?.find((p) => p.id === row.productId)
+                            ?.priceVnd ?? Infinity,
+                          Math.max(
+                            0,
+                            Math.round(
+                              (Number(row.originalPriceVnd) *
+                                (100 - Number(row.discountPercent))) /
+                                100,
                             ),
-                          })
-                        }
-                        aria-label="Xóa dòng"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          ),
+                        ),
+                      )}{" "}
+                      đ
+                    </b>
+                    <small>
+                      Giá thanh toán lấy mức thấp hơn giữa giá bán hiện tại và
+                      giá khuyến mãi.
+                    </small>
+                  </p>
+                  <label>
+                    Nhãn ưu đãi
+                    <input
+                      maxLength={120}
+                      value={row.displayLabel}
+                      onChange={(e) =>
+                        changeRow(index, { displayLabel: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Dòng thông tin thêm
+                    <input
+                      maxLength={160}
+                      value={row.displayEnding}
+                      onChange={(e) =>
+                        changeRow(index, { displayEnding: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Tông màu
+                    <select
+                      value={row.accent}
+                      onChange={(e) =>
+                        changeRow(index, { accent: e.target.value })
+                      }
+                    >
+                      {ACCENTS.map((a) => (
+                        <option key={a.value} value={a.value}>
+                          {a.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </section>
+            ))}
           </div>
           <button
             className="admin-ghost"
@@ -645,7 +708,6 @@ export default function PromotionsSection() {
             Chọn mỗi sản phẩm một lần. Giá hiện tại của sản phẩm sẽ được điền
             sẵn làm giá gốc; có thể điều chỉnh khi cần hiển thị mức giảm.
           </FieldHint>
-
         </AdminEditorPage>
       )}
       {pendingDelete && (

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
+import ContactPage from "./Contact";
+import { useWebsite } from "./WebsiteContext";
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,16 +13,13 @@ import {
   Download,
   Facebook,
   Gift,
-  Heart,
   Instagram,
   Leaf,
-  Menu,
   Minus,
   Mountain,
   Plus,
   Search,
   ShoppingBag,
-  User,
   X,
   Youtube,
 } from "lucide-react";
@@ -31,7 +29,7 @@ import { CatalogProvider } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
 import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
-import AdminPage from "./admin/AdminPage";
+const AdminPage = lazy(() => import("./admin/AdminPage"));
 import {
   AboutPage,
   NewsDetailPage,
@@ -40,6 +38,7 @@ import {
 } from "./CommercePages";
 import Home from "./Home";
 import { createCheckoutOrder } from "./services/storeApi";
+import { useStorefrontMotion } from "./hooks/useStorefrontMotion";
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -54,7 +53,7 @@ function Logo({ light = false }: { light?: boolean }) {
     <Link
       to="/"
       className={`moc-logo ${light ? "logo-light" : ""}`}
-      aria-label="mộc. — Tinh hoa núi rừng Tây Bắc"
+      aria-label="A Sỉn — Tinh hoa núi rừng Tây Bắc"
     >
       <div className="moc-logo-icon">
         <svg
@@ -82,7 +81,7 @@ function Logo({ light = false }: { light?: boolean }) {
       </div>
       <div className="moc-logo-text">
         <span className="moc-logo-brand">
-          mộc<span className="moc-logo-dot">.</span>
+          A Sỉn<span className="moc-logo-dot">.</span>
         </span>
         <span className="moc-logo-sub">TÂY BẮC THUẦN KHIẾT</span>
       </div>
@@ -146,18 +145,12 @@ function Modal({
 }
 
 function Header() {
-  const { cart, setCartOpen, favoriteIds } = useShop();
+  const { cart, setCartOpen } = useShop();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [favoritesOpen, setFavoritesOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   const isHome = location.pathname === "/";
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -173,7 +166,7 @@ function Header() {
 
   return (
     <>
-      <header className={`moc-header ${isTransparent ? "moc-header-transparent" : "moc-header-solid"}`}>
+      <header className={`moc-header ${isHome ? "moc-header-home" : ""} ${isTransparent ? "moc-header-transparent" : "moc-header-solid"}`}>
         <div className="moc-header-inner">
           <Logo light={isTransparent} />
 
@@ -188,20 +181,18 @@ function Header() {
               to="/gioi-thieu"
               className={`moc-nav-link ${location.pathname === "/gioi-thieu" ? "active" : ""}`}
             >
-              Về Mộc
+              Về A Sỉn
             </Link>
-            <a href="/#cau-chuyen" className="moc-nav-link">
-              Câu chuyện
-            </a>
             <Link
               to="/tin-tuc"
               className={`moc-nav-link ${location.pathname === "/tin-tuc" ? "active" : ""}`}
             >
               Tạp chí
             </Link>
-            <a href="/#lien-he" className="moc-nav-link">
-              Liên hệ
-            </a>
+            <Link to="/#lien-he" className="moc-nav-link">Liên hệ</Link>
+            <Link to="/thiet-ke" className="moc-nav-design" aria-current={location.pathname === "/thiet-ke" ? "page" : undefined}>
+              <Gift size={16} /> Thiết kế quà
+            </Link>
           </nav>
 
           <div className="moc-header-actions">
@@ -213,78 +204,18 @@ function Header() {
               <Search size={19} />
             </button>
             <button
-              className="moc-action-btn"
-              aria-label="Tài khoản & yêu thích"
-              onClick={() => setFavoritesOpen(true)}
-            >
-              <User size={19} />
-              {favoriteIds.length > 0 && (
-                <span className="moc-cart-count-badge" style={{ background: "#c04d3c" }}>
-                  {favoriteIds.length}
-                </span>
-              )}
-            </button>
-            <button
-              className="moc-action-btn moc-cart-icon-btn"
+              className="moc-pill-cart-btn"
               aria-label={`Giỏ hàng (${count})`}
               onClick={() => setCartOpen(true)}
             >
-              <ShoppingBag size={19} />
-              <span className="moc-cart-count-badge">{count}</span>
-            </button>
-            <button
-              className="moc-pill-cart-btn"
-              onClick={() => setCartOpen(true)}
-            >
-              <span>Giỏ hàng</span>
+              <ShoppingBag size={15} />
+              <span>Giỏ hàng ({count})</span>
               <ArrowRight size={14} />
-            </button>
-            <button
-              className="moc-action-btn moc-menu-toggle"
-              aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
-
-        {menuOpen && (
-          <nav className="mobile-nav" aria-label="Điều hướng điện thoại">
-            <Link to="/san-pham">
-              Sản phẩm <ArrowRight size={16} />
-            </Link>
-            <Link to="/gioi-thieu">
-              Về Mộc <Mountain size={16} />
-            </Link>
-            <a href="/#cau-chuyen">
-              Câu chuyện <ArrowRight size={16} />
-            </a>
-            <Link to="/tin-tuc">
-              Tạp chí <ArrowRight size={16} />
-            </Link>
-            <a href="/#lien-he">
-              Liên hệ <ArrowRight size={16} />
-            </a>
-            <Link to="/thiet-ke">
-              Tự thiết kế quà <Gift size={16} />
-            </Link>
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                setFavoritesOpen(true);
-              }}
-            >
-              Yêu thích ({favoriteIds.length}) <Heart size={16} />
-            </button>
-          </nav>
-        )}
       </header>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
-      {favoritesOpen && (
-        <SearchModal favorites onClose={() => setFavoritesOpen(false)} />
-      )}
     </>
   );
 }
@@ -465,11 +396,11 @@ function lineName(line: CartLine, list: Product[]) {
     : (list.find((p) => p.id === line.productId)?.name ?? "Sản vật");
 }
 
-type DemoOrder = {
+type OrderSummary = {
   type: string;
   orderCode: string;
   createdAt: string;
-  customer: { name: string; phone: string; address: string };
+  customer: { name: string; phone: string; address: string; email?: string; note?: string };
   items: Array<{ name: string; quantity: number; unitPrice: number; design?: CartLine["design"] }>;
   subtotal: number;
   shipping: string;
@@ -477,64 +408,41 @@ type DemoOrder = {
   payment?: string;
 };
 
-function PaymentQR({
+function OrderReview({
   order,
   onBack,
   onComplete,
 }: {
-  order: DemoOrder;
+  order: OrderSummary;
   onBack: () => void;
   onComplete: () => Promise<void>;
 }) {
-  const qrValue = `MOC-TAY-BAC-DEMO|${order.orderCode}|${order.subtotal}|QR-DEMO-ONLY`;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [attempted, setAttempted] = useState(false);
   const complete = async () => {
-    setSaving(true);
-    setError("");
-    try {
-      await onComplete();
-    } catch {
-      setError("Chưa thể tạo đơn trong hệ thống. Vui lòng thử lại sau.");
-    } finally {
-      setSaving(false);
-    }
+    setSaving(true);setAttempted(true);setError("");
+    try { await onComplete(); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Chưa thể ghi nhận đơn. Vui lòng thử lại."); }
+    finally { setSaving(false); }
   };
-  return (
-    <div className="payment-qr">
-      <button className="back-link" onClick={onBack}>
-        <ArrowLeft size={15} /> Sửa thông tin đơn
-      </button>
-      <div className="qr-demo-badge">THANH TOÁN QR · BẢN DEMO</div>
-      <h3>Quét mã để thanh toán</h3>
-      <p className="payment-caption">
-        Mã này chỉ chứa dữ liệu mô phỏng. Không liên kết ngân hàng, ví điện tử
-        hay phát sinh giao dịch thật.
-      </p>
-      <div className="qr-frame">
-        <QRCodeSVG value={qrValue} size={190} level="M" includeMargin />
-      </div>
-      <div className="payment-reference">
-        <span>Mã đơn mẫu</span><b>{order.orderCode}</b>
-        <span>Số tiền minh họa</span><strong>{money(order.subtotal)}</strong>
-      </div>
-      <div className="demo-payment-methods">
-        <span className="active">VietQR demo</span><span>Ví A Sỉn demo</span><span>Ngân hàng demo</span>
-      </div>
-      <button className="button button-green full-width" onClick={complete} disabled={saving}>
-        <CheckCircle2 size={18} /> {saving ? "Đang ghi nhận…" : "Mô phỏng đã thanh toán"}
-      </button>
-      {error && <p className="demo-note" role="alert">{error}</p>}
-      <p className="demo-note">Trong hệ thống thật, bước này phải chờ webhook xác thực từ đối tác thanh toán.</p>
-    </div>
-  );
+  return <div className="payment-qr">
+    {!attempted && <button className="back-link" onClick={onBack}><ArrowLeft size={15}/> Sửa thông tin đơn</button>}
+    <h3>Kiểm tra & đặt hàng</h3>
+    <p>Thanh toán khi nhận hàng (COD). A Sỉn sẽ liên hệ để xác nhận và chuẩn bị đơn.</p>
+    <div className="payment-reference"><span>Người nhận</span><b>{order.customer.name}</b><span>Điện thoại</span><b>{order.customer.phone}</b><span>Địa chỉ</span><b>{order.customer.address}</b><span>Giao hàng</span><b>{order.shipping}</b><span>Tổng dự kiến</span><strong>{money(order.subtotal)}</strong></div>
+    <button className="button button-green full-width" onClick={()=>void complete()} disabled={saving}><CheckCircle2 size={18}/>{saving ? "Đang ghi nhận…" : attempted ? "Kiểm tra & thử lại" : "Xác nhận đặt hàng COD"}</button>
+    {error && <p className="demo-note" role="alert">{error}</p>}
+  </div>;
 }
 
 function Cart() {
   const { cart, setQuantity, setCartOpen, clearCart, products } = useShop();
+  const { commerce } = useWebsite();
+  const [requestId] = useState(() => crypto.randomUUID());
   const [checkout, setCheckout] = useState(false);
-  const [paymentOrder, setPaymentOrder] = useState<DemoOrder | null>(null);
-  const [order, setOrder] = useState<DemoOrder | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<OrderSummary | null>(null);
+  const [order, setOrder] = useState<OrderSummary | null>(null);
   const total = cart.reduce(
     (sum, item) => sum + linePrice(item, products) * item.quantity,
     0,
@@ -543,13 +451,15 @@ function Cart() {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     setPaymentOrder({
-      type: "ĐƠN MẪU — CHƯA GỬI ĐẾN CỬA HÀNG",
-      orderCode: `MOCTB-DEMO-${String(Date.now()).slice(-6)}`,
+      type: "ĐƠN HÀNG A SỈN",
+      orderCode: "Chờ xác nhận",
       createdAt: new Date().toISOString(),
       customer: {
         name: String(data.get("name")).trim(),
         phone: String(data.get("phone")).trim(),
         address: String(data.get("address")).trim(),
+        email: String(data.get("email") ?? "").trim(),
+        note: String(data.get("note") ?? "").trim(),
       },
       items: cart.map((line) => ({
         name: lineName(line, products),
@@ -557,8 +467,8 @@ function Cart() {
         unitPrice: linePrice(line, products),
         design: line.design,
       })),
-      subtotal: total,
-      shipping: "Chưa xác định",
+      subtotal: total + (total >= commerce.freeShippingFrom ? 0 : commerce.shippingFee),
+      shipping: total >= commerce.freeShippingFrom ? "Miễn phí" : money(commerce.shippingFee),
       currency: "VND",
     });
   };
@@ -568,13 +478,13 @@ function Cart() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = "moc-don-hang-mau.json";
+    link.download = "a-sin-don-hang.json";
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   return (
     <Modal
-      title={order ? "Thanh toán mô phỏng hoàn tất" : paymentOrder ? "Thanh toán QR" : checkout ? "Thông tin nhận quà" : "Giỏ quà của bạn"}
+      title={order ? "Đặt hàng thành công" : paymentOrder ? "Xác nhận đơn hàng" : checkout ? "Thông tin nhận quà" : "Giỏ quà của bạn"}
       onClose={() => { setCartOpen(false); setCheckout(false); setPaymentOrder(null); }}
       className="cart-drawer"
     >
@@ -583,32 +493,31 @@ function Cart() {
           <CheckCircle2 size={49} strokeWidth={1.3} />
           <h3>Đơn hàng đã được ghi nhận.</h3>
           <p>
-            Đơn đang chờ xác thực thanh toán QR. Hệ thống chỉ chuyển sang đã
-            thanh toán sau khi nhận webhook hợp lệ từ đối tác.
+            Mã đơn: {order.orderCode}. A Sỉn sẽ liên hệ để xác nhận. Bạn thanh toán khi nhận được hàng.
           </p>
           <div className="order-total">
-            <span>Tổng tiền sản phẩm</span>
+            <span>Tổng tiền đơn hàng</span>
             <b>{money(order.subtotal)}</b>
           </div>
-          <p className="demo-note">Bạn có thể tải thông tin đơn để lưu lại. Phí giao hàng chưa được tính.</p>
+          <p className="demo-note">Thông tin đơn và phí giao hàng đã được lưu trong hệ thống.</p>
           <button className="button button-green" onClick={download}>
-            <Download size={18} /> Tải thông tin đơn mẫu
+            <Download size={18} /> Tải thông tin đơn
           </button>
           <button className="text-link" onClick={() => setCartOpen(false)}>
             Tiếp tục khám phá <ArrowRight size={17} />
           </button>
         </div>
       ) : paymentOrder ? (
-        <PaymentQR
+        <OrderReview
           order={paymentOrder}
           onBack={() => { setPaymentOrder(null); setCheckout(true); }}
           onComplete={async () => {
-            const persisted = await createCheckoutOrder(paymentOrder.customer, cart);
+            const persisted = await createCheckoutOrder(paymentOrder.customer, cart, requestId);
             setOrder({
               ...paymentOrder,
               orderCode: persisted.orderNumber,
               subtotal: persisted.totalAmountVnd,
-              payment: "QR đang chờ webhook xác thực",
+              payment: "COD — thanh toán khi nhận hàng",
             });
             setPaymentOrder(null);
             clearCart();
@@ -639,7 +548,7 @@ function Cart() {
                 <ArrowLeft size={15} /> Trở lại giỏ quà
               </button>
               <p className="checkout-notice">
-                Bạn đang tạo đơn mẫu trên thiết bị này. Sau bước này, bạn có thể trải nghiệm thanh toán bằng mã QR giả lập.
+                Đặt hàng không cần tài khoản. Thông tin được dùng để xác nhận và giao đơn của bạn.
               </p>
               <label className="field-label" htmlFor="customer-name">
                 Họ và tên
@@ -667,6 +576,10 @@ function Cart() {
                 title="Nhập số Việt Nam gồm 10 chữ số bắt đầu bằng 0, hoặc +84 và 9 chữ số."
                 placeholder="0901234567"
               />
+              <label className="field-label" htmlFor="customer-email">Email liên hệ (không bắt buộc)</label>
+              <input id="customer-email" name="email" type="email" autoComplete="email" maxLength={254} placeholder="Email nhận phản hồi hỗ trợ" />
+              <label className="field-label" htmlFor="customer-note">Ghi chú giao hàng</label>
+              <textarea id="customer-note" name="note" rows={2} maxLength={1000} placeholder="Thời gian nhận, lưu ý cho cửa hàng…" />
               <label className="field-label" htmlFor="customer-address">
                 Địa chỉ nhận quà
               </label>
@@ -685,10 +598,10 @@ function Cart() {
                 <strong>{money(total)}</strong>
               </div>
               <p className="demo-note">
-                Phí giao hàng chưa được tính. QR ở bước sau là mô phỏng, không phải thanh toán trực tuyến thật.
+                Phí giao hàng: {total >= commerce.freeShippingFrom ? "Miễn phí" : money(commerce.shippingFee)}. Thanh toán khi nhận hàng.
               </p>
               <button className="button button-green full-width" type="submit">
-                Tiếp tục đến mã QR <ArrowRight size={18} />
+                Kiểm tra đơn hàng <ArrowRight size={18} />
               </button>
             </form>
           ) : (
@@ -762,7 +675,7 @@ function Cart() {
                   Tiếp tục đặt hàng <ArrowRight size={18} />
                 </button>
                 <p className="checkout-demo">
-                  <Check size={13} /> Bản trải nghiệm · có luồng QR thanh toán giả lập
+                  <Check size={13} /> Không cần tài khoản · Thanh toán khi nhận hàng
                 </p>
               </div>
             </>
@@ -774,6 +687,7 @@ function Cart() {
 }
 
 function Footer() {
+  const {content:c}=useWebsite();
   const [faqOpen, setFaqOpen] = useState(false);
 
   return (
@@ -789,13 +703,13 @@ function Footer() {
               </span>
             </div>
 
-            {/* Col 2: Về Mộc */}
+            {/* Col 2: Về A Sỉn */}
             <div className="moc-footer-col">
-              <h4>Về Mộc</h4>
+              <h4>Về A Sỉn</h4>
               <ul>
                 <li><Link to="/gioi-thieu">Câu chuyện thương hiệu</Link></li>
                 <li><Link to="/gioi-thieu">Hành trình phát triển</Link></li>
-                <li><Link to="/gioi-thieu">Con người Mộc</Link></li>
+                <li><Link to="/gioi-thieu">Con người A Sỉn</Link></li>
                 <li><Link to="/gioi-thieu">Giá trị bền vững</Link></li>
               </ul>
             </div>
@@ -818,26 +732,26 @@ function Footer() {
                 <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Chính sách vận chuyển</button></li>
                 <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Chính sách đổi trả</button></li>
                 <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Hướng dẫn mua hàng</button></li>
-                <li><a href="/#lien-he">Liên hệ</a></li>
+                <li><Link to="/lien-he">Liên hệ</Link></li>
               </ul>
             </div>
 
-            {/* Col 5: Kết nối với Mộc */}
+            {/* Col 5: Kết nối với A Sỉn */}
             <div className="moc-footer-col moc-footer-social-col">
-              <h4>Kết nối với Mộc</h4>
+              <h4>Kết nối với A Sỉn</h4>
               <div className="moc-social-links">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Facebook">
+                {c["social.facebook"] && <a href={c["social.facebook"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Facebook">
                   <Facebook size={16} />
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Instagram">
+                </a>}
+                {c["social.instagram"] && <a href={c["social.instagram"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Instagram">
                   <Instagram size={16} />
-                </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="YouTube">
+                </a>}
+                {c["social.youtube"] && <a href={c["social.youtube"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="YouTube">
                   <Youtube size={16} />
-                </a>
-                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="TikTok">
+                </a>}
+                {c["social.tiktok"] && <a href={c["social.tiktok"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="TikTok">
                   <TikTokIcon size={16} />
-                </a>
+                </a>}
               </div>
               <span className="moc-footer-script-tag">
                 Những giá trị thật đẹp<br />vẫn còn tiếp nối...
@@ -846,7 +760,7 @@ function Footer() {
           </div>
 
           <div className="moc-footer-bottom">
-            <span>© 2024 Mộc. Tinh hoa núi rừng Việt Nam.</span>
+            <span>© 2024 A Sỉn. Tinh hoa núi rừng Việt Nam.</span>
             <div className="moc-footer-bottom-right">
               <svg viewBox="0 0 46 26" width="28" height="18" fill="none" className="moc-footer-mountain-icon">
                 <path d="M2 24L15 4L26 20L31 12L44 24H2Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -863,32 +777,25 @@ function Footer() {
             <details open>
               <summary>Tôi có thể tự thiết kế những gì?</summary>
               <p>
-                Bạn có thể chọn 1–4 sản vật, màu hộp, họa tiết, người nhận và
-                lời nhắn trên thiệp. Thiết kế được lưu trên trình duyệt bạn đang
-                dùng.
+                {c["faq.design"]}
               </p>
             </details>
             <details>
               <summary>Đơn hàng đã được gửi đi chưa?</summary>
               <p>
-                Đây là bản trải nghiệm giao diện. Luồng QR là mô phỏng, không
-                kết nối ngân hàng, chưa thu tiền và chưa có dịch vụ giao hàng.
-                Bạn có thể tải thông tin đơn mẫu về máy.
+                {c["faq.order"]}
               </p>
             </details>
             <details>
-              <summary>Hình ảnh và giá có phải dữ liệu thật không?</summary>
+              <summary>Chính sách vận chuyển</summary>
               <p>
-                Danh mục, giá và ảnh được tạo để minh họa thiết kế. Cửa hàng cần
-                cập nhật sản phẩm, ảnh thực tế, chính sách giao hàng và thông
-                tin liên hệ trước khi mở bán.
+                {c["faq.shipping"]}
               </p>
             </details>
             <details>
-              <summary>Có thể xem sản phẩm bằng 3D không?</summary>
+              <summary>Chính sách đổi trả</summary>
               <p>
-                Hộp quà hiện có bản phối 2D tương tác. Mô hình 3D của sản phẩm
-                sẽ được bổ sung khi nhà cung cấp bàn giao.
+                {c["faq.returns"]}
               </p>
             </details>
           </div>
@@ -904,10 +811,12 @@ function Shell() {
   useEffect(() => {
     document.title =
       location.pathname === "/thiet-ke"
-        ? "Tự thiết kế hộp quà — Mộc Tây Bắc"
+        ? "Tự thiết kế hộp quà — A Sỉn Tây Bắc"
         : location.pathname === "/admin"
-          ? "Quản trị — Mộc Tây Bắc"
-          : "Mộc Tây Bắc — Tinh hoa núi rừng Việt Nam";
+          ? "Quản trị — A Sỉn Tây Bắc"
+          : "A Sỉn Tây Bắc — Tinh hoa núi rừng Việt Nam";
+    // Home positions this anchor after its database-backed sections have loaded.
+    if (location.pathname === "/" && location.hash === "#lien-he") return;
     const id = requestAnimationFrame(() => {
       if (location.hash)
         document
@@ -921,6 +830,7 @@ function Shell() {
     });
     return () => cancelAnimationFrame(id);
   }, [location]);
+  useStorefrontMotion(location.pathname);
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -935,9 +845,9 @@ function Shell() {
           <Route path="/gioi-thieu" element={<AboutPage />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
           <Route path="/tin-tuc/:storyId" element={<NewsDetailPage />} />
-          <Route path="/lien-he" element={<Navigate to="/#lien-he" replace />} />
+          <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/thiet-ke" element={<Customizer />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin" element={<Suspense fallback={<main className="admin-login"><p role="status">Đang mở trang quản trị…</p></main>}><AdminPage /></Suspense>} />
           <Route
             path="*"
             element={

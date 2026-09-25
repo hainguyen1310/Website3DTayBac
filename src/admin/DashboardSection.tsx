@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { money } from "../catalog";
+import { vietnamDay as dayKey } from "../operations";
 import { getDashboardSnapshot, ORDER_STATUS_LABELS } from "../services/adminApi";
 import type { AdminSection } from "./sections";
 import {
@@ -19,11 +20,6 @@ import {
   SectionHeader,
   useAsync,
 } from "./ui";
-
-const dayKey = (value: string | Date) => {
-  const date = typeof value === "string" ? new Date(value) : value;
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-};
 
 export default function DashboardSection({
   onNavigate,
@@ -96,7 +92,7 @@ export default function DashboardSection({
       />
       <div className="metric-grid">
         <article>
-          <span>Doanh thu hôm nay</span>
+          <span>Đã thu từ đơn đặt hôm nay</span>
           <strong>{money(summary.revenueToday)}</strong>
           <small>7 ngày: {money(summary.revenue7Days)}</small>
           <i className="metric-icon">

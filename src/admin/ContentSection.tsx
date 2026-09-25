@@ -1,3 +1,4 @@
+import { slugify } from "../operations";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Download, Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import {
@@ -17,6 +18,8 @@ import {
   FieldHint,
   formatDateTime,
   SectionHeader,
+  toDateTimeInput,
+  fromDateTimeInput,
   useAsync,
 } from "./ui";
 import ImageInput from "./ImageInput";
@@ -46,7 +49,7 @@ const emptyForm: ArticleForm = {
   imageUrl: "",
   readTimeMinutes: "4",
   body: "",
-  published: true,
+  published: false,
 };
 
 const toForm = (article: AdminArticle): ArticleForm => ({
@@ -80,7 +83,7 @@ export default function ContentSection() {
   const { data, error, loading, reload } = useAsync(listAdminArticles, []);
   const [form, setForm] = useState<ArticleForm | null>(null);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
   const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -91,7 +94,9 @@ export default function ContentSection() {
   const visibleArticles = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return articles.filter((article) => {
-      if (statusFilter === "published" && !article.published) return false;
+      const scheduled=article.published && Boolean(article.publishedAt && new Date(article.publishedAt).getTime()>Date.now());
+      if (statusFilter === "published" && (!article.published || scheduled)) return false;
+      if (statusFilter === "scheduled" && !scheduled) return false;
       if (statusFilter === "draft" && article.published) return false;
       return !needle || `${article.title} ${article.slug} ${article.tag}`.toLowerCase().includes(needle);
     });
@@ -107,6 +112,8 @@ export default function ContentSection() {
       setActionError("Hãy chọn ảnh bìa cho bài viết.");
       return;
     }
+    if (form.published && !form.body.trim()) { setActionError("Bài xuất bản phải có nội dung."); return; }
+    if (!Number.isInteger(Number(form.readTimeMinutes)) || Number(form.readTimeMinutes) < 1 || Number(form.readTimeMinutes) > 120) { setActionError("Thời lượng đọc phải từ 1 đến 120 phút."); return; }
     if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
       setActionError("Slug chỉ gồm chữ thường, số và dấu gạch ngang.");
       return;
@@ -118,7 +125,7 @@ export default function ContentSection() {
         await updateArticle(form.id, toInput(form), form.publishedAt);
         setNotice(`Đã cập nhật “${form.title}”.`);
       } else {
-        await createArticle(toInput(form));
+        await createArticle(toInput(form), form.publishedAt);
         setNotice(`Đã tạo “${form.title}”.`);
       }
       setForm(null);
@@ -175,7 +182,7 @@ export default function ContentSection() {
   };
 
   const exportCsv = () =>
-    downloadCsv("bai-viet-moc.csv", [
+    downloadCsv("bai-viet-a-sin.csv", [
       ["Tiêu đề", "Slug", "Chuyên mục", "Xuất bản", "Ngày", "Số đoạn"],
       ...(data ?? []).map((article) => [
         article.title,
@@ -210,7 +217,7 @@ export default function ContentSection() {
       />
       <div className="metric-grid admin-list-metrics">
         <article><span>Tổng bài viết</span><strong>{articles.length}</strong><small>Trong kho nội dung</small></article>
-        <article><span>Đã đăng</span><strong>{articles.filter((article) => article.published).length}</strong><small>Hiển thị trên website</small></article>
+        <article><span>Đã đăng</span><strong>{articles.filter((article) => article.published && (!article.publishedAt || new Date(article.publishedAt).getTime()<=Date.now())).length}</strong><small>Hiển thị trên website</small></article>
         <article><span>Bản nháp</span><strong>{articles.filter((article) => !article.published).length}</strong><small>Chưa công khai</small></article>
         <article><span>Chuyên mục</span><strong>{new Set(articles.map((article) => article.tag)).size}</strong><small>Đang được sử dụng</small></article>
         <article><span>Nội dung</span><strong>{articles.reduce((sum, article) => sum + article.body.length, 0)}</strong><small>Tổng đoạn đã soạn</small></article>
@@ -228,11 +235,12 @@ export default function ContentSection() {
         <select
           className="admin-toolbar-select"
           value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value as "all" | "published" | "draft")}
+          onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
           aria-label="Lọc trạng thái bài viết"
         >
           <option value="all">Tất cả trạng thái</option>
           <option value="published">Đã đăng</option>
+          <option value="scheduled">Đã lên lịch</option>
           <option value="draft">Bản nháp</option>
         </select>
       </div>
@@ -285,7 +293,7 @@ export default function ContentSection() {
                         className={article.published ? "admin-toggle active" : "admin-toggle"}
                         onClick={() => void togglePublished(article)}
                       >
-                        {article.published ? "Đã đăng" : "Bản nháp"}
+                        {article.published ? article.publishedAt && new Date(article.publishedAt).getTime()>Date.now() ? "Đã lên lịch" : "Đã đăng" : "Bản nháp"}
                       </button>
                     </td>
                     <td>
@@ -346,6 +354,7 @@ export default function ContentSection() {
               <section>
                 <h2>Cài đặt hiển thị</h2>
                 <div className="admin-switch-list">
+                  <label>Thời điểm xuất bản<input type="datetime-local" value={toDateTimeInput(form.publishedAt)} onChange={e=>setForm({...form,publishedAt:fromDateTimeInput(e.target.value)})} /><FieldHint>Để trống để xuất bản ngay khi bật. Ngày tương lai sẽ lên lịch hiển thị.</FieldHint></label>
                   <label className="admin-switch-row">
                     <span>
                       <b>Xuất bản</b>
@@ -382,7 +391,7 @@ export default function ContentSection() {
                 required
                 value={form.title}
                 onChange={(event) =>
-                  setForm({ ...form, title: event.target.value })
+                  setForm({ ...form, title: event.target.value, slug: !form.id && (!form.slug || form.slug === slugify(form.title)) ? slugify(event.target.value) : form.slug })
                 }
               />
             </label>

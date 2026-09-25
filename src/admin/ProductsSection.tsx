@@ -1,3 +1,4 @@
+import { slugify } from "../operations";
 import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
@@ -17,6 +18,7 @@ import {
   listAdminProducts,
   updateCategory,
   updateProduct,
+  setProductActive,
 } from "../services/adminApi";
 import type {
   AdminCategory,
@@ -30,7 +32,6 @@ import {
   AdminEditorPage,
   AdminError,
   AdminLoading,
-  AdminModal,
   FieldHint,
   SectionHeader,
   useAsync,
@@ -38,6 +39,7 @@ import {
 import ImageInput from "./ImageInput";
 
 type ProductForm = {
+  expectedQuantity: number;
   id: string | null;
   categoryId: string;
   slug: string;
@@ -57,6 +59,7 @@ type ProductForm = {
 };
 
 const emptyForm: ProductForm = {
+  expectedQuantity: 0,
   id: null,
   categoryId: "",
   slug: "",
@@ -76,6 +79,7 @@ const emptyForm: ProductForm = {
 };
 
 const toForm = (product: AdminProduct): ProductForm => ({
+  expectedQuantity: product.quantity,
   id: product.id,
   categoryId: product.categoryId ?? "",
   slug: product.slug,
@@ -177,7 +181,7 @@ function CategoryManager({
   };
 
   return (
-    <AdminModal title="Danh mục sản phẩm" onClose={onClose}>
+    <AdminEditorPage title="Danh mục sản phẩm" section="Sản phẩm" mode="Danh mục" subtitle="Phân loại sản phẩm, đường dẫn và thứ tự hiển thị trên cửa hàng." onBack={onClose} footer={<button className="admin-ghost" onClick={onClose}>Về sản phẩm</button>}>
       <AdminError message={actionError} />
       {loading ? (
         <AdminLoading />
@@ -294,7 +298,7 @@ function CategoryManager({
           busy={busy}
         />
       )}
-    </AdminModal>
+    </AdminEditorPage>
   );
 }
 
@@ -345,6 +349,8 @@ export default function ProductsSection() {
       setActionError("Hãy chọn ảnh sản phẩm.");
       return;
     }
+    if (!form.origin.trim() || !form.weightLabel.trim()) { setActionError("Cần xuất xứ và quy cách / khối lượng của sản phẩm."); return; }
+    if (![form.priceVnd,form.quantity,form.lowStockThreshold,form.sortOrder].every(v=>v.trim()!=="" && Number.isSafeInteger(Number(v)) && Number(v)>=0)) { setActionError("Giá, tồn kho và thứ tự phải là số nguyên không âm."); return; }
     if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
       setActionError("Slug chỉ gồm chữ thường, số và dấu gạch ngang.");
       return;
@@ -353,7 +359,7 @@ export default function ProductsSection() {
     setActionError("");
     try {
       if (form.id) {
-        await updateProduct(form.id, toInput(form));
+        await updateProduct(form.id, toInput(form), form.expectedQuantity);
         setNotice(`Đã cập nhật ${form.name}.`);
       } else {
         await createProduct(toInput(form));
@@ -373,23 +379,7 @@ export default function ProductsSection() {
   const toggleActive = async (product: AdminProduct) => {
     setActionError("");
     try {
-      await updateProduct(product.id, {
-        categoryId: product.categoryId,
-        slug: product.slug,
-        sku: product.sku,
-        name: product.name,
-        origin: product.origin,
-        weightLabel: product.weightLabel,
-        priceVnd: product.priceVnd,
-        imageUrl: product.imageUrl,
-        tag: product.tag,
-        description: product.description,
-        active: !product.active,
-        featured: product.featured,
-        sortOrder: product.sortOrder,
-        quantity: product.quantity,
-        lowStockThreshold: product.lowStockThreshold,
-      });
+      await setProductActive(product.id, !product.active);
       reload();
     } catch (caught) {
       setActionError(
@@ -414,6 +404,8 @@ export default function ProductsSection() {
       setBusy(false);
     }
   };
+
+  if (categoriesOpen) return <CategoryManager onClose={()=>setCategoriesOpen(false)} onChanged={()=>{reload();reloadCategories();}} />;
 
   return (
     <>
@@ -656,7 +648,7 @@ export default function ProductsSection() {
                 required
                 value={form.name}
                 onChange={(event) =>
-                  setForm({ ...form, name: event.target.value })
+                  setForm({ ...form, name: event.target.value, slug: !form.id && (!form.slug || form.slug === slugify(form.name)) ? slugify(event.target.value) : form.slug })
                 }
               />
             </label>

@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import {
-  ArrowUpRight,
-  Download,
-  Eye,
-  Search,
-} from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowUpRight, Download, Eye, Search } from "lucide-react";
 import { money } from "../catalog";
+import { useAuth } from "../AuthContext";
+import { supabase } from "../utils/supabase";
+import { invalidateCache } from "../services/cache";
 import {
   getAvailableOrderStatuses,
   listAdminOrders,
@@ -38,6 +37,7 @@ function OrderDetail({
   onClose: () => void;
   onChanged: () => void;
 }) {
+  const { profile } = useAuth();
   const { data: events, loading } = useAsync(
     () => listOrderEvents(order.id),
     [order.id],
@@ -45,19 +45,71 @@ function OrderDetail({
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const statusOptions = getAvailableOrderStatuses(order.status, order.paymentMethod);
+  const [note, setNote] = useState("");
+  const [carrier, setCarrier] = useState(order.carrier);
+  const [tracking, setTracking] = useState(order.trackingNumber);
+  const [codCollected, setCodCollected] = useState(false);
+  const [returnOpen, setReturnOpen] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    reason: "",
+    reference: "",
+    money: false,
+    goods: false,
+    restock: false,
+  });
+  const statusOptions = getAvailableOrderStatuses(
+    order.status,
+    order.paymentMethod,
+  ).filter((s) => s !== "cancelled" || order.paymentStatus !== "paid");
   const canChangeStatus = statusOptions.length > 1;
+  const recordReturn = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const { error: err } = await supabase.rpc("record_order_return", {
+        p_id: order.id,
+        p_expected: order.status,
+        p_reason: returnForm.reason,
+        p_reference: returnForm.reference,
+        p_money_refunded: returnForm.money,
+        p_goods_received: returnForm.goods,
+        p_restock: returnForm.restock,
+      });
+      if (err) throw err;
+      invalidateCache();
+      onChanged();
+      onClose();
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" && e && "message" in e
+            ? String(e.message)
+            : "Không ghi nhận được hoàn trả.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const apply = async () => {
     if (status === order.status) return;
     setBusy(true);
     setError("");
     try {
-      await updateOrderStatus(order.id, order.status, status, order.paymentMethod);
+      await updateOrderStatus(
+        order.id,
+        order.status,
+        status,
+        order.paymentMethod,
+        { note, carrier, tracking, codCollected },
+      );
       onChanged();
       onClose();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Không cập nhật được.");
+      setError(
+        caught instanceof Error ? caught.message : "Không cập nhật được.",
+      );
     } finally {
       setBusy(false);
     }
@@ -75,15 +127,30 @@ function OrderDetail({
           <section>
             <h2>Tổng quan thanh toán</h2>
             <ul className="admin-detail-list">
-              <li><span>Tạm tính</span><b>{money(order.subtotalVnd)}</b></li>
-              <li><span>Giảm giá</span><b>{money(order.discountVnd)}</b></li>
-              <li><span>Phí giao hàng</span><b>{money(order.shippingVnd)}</b></li>
-              <li><span>Tổng thanh toán</span><b>{money(order.totalVnd)}</b></li>
+              <li>
+                <span>Tạm tính</span>
+                <b>{money(order.subtotalVnd)}</b>
+              </li>
+              <li>
+                <span>Giảm giá</span>
+                <b>{money(order.discountVnd)}</b>
+              </li>
+              <li>
+                <span>Phí giao hàng</span>
+                <b>{money(order.shippingVnd)}</b>
+              </li>
+              <li>
+                <span>Tổng thanh toán</span>
+                <b>{money(order.totalVnd)}</b>
+              </li>
             </ul>
           </section>
           <section>
             <h2>Thông tin thanh toán</h2>
-            <p>{PAYMENT_METHOD_LABELS[order.paymentMethod]} · {PAYMENT_STATUS_LABELS[order.paymentStatus]}</p>
+            <p>
+              {PAYMENT_METHOD_LABELS[order.paymentMethod]} ·{" "}
+              {PAYMENT_STATUS_LABELS[order.paymentStatus]}
+            </p>
           </section>
         </>
       }
@@ -116,6 +183,12 @@ function OrderDetail({
       <div className="admin-detail-grid">
         <div>
           <h3>Người nhận</h3>
+          <Link
+            className="care-ticket-link"
+            to={`/admin?section=customers&customer=${order.customerId}`}
+          >
+            Mở hồ sơ khách hàng
+          </Link>
           <p>
             <b>{order.customerName}</b>
             <br />
@@ -176,22 +249,164 @@ function OrderDetail({
         </div>
       </div>
       <AdminError message={error} />
+      <div className="admin-form-section admin-form-grid">
+        <label>
+          Đơn vị vận chuyển
+          <input
+            value={carrier}
+            onChange={(e) => setCarrier(e.target.value)}
+            placeholder="Tên đơn vị giao hàng"
+          />
+        </label>
+        <label>
+          Mã vận đơn
+          <input
+            value={tracking}
+            onChange={(e) => setTracking(e.target.value)}
+          />
+        </label>
+        <label className="full">
+          Ghi chú xử lý {status === "cancelled" ? "(bắt buộc khi hủy)" : ""}
+          <textarea
+            rows={3}
+            maxLength={1000}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </label>
+        {order.paymentMethod === "cod" && status === "completed" && (
+          <label className="admin-check full">
+            <input
+              type="checkbox"
+              checked={codCollected}
+              onChange={(e) => setCodCollected(e.target.checked)}
+            />{" "}
+            Đã nhận và đối soát đủ tiền COD {money(order.totalVnd)}
+          </label>
+        )}
+      </div>
       <p className="admin-form-note">
         {order.paymentMethod === "cod" && order.status === "awaiting_payment"
-          ? "Đơn COD: chọn “Đã thanh toán” khi đã thu tiền mặt. Bước này chốt luôn trạng thái thanh toán của đơn."
-          : order.paymentStatus === "pending"
+          ? "Đơn COD được đóng gói và giao trước. Chỉ xác nhận thu tiền khi hoàn tất giao hàng và đối soát COD."
+          : order.paymentMethod === "qr" && order.paymentStatus === "pending"
             ? "Đơn QR chờ thanh toán chỉ được chuyển sang đã thanh toán qua webhook đã xác thực."
             : "Chỉ các bước xử lý phù hợp với trạng thái hiện tại mới được chọn."}
       </p>
+      {profile?.role === "admin" &&
+        order.status !== "cancelled" &&
+        (order.paymentStatus === "paid" || order.status === "shipping") && (
+          <section className="admin-form-section">
+            <button
+              className="admin-ghost"
+              onClick={() => setReturnOpen(!returnOpen)}
+            >
+              Ghi nhận hủy / hoàn trả
+            </button>
+            {returnOpen && (
+              <form
+                className="admin-form-grid"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void recordReturn();
+                }}
+              >
+                <p className="full admin-form-note">
+                  Ghi nhận việc đã xử lý ngoài thực tế. Thao tác này không
+                  chuyển tiền. Đơn sẽ đóng và báo cáo cập nhật sau khi lưu.
+                </p>
+                <label className="full">
+                  Lý do hoàn trả
+                  <textarea
+                    required
+                    minLength={5}
+                    maxLength={1000}
+                    value={returnForm.reason}
+                    onChange={(e) =>
+                      setReturnForm({ ...returnForm, reason: e.target.value })
+                    }
+                  />
+                </label>
+                {order.paymentStatus === "paid" && (
+                  <>
+                    <label className="full">
+                      Mã giao dịch hoàn tiền / phiếu chi
+                      <input
+                        required
+                        minLength={3}
+                        maxLength={200}
+                        value={returnForm.reference}
+                        onChange={(e) =>
+                          setReturnForm({
+                            ...returnForm,
+                            reference: e.target.value,
+                          })
+                        }
+                      />
+                    </label>
+                    <label className="admin-check full">
+                      <input
+                        required
+                        type="checkbox"
+                        checked={returnForm.money}
+                        onChange={(e) =>
+                          setReturnForm({
+                            ...returnForm,
+                            money: e.target.checked,
+                          })
+                        }
+                      />
+                      Đã hoàn đủ {money(order.totalVnd)} cho khách
+                    </label>
+                  </>
+                )}
+                {["shipping", "completed"].includes(order.status) && (
+                  <label className="admin-check full">
+                    <input
+                      required
+                      type="checkbox"
+                      checked={returnForm.goods}
+                      onChange={(e) =>
+                        setReturnForm({
+                          ...returnForm,
+                          goods: e.target.checked,
+                        })
+                      }
+                    />
+                    Đã nhận lại đầy đủ hàng
+                  </label>
+                )}
+                <label className="admin-check full">
+                  <input
+                    type="checkbox"
+                    checked={returnForm.restock}
+                    onChange={(e) =>
+                      setReturnForm({
+                        ...returnForm,
+                        restock: e.target.checked,
+                      })
+                    }
+                  />
+                  Hàng đủ điều kiện bán lại — nhập lại tồn kho
+                </label>
+                <button className="admin-primary" disabled={busy}>
+                  Lưu đối soát & đóng đơn
+                </button>
+              </form>
+            )}
+          </section>
+        )}
     </AdminEditorPage>
   );
 }
 
 export default function OrdersSection() {
+  const [params, setParams] = useSearchParams();
   const { data, error, loading, reload } = useAsync(listAdminOrders, []);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [query, setQuery] = useState("");
-  const [openId, setOpenId] = useState<string | null>(null);
+  const openId = params.get("order");
+  const setOpenId = (id: string | null) =>
+    setParams(id ? { section: "orders", order: id } : { section: "orders" });
 
   const orders = data ?? [];
   const visible = useMemo(() => {
@@ -218,7 +433,7 @@ export default function OrdersSection() {
   }
 
   const exportCsv = () =>
-    downloadCsv("don-hang-moc.csv", [
+    downloadCsv("don-hang-a-sin.csv", [
       [
         "Mã đơn",
         "Ngày tạo",
@@ -253,11 +468,47 @@ export default function OrdersSection() {
         }
       />
       <div className="metric-grid admin-list-metrics">
-        <article><span>Tổng đơn hàng</span><strong>{orders.length}</strong><small>Đơn đã ghi nhận</small></article>
-        <article><span>Chờ xác nhận</span><strong>{orders.filter((order) => order.status === "awaiting_payment").length}</strong><small>Chờ thanh toán hợp lệ</small></article>
-        <article><span>Đang xử lý</span><strong>{orders.filter((order) => order.status === "packing" || order.status === "shipping").length}</strong><small>Đóng gói hoặc giao hàng</small></article>
-        <article><span>Hoàn thành</span><strong>{orders.filter((order) => order.status === "completed").length}</strong><small>Đã giao thành công</small></article>
-        <article><span>Hoãn / hủy</span><strong>{orders.filter((order) => order.status === "cancelled").length}</strong><small>Đơn không tiếp tục xử lý</small></article>
+        <article>
+          <span>Tổng đơn hàng</span>
+          <strong>{orders.length}</strong>
+          <small>Đơn đã ghi nhận</small>
+        </article>
+        <article>
+          <span>Chờ xác nhận</span>
+          <strong>
+            {
+              orders.filter((order) => order.status === "awaiting_payment")
+                .length
+            }
+          </strong>
+          <small>Chờ thanh toán hợp lệ</small>
+        </article>
+        <article>
+          <span>Đang xử lý</span>
+          <strong>
+            {
+              orders.filter(
+                (order) =>
+                  order.status === "packing" || order.status === "shipping",
+              ).length
+            }
+          </strong>
+          <small>Đóng gói hoặc giao hàng</small>
+        </article>
+        <article>
+          <span>Hoàn thành</span>
+          <strong>
+            {orders.filter((order) => order.status === "completed").length}
+          </strong>
+          <small>Đã giao thành công</small>
+        </article>
+        <article>
+          <span>Hoãn / hủy</span>
+          <strong>
+            {orders.filter((order) => order.status === "cancelled").length}
+          </strong>
+          <small>Đơn không tiếp tục xử lý</small>
+        </article>
       </div>
       <div className="admin-card order-toolbar">
         <div className="admin-search">
@@ -330,14 +581,19 @@ export default function OrdersSection() {
                       <small>{order.customerPhone}</small>
                     </td>
                     <td>
-                      {order.items.reduce((sum, item) => sum + item.quantity, 0)}{" "}
+                      {order.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0,
+                      )}{" "}
                       sản phẩm
                     </td>
                     <td>
                       <span className="payment-pill">
                         {PAYMENT_METHOD_LABELS[order.paymentMethod]}
                       </span>
-                      <small>{PAYMENT_STATUS_LABELS[order.paymentStatus]}</small>
+                      <small>
+                        {PAYMENT_STATUS_LABELS[order.paymentStatus]}
+                      </small>
                     </td>
                     <td>
                       <OrderStatusPill status={order.status} />
@@ -362,7 +618,6 @@ export default function OrdersSection() {
           <AdminEmpty>Không có đơn hàng phù hợp bộ lọc.</AdminEmpty>
         )}
       </section>
-
     </>
   );
 }

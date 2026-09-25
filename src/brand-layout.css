@@ -1,0 +1,56 @@
+/* The longer A Sỉn wordmark keeps the existing typeface and colors. */
+.moc-logo-brand { white-space: nowrap; }
+
+@media (max-width: 1199px) {
+  .moc-header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 20px;
+    padding-block: 14px 10px;
+  }
+  .moc-header .moc-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .moc-header-actions { justify-self: end; }
+  .moc-nav-link { font-size: 12px; }
+  .moc-landing section { scroll-margin-top: 26px; }
+}
+
+@media (max-width: 580px) {
+  .moc-header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 16px;
+    padding-block: 12px 9px;
+  }
+  .moc-header .moc-nav {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px 12px;
+    padding-block: 4px 2px;
+  }
+  .moc-header .moc-nav-design {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    min-height: 38px;
+    padding-block: 8px;
+  }
+  .moc-nav-link { font-size: 11px; }
+  .moc-header-actions { justify-self: end; }
+  .moc-header .moc-logo-brand { font-size: 34px; }
+  .moc-landing section { scroll-margin-top: 60px; }
+}
+
+@media (min-width: 1200px) and (max-height: 700px) {
+  .moc-hero-container { padding-block: 96px 44px; }
+  .moc-hero-title { font-size: 50px; }
+  .moc-hero-eyebrow { margin-bottom: 12px; }
+  .moc-hero-subtitle { margin-top: 14px; }
+  .moc-hero-actions { margin-top: 18px; }
+  .moc-hero-btn-story { margin-top: 12px; }
+}

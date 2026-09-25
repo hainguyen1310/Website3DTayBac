@@ -1,16 +1,26 @@
 import type { CartLine } from "../catalog";
 import { supabase } from "../utils/supabase";
+import { brandCopy } from "../branding";
+import type { ContactTopic } from "../operations";
 
 export type ContactMessageInput = {
   name: string;
   email: string;
   message: string;
+  phone?: string;
+  subject?: string;
+  topic?: ContactTopic;
+  orderReference?: string;
+  marketingConsent?: boolean;
+  website?: string;
 };
 
 export type CheckoutCustomer = {
   name: string;
   phone: string;
   address: string;
+  email?: string;
+  note?: string;
 };
 
 export type CheckoutOrderResult = {
@@ -61,17 +71,17 @@ export async function listPublishedArticles(): Promise<PublishedArticle[]> {
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return ((data ?? []) as ArticleRow[]).map((article) => ({
     id: article.slug,
-    tag: article.tag,
+    tag: brandCopy(article.tag),
     date: articleDate(article.published_at),
-    title: article.title,
-    excerpt: article.excerpt,
+    title: brandCopy(article.title),
+    excerpt: brandCopy(article.excerpt),
     image: article.image_url,
     readTime: `${article.read_time_minutes} phút đọc`,
     body: Array.isArray(article.body)
-      ? article.body.filter((paragraph): paragraph is string => typeof paragraph === "string")
+      ? article.body.filter((paragraph): paragraph is string => typeof paragraph === "string").map(brandCopy)
       : [],
   }));
 }
@@ -104,9 +114,15 @@ export async function submitContactMessage(input: ContactMessageInput) {
     p_name: input.name.trim(),
     p_email: input.email.trim().toLowerCase(),
     p_message: input.message.trim(),
+    p_phone: input.phone || null,
+    p_subject: input.subject?.trim() || "Liên hệ từ website",
+    p_topic: input.topic || "other",
+    p_order_reference: input.orderReference?.trim() || null,
+    p_marketing_consent: input.marketingConsent ?? false,
+    p_website: input.website ?? "",
   });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return data as string;
 }
 
@@ -117,16 +133,20 @@ export async function submitContactMessage(input: ContactMessageInput) {
 export async function createCheckoutOrder(
   customer: CheckoutCustomer,
   lines: CartLine[],
+  requestId: string,
 ): Promise<CheckoutOrderResult> {
   const { data, error } = await supabase.rpc("create_checkout_order", {
     p_customer_name: customer.name.trim(),
     p_customer_phone: customer.phone.trim(),
     p_shipping_address: customer.address.trim(),
     p_items: checkoutItems(lines),
-    p_payment_method: "qr",
+    p_payment_method: "cod",
+    p_customer_email: customer.email?.trim().toLowerCase() || null,
+    p_customer_note: customer.note?.trim() || null,
+    p_request_id: requestId,
   });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   const order = Array.isArray(data) ? data[0] : data;
   if (!order) throw new Error("Supabase không trả về mã đơn hàng.");
 

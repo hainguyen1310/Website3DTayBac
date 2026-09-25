@@ -1,6 +1,7 @@
 import type { Deal, Product } from "../catalog";
 import { supabase } from "../utils/supabase";
 import { cached } from "./cache";
+import { brandCopy } from "../branding";
 
 type ProductRow = {
   slug: string;
@@ -46,14 +47,14 @@ export function listStorefrontProducts(): Promise<Product[]> {
       if (error) throw error;
       return ((data ?? []) as ProductRow[]).map((row) => ({
         id: row.slug,
-        name: row.name,
-        category: first(row.product_categories)?.name ?? "Sản vật khác",
+        name: brandCopy(row.name),
+        category: brandCopy(first(row.product_categories)?.name ?? "Sản vật khác"),
         origin: row.origin,
         weight: row.weight_label,
         price: Number(row.price_vnd),
         image: row.image_url,
-        tag: row.tag,
-        description: row.description,
+        tag: brandCopy(row.tag),
+        description: brandCopy(row.description),
         featured: row.featured,
       }));
     },
@@ -71,7 +72,7 @@ export function listStorefrontCategories(): Promise<string[]> {
         .order("sort_order");
 
       if (error) throw error;
-      return (data ?? []).map((row) => row.name as string);
+      return (data ?? []).map((row) => brandCopy(row.name as string));
     },
     60_000,
   );
@@ -105,7 +106,7 @@ export function listStorefrontDeals(): Promise<Deal[]> {
           {
             id: `${row.promotion_id}:${row.product_id}`,
             productId: product.slug,
-            label: row.display_label,
+            label: brandCopy(row.display_label),
             originalPrice: Number(row.original_price_vnd),
             discount: Number(row.discount_percent),
             ending: row.display_ending,
@@ -132,7 +133,7 @@ export function getStorefrontNotice(): Promise<string | null> {
       if (error) throw error;
       const value = data?.value as { text?: unknown } | null | undefined;
       return typeof value?.text === "string" && value.text.trim()
-        ? value.text.trim()
+        ? brandCopy(value.text.trim())
         : null;
     },
     60_000,

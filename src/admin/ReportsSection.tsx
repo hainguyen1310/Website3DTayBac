@@ -70,6 +70,7 @@ export default function ReportsSection() {
         }
       />
 
+      <p className="admin-help">Theo ngày đặt hàng, múi giờ Việt Nam. Chỉ tính đơn đã thu tiền; đơn hủy hoặc đã hoàn toàn bộ tiền được loại khỏi doanh thu.</p>
       {loading ? (
         <AdminLoading />
       ) : error ? (

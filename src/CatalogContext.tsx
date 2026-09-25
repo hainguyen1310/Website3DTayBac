@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
+import { applyPromotions } from "./pricing";
 import {
   ALL_CATEGORY,
   buildCategories,
@@ -75,7 +76,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
         : buildCategories(liveProducts);
 
     setData({
-      products: liveProducts,
+      products: applyPromotions(liveProducts, dealResult.status === "fulfilled" ? dealResult.value : []),
       categories: liveCategories,
       deals:
         dealResult.status === "fulfilled"

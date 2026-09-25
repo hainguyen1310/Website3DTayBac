@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowUpRight,
   BarChart3,
@@ -26,6 +26,9 @@ import ProductsSection from "./ProductsSection";
 import PromotionsSection from "./PromotionsSection";
 import ReportsSection from "./ReportsSection";
 import SettingsSection from "./SettingsSection";
+import WebsiteSection from "./WebsiteSection";
+import PasswordSetup from "./PasswordSetup";
+import { canAccess } from "../operations";
 import { AdminLoading } from "./ui";
 import type { AdminSection } from "./sections";
 
@@ -40,6 +43,7 @@ const menu: {
   { id: "customers", label: "Khách hàng", icon: Users },
   { id: "promotions", label: "Khuyến mãi", icon: Percent },
   { id: "content", label: "Nội dung", icon: Megaphone },
+  { id: "website", label: "Nội dung website", icon: LayoutDashboard },
   { id: "messages", label: "Liên hệ", icon: Mail },
   { id: "reports", label: "Báo cáo", icon: BarChart3 },
   { id: "settings", label: "Cài đặt", icon: Settings },
@@ -47,7 +51,11 @@ const menu: {
 
 export default function AdminPage() {
   const { session, loading, isStaff, profile, signOut } = useAuth();
-  const [section, setSection] = useState<AdminSection>("dashboard");
+  const [params, setParams] = useSearchParams();
+  const allowedMenu = menu.filter(item => canAccess(profile?.role, profile?.staffScope, item.id));
+  const requested = params.get("section") as AdminSection;
+  const section = allowedMenu.some(item => item.id === requested) ? requested : (allowedMenu[0]?.id ?? "dashboard");
+  const setSection = (next: AdminSection) => setParams({ section: next });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const active = menu.find((item) => item.id === section)!;
 
@@ -60,6 +68,7 @@ export default function AdminPage() {
       </main>
     );
   }
+  if (params.get("setup")==="password") return <PasswordSetup />;
   if (!session) return <AdminLogin />;
   if (!isStaff) return <AdminNoAccess />;
 
@@ -89,6 +98,8 @@ export default function AdminPage() {
         return <ReportsSection />;
       case "settings":
         return <SettingsSection />;
+      case "website":
+        return <WebsiteSection />;
       default:
         return <DashboardSection onNavigate={setSection} />;
     }
@@ -122,7 +133,7 @@ export default function AdminPage() {
           </button>
         </div>
         <nav>
-          {menu.map((item) => {
+          {allowedMenu.map((item) => {
             const Icon = item.icon;
             return (
               <button
@@ -141,7 +152,7 @@ export default function AdminPage() {
         </nav>
         <div className="admin-sidebar-bottom">
           <span>
-            Vai trò: <b>{profile?.role}</b>
+            Vai trò: <b>{profile?.role === "admin" ? "Quản trị viên" : profile?.staffScope === "marketing" ? "Marketing" : "Vận hành"}</b>
           </span>
           <Link to="/">
             Xem cửa hàng <ArrowUpRight size={15} />
