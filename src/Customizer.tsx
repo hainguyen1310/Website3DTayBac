@@ -28,22 +28,27 @@ import { useShop } from "./ShopContext";
 import GiftPreview from "./GiftPreview";
 
 export default function Customizer() {
-  const { products } = useCatalog();
-  const [design, setDesign] = useState<GiftDesign>(() =>
-    cleanDesign(readSaved("moc-design-v1") ?? defaultDesign, products),
-  );
+  const { products, loading, source } = useCatalog();
+  const [design, setDesign] = useState<GiftDesign>({ ...defaultDesign, productIds: [] });
+  const [restored, setRestored] = useState(false);
   const [step, setStep] = useState(0);
   const { addGift, notify } = useShop();
   const steps = ["Chọn sản vật", "Thêm sắc riêng", "Gửi lời thương"];
   const update = (change: Partial<GiftDesign>) =>
     setDesign((current) => ({ ...current, ...change }));
   useEffect(() => {
-    saveLocal("moc-design-v1", design);
-  }, [design]);
+    if (restored) saveLocal("moc-design-v1", design);
+  }, [design, restored]);
   // Danh mục đọc từ cơ sở dữ liệu có thể khác bản tĩnh: loại bỏ sản vật không còn bán.
   useEffect(() => {
+    if (loading || source !== "database") return;
+    if (!restored) {
+      setDesign(cleanDesign(readSaved("moc-design-v1") ?? defaultDesign, products));
+      setRestored(true);
+      return;
+    }
     setDesign((current) => cleanDesign(current, products));
-  }, [products]);
+  }, [products, loading, source, restored]);
   const toggleProduct = (id: string) =>
     update({
       productIds: design.productIds.includes(id)

@@ -25,7 +25,7 @@ import { ALL_CATEGORY, money } from "./catalog";
 import type { Product } from "./catalog";
 import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
-import { usePublishedArticles } from "./hooks/usePublishedArticles";
+import { usePublishedArticleFeed } from "./hooks/usePublishedArticles";
 import { submitContactMessage } from "./services/storeApi";
 
 function PageIntro({
@@ -204,14 +204,15 @@ export function AboutPage() {
 }
 
 export function NewsPage() {
-  const publishedArticles = usePublishedArticles();
+  const { articles: publishedArticles, loading, error, reload } = usePublishedArticleFeed();
+  const featured = publishedArticles[0];
   return (
     <main>
-      <PageIntro eyebrow="NHẬT KÝ CỦA A SỈN" title="Những mẩu chuyện từ núi về phố.">
-        Cùng đọc vài bài viết giả lập về hương vị, những dịp tặng quà và cảm hứng sống chậm.
+      <PageIntro eyebrow="TẠP CHÍ MỘC" title="Những mẩu chuyện từ núi về phố.">
+        Những câu chuyện về hương vị núi rừng, những dịp tặng quà và cảm hứng sống chậm.
       </PageIntro>
       <section className="container news-page">
-        <article className="featured-story"><img src="/images/hero.webp" alt="Núi rừng Tây Bắc" /><div><span className="eyebrow">CÂU CHUYỆN NỔI BẬT</span><h2>Đôi khi, một món quà là chiếc cầu nối ta về với những điều thân thương.</h2><p>Những chất liệu nhỏ bé có thể giữ lại cảm giác của một sáng mây, một bếp lửa, hay lời cảm ơn chưa kịp nói.</p><Link className="text-link" to={`/tin-tuc/${publishedArticles[0].id}`}>Đọc câu chuyện minh họa <ArrowRight size={17} /></Link></div></article>
+        {loading ? <p role="status">Đang tải bài viết…</p> : error ? <p role="alert">Chưa tải được bài viết. <button onClick={reload}>Thử lại</button></p> : !featured ? <p>Chưa có bài viết được xuất bản.</p> : <article className="featured-story"><img src={featured.image} alt={featured.title} /><div><span className="eyebrow">CÂU CHUYỆN MỚI NHẤT</span><h2>{featured.title}</h2><p>{featured.excerpt}</p><Link className="text-link" to={`/tin-tuc/${featured.id}`}>Đọc câu chuyện <ArrowRight size={17} /></Link></div></article>}
         <div className="news-grid">{publishedArticles.map((story) => <article className="news-card" key={story.id}><img src={story.image} alt="" /><div><span>{story.tag} · {story.date}</span><h2>{story.title}</h2><p>{story.excerpt}</p><Link className="article-link" to={`/tin-tuc/${story.id}`}>Đọc bài viết <ChevronRight size={16} /></Link></div></article>)}</div>
       </section>
       <section className="newsletter"><div className="container newsletter-inner"><div><span className="eyebrow">THƯ TỪ A SỈN</span><h2>Thỉnh thoảng nhận một câu chuyện hay?</h2><p>Biểu mẫu đăng ký minh họa — không thu thập email.</p></div><div className="newsletter-fake"><span>hello@vi-du.vn</span><button aria-label="Đăng ký bản tin minh họa"><Send size={18} /></button></div></div></section>
@@ -221,15 +222,17 @@ export function NewsPage() {
 
 export function NewsDetailPage() {
   const { storyId } = useParams();
-  const publishedArticles = usePublishedArticles();
+  const { articles: publishedArticles, loading, error, reload } = usePublishedArticleFeed();
   const story = publishedArticles.find((item) => item.id === storyId);
+  if (loading) return <main className="article-not-found"><div className="container" role="status">Đang tải bài viết…</div></main>;
+  if (error) return <main className="article-not-found"><div className="container" role="alert">Chưa tải được bài viết. <button onClick={reload}>Thử lại</button></div></main>;
   if (!story) {
     return <main className="article-not-found"><div className="container"><span className="eyebrow">NHẬT KÝ CỦA A SỈN</span><h1>Bài viết này chưa có ở đây.</h1><Link to="/tin-tuc" className="button button-green">Về trang tin tức <ArrowRight size={17} /></Link></div></main>;
   }
   return <main className="article-detail">
     <header className="article-hero"><div className="container"><Link className="article-back" to="/tin-tuc">← Trở về Tin tức</Link><span>{story.tag} · {story.date} · {story.readTime}</span><h1>{story.title}</h1><p>{story.excerpt}</p></div></header>
     <div className="article-cover container"><img src={story.image} alt={story.title} /></div>
-    <article className="article-body"><p className="article-lead">Đây là bài viết minh họa được tạo để hoàn thiện trải nghiệm đọc tin của A Sỉn.</p>{story.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<div className="article-note"><Leaf size={19} /><p>Toàn bộ câu chuyện, con người và thông tin sản vật trong bài đang là dữ liệu giả lập.</p></div></article>
+    <article className="article-body">{story.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</article>
     <section className="container article-more"><div><span className="eyebrow">ĐỌC TIẾP</span><h2>Còn vài câu chuyện nhỏ của A Sỉn.</h2></div><Link className="button button-green" to="/tin-tuc">Xem tất cả bài viết <ArrowRight size={17} /></Link></section>
   </main>;
 }

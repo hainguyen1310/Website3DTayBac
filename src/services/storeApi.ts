@@ -58,6 +58,7 @@ export async function listPublishedArticles(): Promise<PublishedArticle[]> {
       "slug, tag, title, excerpt, image_url, read_time_minutes, body, published_at",
     )
     .eq("published", true)
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
 
   if (error) throw error;

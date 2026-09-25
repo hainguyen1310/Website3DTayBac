@@ -1,39 +1,29 @@
-import { useEffect, useState } from "react";
-import { stories } from "../shopData";
+import { useCallback, useEffect, useState } from "react";
 import { listPublishedArticles } from "../services/storeApi";
 import type { PublishedArticle } from "../services/storeApi";
 
-const fallbackArticles: PublishedArticle[] = stories.map((story) => ({
-  id: story.id,
-  tag: story.tag,
-  date: story.date,
-  title: story.title,
-  excerpt: story.excerpt,
-  image: story.image,
-  readTime: story.readTime,
-  body: [...story.body],
-}));
-
-/**
- * Giữ nội dung minh họa hiển thị trong lúc Supabase chưa được khởi tạo,
- * sau đó thay bằng bài đã xuất bản từ cơ sở dữ liệu.
- */
-export function usePublishedArticles() {
-  const [articles, setArticles] = useState<PublishedArticle[]>(fallbackArticles);
+/** Empty and unavailable databases never display invented articles. */
+export function usePublishedArticleFeed() {
+  const [articles, setArticles] = useState<PublishedArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const reload = useCallback(() => setAttempt((value) => value + 1), []);
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setError(false);
     void listPublishedArticles()
-      .then((data) => {
-        if (active && data.length) setArticles(data);
-      })
-      .catch(() => {
-        // Bản demo vẫn đọc được trước khi migration được áp dụng.
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+      .then((data) => { if (active) setArticles(data); })
+      .catch(() => { if (active) setError(true); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [attempt]);
 
-  return articles;
+  return { articles, loading, error, reload };
+}
+
+export function usePublishedArticles() {
+  return usePublishedArticleFeed().articles;
 }

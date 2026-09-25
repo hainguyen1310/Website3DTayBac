@@ -8,6 +8,7 @@ export type Product = {
   image: string;
   tag: string;
   description: string;
+  featured?: boolean;
 };
 
 export type Deal = {

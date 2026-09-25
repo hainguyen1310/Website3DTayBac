@@ -24,16 +24,10 @@ const ShopContext = createContext<Shop | null>(null);
 export const useShop = () => useContext(ShopContext)!;
 
 export function ShopProvider({ children }: { children: ReactNode }) {
-  const { products: catalogProducts } = useCatalog();
-  const [cart, setCart] = useState<CartLine[]>(() =>
-    cleanCart(readSaved("moc-cart-v1")),
-  );
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
-    const value = readSaved("moc-favorites-v1");
-    return Array.isArray(value)
-      ? value.filter((id) => catalogProducts.some((p) => p.id === id))
-      : [];
-  });
+  const { products: catalogProducts, loading, source } = useCatalog();
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [restored, setRestored] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [notification, setNotification] = useState("");
@@ -44,19 +38,28 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     timer.current = setTimeout(() => setNotification(""), 3400);
   };
   useEffect(() => {
-    saveLocal("moc-cart-v1", cart);
-  }, [cart]);
+    if (restored) saveLocal("moc-cart-v1", cart);
+  }, [cart, restored]);
   useEffect(() => {
-    saveLocal("moc-favorites-v1", favoriteIds);
-  }, [favoriteIds]);
+    if (restored) saveLocal("moc-favorites-v1", favoriteIds);
+  }, [favoriteIds, restored]);
   useEffect(() => () => clearTimeout(timer.current), []);
   // Danh mục có thể đổi sau khi đọc từ cơ sở dữ liệu: loại bỏ món không còn bán.
   useEffect(() => {
+    if (loading || source !== "database") return;
+    if (!restored) {
+      setCart(cleanCart(readSaved("moc-cart-v1"), catalogProducts));
+      const savedFavorites = readSaved("moc-favorites-v1");
+      setFavoriteIds(Array.isArray(savedFavorites)
+        ? savedFavorites.filter((id) => catalogProducts.some((p) => p.id === id)) : []);
+      setRestored(true);
+      return;
+    }
     setCart((current) => cleanCart(current, catalogProducts));
     setFavoriteIds((current) =>
       current.filter((id) => catalogProducts.some((p) => p.id === id)),
     );
-  }, [catalogProducts]);
+  }, [catalogProducts, loading, source, restored]);
   const add = (line: CartLine) =>
     setCart((current) => {
       const existing = current.find((item) => item.key === line.key);

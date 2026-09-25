@@ -11,6 +11,7 @@ type ProductRow = {
   image_url: string;
   tag: string;
   description: string;
+  featured: boolean;
   product_categories: { name: string } | { name: string }[] | null;
 };
 
@@ -36,7 +37,7 @@ export function listStorefrontProducts(): Promise<Product[]> {
       const { data, error } = await supabase
         .from("products")
         .select(
-          "slug, name, origin, weight_label, price_vnd, image_url, tag, description, product_categories(name)",
+          "slug, name, origin, weight_label, price_vnd, image_url, tag, description, featured, product_categories(name)",
         )
         .eq("active", true)
         .order("sort_order")
@@ -53,6 +54,7 @@ export function listStorefrontProducts(): Promise<Product[]> {
         image: row.image_url,
         tag: row.tag,
         description: row.description,
+        featured: row.featured,
       }));
     },
     60_000,
@@ -83,11 +85,16 @@ export function listStorefrontDeals(): Promise<Deal[]> {
   return cached(
     "store:deals",
     async () => {
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("promotion_products")
         .select(
-          "promotion_id, product_id, original_price_vnd, discount_percent, display_label, display_ending, accent, sort_order, products(slug)",
+          "promotion_id, product_id, original_price_vnd, discount_percent, display_label, display_ending, accent, sort_order, products!inner(slug), promotions!inner(is_active, starts_at, ends_at)",
         )
+        .eq("products.active", true)
+        .eq("promotions.is_active", true)
+        .or(`starts_at.is.null,starts_at.lte.${now}`, { referencedTable: "promotions" })
+        .or(`ends_at.is.null,ends_at.gt.${now}`, { referencedTable: "promotions" })
         .order("sort_order");
 
       if (error) throw error;
