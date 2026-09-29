@@ -1,5 +1,5 @@
-import { nodeHandler } from "../server/http.ts";
-import { handleSeoAsset, renderUnavailableResponse } from "../server/seo/handler.ts";
+import { nodeHandler } from "../http.ts";
+import { handleSeoAsset, renderUnavailableResponse } from "../seo/handler.ts";
 
 /** robots.txt và sitemap.xml động theo dữ liệu CMS (B04). */
 async function handler(request: Request): Promise<Response> {

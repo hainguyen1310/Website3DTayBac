@@ -9,8 +9,12 @@ const config = JSON.parse(await readFile(resolve(root, "vercel.json"), "utf8"));
 const shell = await readFile(resolve(root, "dist/seo-shell.html"), "utf8");
 assert.ok(shell.includes("<!--seo:head:start-->") && shell.includes('id="root"'), "Thiếu marker SEO trong shell build.");
 assert.ok(!(await readdir(resolve(root, "dist"))).includes("index.html"), "dist/index.html sẽ bỏ qua renderer ở trang chủ.");
-assert.equal(config.functions?.["api/render.ts"]?.includeFiles, "dist/seo-shell.html", "Vercel Function phải đóng gói seo-shell.html.");
-for (const file of ["api/render.ts", "api/seo.ts"]) await access(resolve(root, file));
+assert.equal(config.functions?.["api/render.js"]?.includeFiles ?? config.functions?.["api/render.ts"]?.includeFiles, "dist/seo-shell.html", "Vercel Function phải đóng gói seo-shell.html.");
+for (const base of ["render", "seo"]) {
+  const hasTarget = await access(resolve(root, `api/${base}.js`)).then(() => true).catch(() => false) ||
+                    await access(resolve(root, `api/${base}.ts`)).then(() => true).catch(() => false);
+  assert.ok(hasTarget, `Thiếu file API ${base}.`);
+}
 for (const asset of ["robots", "sitemap"]) assert.ok(config.rewrites.some(rule => rule.destination === `/api/seo?asset=${asset}`), `Thiếu rewrite ${asset}.`);
 assert.ok(config.rewrites.some(rule => rule.destination === "/api/render?asin_path=$1"), "Thiếu rewrite HTML qua renderer.");
 const jsFiles = (await readdir(resolve(root, "dist/assets"))).filter(file => file.endsWith(".js"));

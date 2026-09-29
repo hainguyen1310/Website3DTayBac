@@ -1,5 +1,5 @@
-import { nodeHandler } from "../server/http.ts";
-import { handleSiteRequest, renderUnavailableResponse } from "../server/seo/handler.ts";
+import { nodeHandler } from "../http.ts";
+import { handleSiteRequest, renderUnavailableResponse } from "../seo/handler.ts";
 
 /**
  * Render HTML theo URL cho Vercel (rewrite `/*` → `/api/render?asin_path=*`).

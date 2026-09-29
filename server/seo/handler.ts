@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Xử lý request HTML/robots/sitemap phía Node (dùng cho Vercel Functions và
  * dev middleware). Logic render nằm trong `src/seo/*` để client dùng chung.
  */
@@ -16,14 +16,31 @@ import { absoluteUrl, normalizePathname } from "../../src/seo/paths.ts";
 import { renderSitePage } from "../../src/seo/renderSite.ts";
 import { SupabaseRest } from "../../src/seo/content.ts";
 
+import { fileURLToPath } from "node:url";
+
 let cachedShell: string | null = null;
 
 export async function loadShellTemplate(): Promise<string> {
   if (cachedShell) return cachedShell;
+  let moduleDir = "";
+  try {
+    moduleDir = fileURLToPath(new URL(".", import.meta.url));
+  } catch {
+    // fallback if import.meta.url not available
+  }
   const candidates = [
     join(process.cwd(), "dist", "seo-shell.html"),
     join(process.cwd(), "seo-shell.html"),
     join(process.cwd(), "index.html"),
+    join(process.cwd(), "api", "dist", "seo-shell.html"),
+    ...(moduleDir
+      ? [
+          join(moduleDir, "..", "dist", "seo-shell.html"),
+          join(moduleDir, "dist", "seo-shell.html"),
+          join(moduleDir, "seo-shell.html"),
+          join(moduleDir, "..", "seo-shell.html"),
+        ]
+      : []),
   ];
   for (const candidate of candidates) {
     try {
