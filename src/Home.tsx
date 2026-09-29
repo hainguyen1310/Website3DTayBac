@@ -1,152 +1,380 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, ChevronLeft, ChevronRight, Gift, Heart, Leaf, Mountain, Play, ShoppingCart, Sprout } from "lucide-react";
-import CircularSeal from "./CircularSeal";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  Box,
+  ChevronRight,
+  Gift,
+  HandHeart,
+  Heart,
+  MapPin,
+  Play,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  Users,
+  Wheat,
+} from "lucide-react";
 import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
 import { money } from "./catalog";
-import { landingProducts, productWindow } from "./landingCatalog";
-import { usePublishedArticleFeed } from "./hooks/usePublishedArticles";
-import Newsletter from "./Newsletter";
-import { ContactSection } from "./Contact";
-import { ContentHeading, useWebsite } from "./WebsiteContext";
-
-function FeedState({ loading, error, emptyText, reload }: {
-  loading: boolean; error: boolean; emptyText: string; reload: () => void;
-}) {
-  if (loading) return <div className="moc-feed-skeletons" role="status" aria-label="Đang tải nội dung">
-    {[0, 1, 2].map((key) => <div className="moc-feed-skeleton" key={key} />)}
-  </div>;
-  return <div className="moc-feed-state" role="status">
-    <Leaf size={28} strokeWidth={1.2} />
-    <p>{error ? "Chưa tải được nội dung. Bạn thử lại nhé." : emptyText}</p>
-    {error && <button onClick={reload} className="moc-text-arrow-link">Thử lại <ArrowRight size={14} /></button>}
-  </div>;
-}
+import { useWebsite } from "./WebsiteContext";
+import { PORK_MODEL, SIGNATURE_PRODUCTS } from "./asinContent";
+import ProductViewer from "./ProductViewer";
+import LandingJourney from "./LandingJourney";
+import LandingReviews from "./LandingReviews";
+import { LandingNews } from "./Journal";
+import { useDocumentSeo } from "./hooks/useDocumentSeo";
+import { homeMeta } from "./seo/meta";
 
 export default function Home() {
-  const location = useLocation();
   const { content: c } = useWebsite();
-  const { products, deals, loading, error, reload } = useCatalog();
-  const { addProduct, setSelectedProduct } = useShop();
-  const feed = usePublishedArticleFeed();
-  const [productIndex, setProductIndex] = useState(0);
-  const showcase = landingProducts(products, deals);
-  const visibleProducts = productWindow(showcase, productIndex);
-  const canSlide = showcase.length > 3;
-
-  useEffect(() => {
-    // Wait for the feeds above the form so their loading states cannot move the anchor.
-    if (location.hash !== "#lien-he" || loading || feed.loading) return;
-    const frame = requestAnimationFrame(() => {
-      document.getElementById("lien-he")?.scrollIntoView({
-        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
-      });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [location.key, location.hash, loading, feed.loading]);
-
-  return <main className="moc-landing">
-    <section className="moc-hero" aria-labelledby="hero-title">
-      <img className="moc-hero-bg" src={c["hero.image"]} alt="Ruộng bậc thang và mái nhà gỗ giữa núi rừng Tây Bắc trong nắng sớm" width={1536} height={512} fetchPriority="high" />
-      <div className="moc-hero-overlay" aria-hidden="true" />
-      <div className="moc-container moc-hero-container">
-        <div className="moc-hero-content">
-          <span className="moc-hero-eyebrow">{c["hero.eyebrow"]}</span>
-          <h1 id="hero-title" className="moc-hero-title"><span>{c["hero.line1"]}</span><strong>{c["hero.line2"]}</strong><em>{c["hero.line3"]}</em></h1>
-          <p className="moc-hero-subtitle">{c["hero.description"]}</p>
-          <div className="moc-hero-actions">
-            <Link to="/thiet-ke" className="moc-hero-btn-primary"><Gift size={18} /> Thiết kế hộp quà <ArrowRight size={16} /></Link>
-            <Link to={c["hero.link"]} className="moc-hero-btn-secondary">{c["hero.cta"]} <ArrowRight size={16} /></Link>
+  const { products } = useCatalog();
+  const { setSelectedProduct } = useShop();
+  useDocumentSeo((ctx) => homeMeta(ctx), []);
+  const rail = useRef<HTMLDivElement>(null);
+  const pork = products.find((p) => p.id === "thit-lon-gac-bep");
+  return (
+    <main className="asin-home">
+      <section className="asin-hero" aria-labelledby="hero-title">
+        <img
+          className="asin-hero-image"
+          src={c["hero.image"]}
+          alt="Đặc sản gác bếp và gia vị Tây Bắc giữa núi rừng, ruộng bậc thang"
+          fetchPriority="high"
+          width={1942}
+          height={809}
+        />
+        <div className="asin-container asin-hero-inner">
+          <div className="asin-hero-copy">
+            <span className="asin-eyebrow">{c["hero.eyebrow"]}</span>
+            <h1 id="hero-title">
+              <span>{c["hero.line1"]}</span>
+              <span>{c["hero.line2"]}</span>
+              <span>{c["hero.line3"]}</span>
+            </h1>
+            <p>{c["hero.description"]}</p>
+            <div className="asin-actions">
+              <Link className="asin-button" to={c["hero.link"]}>
+                {c["hero.cta"]} <ArrowRight size={17} />
+              </Link>
+              <a
+                className="asin-button asin-button-light"
+                href="#trai-nghiem-3d"
+              >
+                <Play size={18} /> Trải nghiệm 3D
+              </a>
+            </div>
           </div>
-          <a href="#cau-chuyen" className="moc-hero-btn-story"><span className="moc-play-icon-wrap"><Play size={12} fill="currentColor" /></span><span>Xem câu chuyện thương hiệu</span></a>
         </div>
-      </div>
-      <div className="moc-hero-right-stamp" aria-hidden="true">
-        <span className="moc-hero-curved-text">Từ núi rừng<br />đến cuộc sống an lành.</span>
-        <CircularSeal variant="hero" size={132} className="moc-hero-seal-badge" />
-      </div>
-      <div className="moc-hero-paper-tear-corner" aria-hidden="true">
-        <img src="/images/paper_tear_hero.png" alt="" />
-        <span>Những<br />điều thuần khiết<br />vẫn còn đây...<i /></span>
-      </div>
-      <img className="moc-hero-leaf" src="/images/single_leaf.png" alt="" />
-      <div className="moc-values-section-wrap">
-        <div className="moc-container moc-values-inner">
-          {[
-            { Icon: Leaf, title: c["values.1.title"], text: c["values.1.text"] },
-            { Icon: Mountain, title: c["values.2.title"], text: c["values.2.text"] },
-            { Icon: Heart, title: c["values.3.title"], text: c["values.3.text"] },
-            { Icon: Sprout, title: c["values.4.title"], text: c["values.4.text"] },
-          ].map(({ Icon, title, text }) => <div className="moc-value-item" data-reveal="soft" key={title}><Icon size={34} strokeWidth={1.2} /><div><b>{title}</b><small>{text}</small></div></div>)}
-        </div>
-      </div>
-    </section>
-
-    <section id="deal-hoi" className="moc-deal-section" aria-labelledby="deal-title">
-      <img className="moc-deal-leaf" src="/images/hero_leaves_bottom.png" alt="" loading="lazy" />
-      <div className="moc-container moc-deal-layout">
-        <div className="moc-deal-copy" data-reveal="rise">
-          <span className="moc-eyebrow">SẢN PHẨM NỔI BẬT</span>
-          <h2 id="deal-title"><ContentHeading text={c["products.title"]} /><img src="/images/single_leaf.png" alt="" /></h2>
-          <p>{c["products.description"]}</p>
-          <Link to="/san-pham" className="moc-text-arrow-link">Xem toàn bộ sản phẩm <ArrowRight size={14} /></Link>
-        </div>
-        <div className="moc-products-grid" id="landing-products" aria-busy={loading}>
-          {loading || error || !visibleProducts.length ? <FeedState loading={loading} error={error} emptyText="A Sỉn đang chuẩn bị những sản vật mới." reload={() => void reload()} /> : visibleProducts.map((product) => {
-            const deal = deals.find((item) => item.productId === product.id && item.originalPrice > product.price);
-            return <article className="moc-product-card" data-reveal="rise" key={product.id}>
-              {deal && <span className="moc-badge" title={deal.label}>−{deal.discount}%</span>}
-              <button className="moc-card-img-wrap" aria-label={`Xem ${product.name}`} onClick={() => setSelectedProduct(product)}><img src={product.image} alt={product.name} loading="lazy" width={300} height={250} /></button>
-              <div className="moc-card-body">
-                <h3><button onClick={() => setSelectedProduct(product)}>{product.name}</button></h3>
-                <p>{product.tag || product.origin}</p>
-                <div className="moc-card-bottom"><div className="moc-card-prices">{deal && <del>{money(deal.originalPrice)}</del>}<strong>{money(product.price)}</strong></div><button className="moc-card-cart-btn" aria-label={`Thêm ${product.name} vào giỏ`} onClick={() => addProduct(product.id)}><ShoppingCart size={18} strokeWidth={1.5} /></button></div>
-              </div>
-            </article>;
-          })}
-        </div>
-        <aside className="moc-deal-aside">
-          <div className="moc-deal-nav-row">
-            <button className="moc-round-nav-btn" aria-label="Sản phẩm trước" aria-controls="landing-products" disabled={!canSlide || loading} onClick={() => setProductIndex((index) => (index - 3 + showcase.length) % showcase.length)}><ChevronLeft size={16} /></button>
-            <button className="moc-round-nav-btn" aria-label="Sản phẩm tiếp theo" aria-controls="landing-products" disabled={!canSlide || loading} onClick={() => setProductIndex((index) => (index + 3) % showcase.length)}><ChevronRight size={16} /></button>
-          </div>
-          <div className="moc-deal-note" aria-hidden="true"><img src="/images/tea_twig_vertical.png" alt="" loading="lazy" /><span className="moc-red-diamond">✦</span><p>Tinh túy<br />đất trời,<br />trong từng<br />sản phẩm nhỏ.</p><i /></div>
+        <aside className="asin-hero-note" aria-hidden="true">
+          <span>
+            TỪ
+            <br />
+            NÚI RỪNG
+            <br />
+            ĐẾN
+            <br />
+            BÀN TIỆC
+          </span>
+          <i />
+          <b>01</b>
+          <span>
+            02
+            <br />
+            03
+          </span>
         </aside>
-      </div>
-    </section>
-
-    <section className="moc-gift-section" id="qua-tang" aria-labelledby="gift-title">
-      <div className="moc-gift-grid">
-        <div className="moc-gift-left-visual" data-reveal="landscape">
-          <img className="moc-gift-left-img" src={c["gift.image"]} alt="Hộp quà A Sỉn xanh rừng, mở nắp với trà và mật ong giữa thiên nhiên" loading="lazy" width={1024} height={768} />
-          <div className="moc-craft-tag" aria-hidden="true"><b>MÓN QUÀ</b><span>từ núi rừng<br />cho những<br />điều ý nghĩa.</span></div>
-          <CircularSeal variant="gift" text="QUÀ TỪ TÂY BẮC • TRAO GỬI YÊU THƯƠNG •" size={118} className="moc-gift-stamp" />
+        <span className="asin-hero-script" aria-hidden="true">
+          Hơn cả đặc sản,
+          <br />
+          là một
+          <br />
+          câu chuyện.
+        </span>
+      </section>
+      <section className="asin-values" aria-label="Giá trị A Sỉn">
+        <div className="asin-container">
+          {[ShieldCheck, Wheat, Gift, Box, Truck].map((Icon, i) => (
+            <div className="asin-value" key={i}>
+              <Icon size={33} strokeWidth={1.25} />
+              <div>
+                <b>
+                  {i === 4 ? "Giao hàng toàn quốc" : c[`values.${i + 1}.title`]}
+                </b>
+                <small>
+                  {i === 4
+                    ? "Nâng niu từng món quà"
+                    : c[`values.${i + 1}.text`]}
+                </small>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="moc-gift-copy" data-reveal="rise"><span className="moc-eyebrow">BỘ QUÀ TẶNG</span><h2 id="gift-title"><ContentHeading text={c["gift.title"]} /></h2><p>{c["gift.description"]}</p><Link to={c["gift.link"]} className="moc-btn-dark">{c["gift.cta"]} <ArrowRight size={15} /></Link></div>
-        <div className="moc-gift-right-visual" data-reveal="photo"><div className="moc-gift-photo-back" aria-hidden="true" /><img className="moc-gift-right-img" src={c["gift.secondaryImage"]} alt="Đôi tay gói món quà bằng giấy kraft và dây mộc" loading="lazy" width={400} height={280} /><div className="moc-gift-note">Trao giá trị<br />Giữ mãi những<br />điều thuần khiết.</div><img className="moc-gift-leaf" src="/images/single_leaf.png" alt="" /></div>
-      </div>
-    </section>
-
-    <section className="moc-story-section" id="cau-chuyen" aria-labelledby="story-title">
-      <img className="moc-story-leaf" src="/images/single_leaf.png" alt="" loading="lazy" />
-      <div className="moc-container moc-story-grid">
-        <div className="moc-story-copy" data-reveal="rise"><span className="moc-eyebrow">CÂU CHUYỆN A SỈN</span><h2 id="story-title"><ContentHeading text={c["story.title"]} /></h2><p>{c["story.description"]}</p><Link to="/gioi-thieu" className="moc-btn-dark">Xem hành trình của A Sỉn <ArrowRight size={14} /></Link></div>
-        <div className="moc-stats-row"><div data-reveal="rise"><b>{c["story.stat1"]}</b><small>{c["story.stat1Label"]}</small></div><div data-reveal="rise"><b>{c["story.stat2"]}</b><small>{c["story.stat2Label"]}</small></div><div data-reveal="rise"><b>{c["story.stat3"]}</b><small>{c["story.stat3Label"]}</small></div></div>
-        <div className="moc-story-visual" data-reveal="landscape"><img className="moc-story-landscape-img" src={c["story.image"]} alt="Những dãy núi và ruộng bậc thang của Tây Bắc" loading="lazy" width={700} height={360} /><span className="moc-story-script">Nơi những giá trị<br />bắt đầu từ con người.</span><CircularSeal variant="story" size={126} className="moc-story-stamp" /></div>
-      </div>
-    </section>
-
-    <section className="moc-magazine-section" aria-labelledby="magazine-title">
-      <img className="moc-magazine-leaf" src="/images/single_leaf.png" alt="" loading="lazy" />
-      <div className="moc-container moc-mag-grid">
-        <div className="moc-mag-copy" data-reveal="side"><span className="moc-eyebrow">TẠP CHÍ A SỈN</span><h2 id="magazine-title"><ContentHeading text={c["news.title"]} /></h2><p>{c["news.description"]}</p><Link to="/tin-tuc" className="moc-text-arrow-link">Xem tất cả bài viết <ArrowRight size={14} /></Link></div>
-        <div className="moc-articles-row" aria-busy={feed.loading}>
-          {feed.loading || feed.error || !feed.articles.length ? <FeedState loading={feed.loading} error={feed.error} emptyText="Những câu chuyện mới sẽ sớm được A Sỉn chia sẻ." reload={feed.reload} /> : feed.articles.slice(0, 3).map((article) => <article className="moc-article-card" data-reveal="soft" key={article.id}><Link to={`/tin-tuc/${article.id}`}><img src={article.image} alt="" width={340} height={150} loading="lazy" /><div className="moc-article-body"><h3>{article.title}</h3><p>{article.excerpt}</p><span>Đọc thêm <ArrowRight size={12} /></span></div></Link></article>)}
+      </section>
+      <section
+        className="asin-story"
+        id="cau-chuyen"
+        aria-labelledby="story-title"
+      >
+        <div className="asin-story-paper" aria-hidden="true">
+          <img
+            src={c["story.backgroundImage"]}
+            alt=""
+            width={2164}
+            height={727}
+            loading="lazy"
+          />
         </div>
-      </div>
-    </section>
-    <ContactSection />
-    <Newsletter />
-  </main>;
+        <div className="asin-container asin-story-grid">
+          <div className="asin-story-copy">
+            <span className="asin-eyebrow">
+              CÂU CHUYỆN <strong>A SỈN</strong>
+            </span>
+            <h2 id="story-title">{c["story.title"]}</h2>
+            <p>{c["story.description"]}</p>
+            <Link className="asin-button" to="/gioi-thieu">
+              Khám phá câu chuyện <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="asin-story-landscape">
+            <img
+              src={c["story.image"]}
+              alt="Minh họa nếp nhà gỗ, khói bếp và ruộng bậc thang giữa núi rừng Tây Bắc"
+              width={1400}
+              height={1120}
+              loading="lazy"
+            />
+            <Link
+              to="/gioi-thieu"
+              className="asin-story-play"
+              aria-label="Khám phá câu chuyện A Sỉn"
+            >
+              <ArrowRight size={24} />
+            </Link>
+          </div>
+          <span className="asin-story-handwriting" aria-hidden="true">
+            Con người.
+            <br />
+            Vùng đất.
+            <br />
+            Hương vị.
+          </span>
+          <div className="asin-story-map" aria-label="Vùng đất Lào Cai, Bắc Hà">
+            <span className="asin-map-place">
+              <MapPin size={29} fill="currentColor" /> <b>Lào Cai</b>
+            </span>
+            <span className="asin-map-place second">
+              <MapPin size={29} fill="currentColor" /> <b>Bắc Hà</b>
+            </span>
+          </div>
+          <div
+            className="asin-story-photos"
+            aria-label="Con người, hương vị và vùng đất Tây Bắc"
+          >
+            <figure className="asin-story-photo asin-story-photo-portrait">
+              <img
+                src={c["story.portraitImage"]}
+                alt="Minh họa người phụ nữ H'Mông trong trang phục chàm và khăn thổ cẩm"
+                width={600}
+                height={480}
+                loading="lazy"
+              />
+            </figure>
+            <figure className="asin-story-photo asin-story-photo-meat">
+              <img
+                src={c["story.meatImage"]}
+                alt="Những dải thịt gác bếp treo trong gian bếp gỗ vùng cao"
+                width={600}
+                height={400}
+                loading="lazy"
+              />
+            </figure>
+            <figure className="asin-story-photo asin-story-photo-terraces">
+              <img
+                src={c["story.terracesImage"]}
+                alt="Ruộng bậc thang xanh vàng trải dọc thung lũng núi Tây Bắc"
+                width={600}
+                height={400}
+                loading="lazy"
+              />
+            </figure>
+          </div>
+          <div className="asin-story-facts">
+            {[HandHeart, Users, Heart].map((Icon, i) => (
+              <div key={i}>
+                <Icon size={33} strokeWidth={1.25} aria-hidden="true" />
+                <b>{c[`story.stat${i + 1}`]}</b>
+                <small>{c[`story.stat${i + 1}Label`]}</small>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section
+        className="asin-products asin-paper"
+        id="deal-hoi"
+        aria-labelledby="products-title"
+      >
+        <div className="asin-container asin-products-layout">
+          <div>
+            <span className="asin-eyebrow">SẢN PHẨM A SỈN</span>
+            <h2 id="products-title">{c["products.title"]}</h2>
+            <Link to="/san-pham" className="asin-button">
+              Tất cả sản phẩm <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="asin-product-rail" ref={rail}>
+            {SIGNATURE_PRODUCTS.map((item) => {
+              const live = products.find((p) => p.id === item.id);
+              return (
+                <article className="asin-product" key={item.id}>
+                  {live ? (
+                    <button
+                      onClick={() => setSelectedProduct(live)}
+                      className="asin-product-image"
+                      aria-label={`Xem ${live.name}`}
+                    >
+                      <img
+                        src={live.image}
+                        alt={live.name}
+                        loading="lazy"
+                        width={800}
+                        height={800}
+                      />
+                    </button>
+                  ) : (
+                    <Link
+                      to="/lien-he"
+                      className="asin-product-image"
+                      aria-label={`Tìm hiểu ${item.name}`}
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                        width={800}
+                        height={800}
+                      />
+                    </Link>
+                  )}
+                  <h3>
+                    {live ? (
+                      <button onClick={() => setSelectedProduct(live)}>
+                        {live.name}
+                      </button>
+                    ) : (
+                      <Link to="/lien-he">{item.name}</Link>
+                    )}
+                  </h3>
+                  <small>{live?.weight || item.type}</small>
+                  {live ? (
+                    <span>{money(live.price)}</span>
+                  ) : (
+                    <Link className="asin-product-inquiry" to="/lien-he">
+                      Tìm hiểu sản phẩm <ChevronRight size={12} />
+                    </Link>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+          <button
+            className="asin-rail-next"
+            aria-label="Xem thêm sản phẩm"
+            onClick={() => {
+              const el = rail.current;
+              if (el)
+                el.scrollTo({
+                  left:
+                    el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+                      ? 0
+                      : el.scrollLeft + 280,
+                  behavior: "smooth",
+                });
+            }}
+          >
+            <ChevronRight size={19} />
+          </button>
+        </div>
+      </section>
+      <section
+        className="asin-experience"
+        id="trai-nghiem-3d"
+        aria-labelledby="experience-title"
+      >
+        <div className="asin-container asin-experience-grid">
+          <div className="asin-experience-copy">
+            <span className="asin-eyebrow">TRẢI NGHIỆM 3D</span>
+            <h2 id="experience-title">
+              Chạm để thấy
+              <br />
+              gần hơn Tây Bắc.
+            </h2>
+            <p>
+              Xem sản phẩm với mô hình 3D chân thực. Xoay mọi góc độ, phóng
+              to từng chi tiết, giúp bạn hiểu rõ hơn về sản phẩm trước khi mua.
+            </p>
+            <a className="asin-button asin-button-light asin-experience-cta" href="#san-pham-3d">
+              Khám phá 360° <ArrowRight size={16} />
+            </a>
+            <span className="asin-model-name">
+              <Box size={17} /> Thịt lợn gác bếp Tây Bắc
+            </span>
+          </div>
+          <ProductViewer
+            src={pork?.modelUrl || PORK_MODEL}
+            poster="/images/asin/pork-viewer-poster.webp"
+            name="Thịt lợn gác bếp Tây Bắc"
+            detailPoster="/images/products/pork.webp"
+            stageId="san-pham-3d"
+          />
+        </div>
+      </section>
+      <LandingJourney />
+      <LandingReviews />
+      <section
+        className="asin-gift asin-paper"
+        id="qua-tang"
+        aria-labelledby="gift-title"
+      >
+        <div className="asin-container asin-gift-grid">
+          <div>
+            <span className="asin-eyebrow">HỘP QUÀ A SỈN</span>
+            <h2 id="gift-title">{c["gift.title"]}</h2>
+            <p>{c["gift.description"]}</p>
+            <Link className="asin-button" to={c["gift.link"]}>
+              {c["gift.cta"]} <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="asin-gift-image">
+            <img
+              src={c["gift.image"]}
+              alt="Hộp quà gỗ với thịt gác bếp và gia vị Tây Bắc; ảnh minh họa bộ quà"
+              width={1600}
+              height={728}
+              loading="lazy"
+            />
+          </div>
+          <div className="asin-gift-options">
+            <span className="asin-eyebrow">CÁ NHÂN HÓA HỘP QUÀ</span>
+            {[
+              { Icon: Gift, text: "Chọn sản phẩm theo nhu cầu" },
+              { Icon: Sparkles, text: "Thiết kế thông điệp riêng" },
+              { Icon: Users, text: "Phù hợp doanh nghiệp, đối tác" },
+            ].map(({ Icon, text }) => (
+              <Link to="/thiet-ke" key={text}>
+                <Icon size={24} strokeWidth={1.1} />
+                <span>{text}</span>
+              </Link>
+            ))}
+            <Link to="/thiet-ke" aria-label="Bắt đầu thiết kế hộp quà">
+              <ArrowRight size={23} />
+            </Link>
+          </div>
+        </div>
+      </section>
+      <LandingNews />
+    </main>
+  );
 }

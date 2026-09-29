@@ -1,0 +1,31 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "codex-clipboard-316376e1-3625-464a-8a2b-c59592db1cbc.png",
+  "assets": [
+    {
+      "name": "story-village",
+      "output": "public/images/asin/story-village.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: standalone editorial mountain village photograph for a Vietnamese specialty food story section. Input image 1 is ONLY the composition and photographic style reference: recreate the LARGE CENTRAL PHOTOGRAPH, not the website. Landscape 5:4. A rustic dark wooden stilt farmhouse with thatched roof prominently at left-center, small white smoke plume rising above its kitchen roof, smaller wooden houses on the lower right hillside, lush northern Vietnamese terraced rice paddies in the foreground, densely forested steep mountains and misty blue-grey ridges receding into a pale warm dawn sky. The farmhouse fills the central-left half, roofs occupy lower middle, mountains upper half. Beautiful intricate realistic textures, sunlight glinting on green-gold plants, warm rich editorial photographic look very close to the sample. No person, no text, no borders, no irregular mask baked into image, no UI, no icons, no logo, no watermark. Full-bleed photograph edge to edge."
+    },
+    {
+      "name": "story-portrait",
+      "output": "public/images/asin/story-portrait.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: single environmental portrait photograph, nearly square 5:4 landscape. Input image 1 is ONLY visual reference; recreate a similar scene to the SMALL UPPER RIGHT PHOTOGRAPH of the woman. Warm candid portrait of a smiling older Hmong Vietnamese woman seated by a rustic dark wooden house doorway, wearing traditional deep indigo clothing with fine magenta embroidered trim and a vivid fuchsia patterned headscarf. Natural hands resting in her lap, warm authentic friendly expression, looking slightly camera-right. Head and torso fill the canvas. Realistic textured skin, natural sunlight entering from left, deep warm shadows of wood behind, documentary editorial photography, restrained rich colors, match mood of sample. Output one full-bleed unframed photograph, no UI, no collage, no letters, no labels, no watermark, no white border."
+    },
+    {
+      "name": "story-smoked-meat",
+      "output": "public/images/asin/story-smoked-meat.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: single closeup editorial photograph of northern Vietnamese traditional smoked meat, landscape 3:2. Input image 1 is ONLY a style/composition reference: recreate the SMALL MIDDLE RIGHT PHOTO of hanging meat. Numerous long dark reddish-brown buffalo and pork meat strips, naturally irregular fibrous dried and smoked surfaces, hanging vertically by strings from a horizontal bamboo pole inside a traditional dark rustic timber kitchen, tiny glints of warm amber light from the side, subtle wisps of woodsmoke. Tightly framed row of hanging strips fills photograph, timber walls soft behind. Rich believable food texture, realistic documentary photography, warm artisan atmosphere very close to sample. No people, no packaging, no text, no labels, no frame, no white border, no collage, no website UI, no watermark. Single full-bleed photograph."
+    },
+    {
+      "name": "story-terraces",
+      "output": "public/images/asin/story-terraces.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: single scenic photograph, landscape 3:2. Input image 1 is ONLY a style/composition reference: recreate the SMALL LOWER RIGHT PHOTO of a sunlit northern Vietnam mountain valley. Sweeping rich green and golden rice terraces stepping down both slopes into a deep valley, layers of dramatic forested blue-grey ridges fading into mist in the distance, pale blue dawn sky with soft luminous clouds. Camera on hillside overlooking valley, richly detailed natural landscape and warm early sunlight. Visually very close to lower right photograph in sample, premium realistic editorial travel photograph. Single full-bleed photograph, no houses prominently, no people, no text, no labels, no white frame, no UI, no collage, no watermark."
+    },
+    {
+      "name": "story-map-paper",
+      "output": "public/images/asin/story-map-paper.webp",
+      "prompt": "Use case: illustration-story. Asset type: very wide 3:1 website section background on warm ivory parchment #f8e8d0. Input image 1 is ONLY visual reference: recreate ONLY its underlying parchment and very thin sepia illustrated mountain-map background. DO NOT include any photos, characters, UI, text, labels, symbols or pins. Fine faint hand-drawn sepia pen strokes depicting an antique illustrated map of northern Vietnamese mountains, terraces, winding mountain paths and irregular region outlines. Map mountains most detailed in the RIGHT half at 55–82% width, light beige contour lines and hand-drawn forested ridges along FAR LEFT and bottom edges. Leave x=6–27%,y=5–90% very quiet pale parchment for real webpage text; center x=28–60% mostly quiet as a photograph will be laid there. Pale creamy peach ochre paper with subtle fibers, softly uneven pigment and delicate mountain line art, similar warmth and elegant fine strokes as reference, no dark lines, no modern vector icons, no blue or green or photographic elements, no typography, no ornament border, no torn edge, no white margins, no watermark. Flat full-bleed background only."
+    }
+  ]
+}

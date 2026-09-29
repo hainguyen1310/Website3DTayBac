@@ -11,6 +11,8 @@ import {
 import { listAdminSettings, upsertSetting } from "../services/adminApi";
 import { AdminError, AdminLoading, SectionHeader, useAsync } from "./ui";
 import ImageInput from "./ImageInput";
+import { Link } from "react-router-dom";
+import { CONTACT_KEYS } from "../support";
 export default function WebsiteSection() {
   const { profile } = useAuth();
   const { refresh } = useWebsite();
@@ -54,9 +56,12 @@ export default function WebsiteSection() {
         }
       />
       <p className="admin-help">
-        Sửa nội dung theo từng khu vực. Sản phẩm nổi bật lấy từ Sản phẩm /
-        Khuyến mãi; bài viết lấy từ Nội dung.
+        Sửa nội dung theo từng khu vực. Giá, quy cách và ảnh của sản phẩm đang bán
+        lấy từ mục Sản phẩm. Mẫu trang chủ A Sỉn giới thiệu 6 sản vật; sản phẩm chưa
+        mở bán dẫn đến trang Liên hệ. Bài viết được quản lý trong mục Nội dung.
       </p>
+      {group === "Đánh giá" && <p className="admin-help">Nội dung và chân dung mặc định là minh họa. Chỉ chọn “Đánh giá thật đã được xác nhận” sau khi thay bằng phản hồi thật được phép công bố. Chân dung minh họa tự ẩn khi chuyển sang đánh giá thật; để trống nội dung để ẩn một thẻ.</p>}
+      {group === "Liên hệ & chân trang" && <p className="admin-help">Số điện thoại, email, địa chỉ, giờ hỗ trợ và Zalo được quản lý tại <Link to="/admin?section=support">Liên hệ & Chatbox</Link> bởi quản trị viên.</p>}
       <AdminError message={error || actionError} />
       {notice && (
         <p role="status" className="admin-alert ok">
@@ -88,7 +93,7 @@ export default function WebsiteSection() {
             <section className="admin-card">
               <h2>{group}</h2>
               <div className="admin-form-grid">
-                {CONTENT_FIELDS.filter((f) => f.group === group).map((f) => (
+                {CONTENT_FIELDS.filter((f) => f.group === group && !CONTACT_KEYS.some(key => f.key === `contact.${key}`)).map((f) => (
                   <div
                     className={
                       f.type === "multiline" || f.type === "image" ? "full" : ""
@@ -107,14 +112,14 @@ export default function WebsiteSection() {
                     ) : (
                       <label>
                         {f.label}
-                        {f.type === "link" ? (
+                        {f.type === "link" || f.type === "select" ? (
                           <select
                             value={values[f.key]}
                             onChange={(e) =>
                               setValues({ ...values, [f.key]: e.target.value })
                             }
                           >
-                            {Object.entries(CONTENT_LINKS).map(([v, l]) => (
+                            {Object.entries(f.type === "select" ? f.options ?? {} : CONTENT_LINKS).map(([v, l]) => (
                               <option key={v} value={v}>
                                 {l}
                               </option>

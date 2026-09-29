@@ -1,0 +1,43 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "name": "journey-panorama",
+      "output": "public/images/asin/journey-panorama.webp",
+      "refs": [
+        "C:/Users/kivil/AppData/Local/Temp/codex-clipboard-b6e8d71d-6686-453e-a0d7-569ffe90d608.png"
+      ],
+      "prompt": "Use case: photorealistic-natural. Asset type: panoramic scenic background for a premium Vietnamese food website, wide landscape 3.3:1. Input image 1 is a visual composition reference only. Generate ONLY its scenic background, remove every UI element, circular photo, text, paper card and icon. Recreate the beautiful northern Vietnamese rice terraces and layered blue-green mountains across the LOWER HALF of the canvas. A H'Mong woman viewed from behind in indigo clothing, colorful red patterned headscarf, traditional woven basket on her back stands at x=21% of width, only in the bottom 40%, looking across the valley. Golden-green terraced rice fields sweeping from lower left toward center, distant atmospheric mountain ridges, warm gentle late-afternoon light. Upper 48% of canvas is spacious warm cream handmade paper #fcf0dc with faint etched mountain contour drawings at far left and right. Mountain silhouettes naturally merge upward into that blank paper with delicate watercolor mist, not a hard seam. The horizon remains around 52% high. Lower right keeps mountain scenery under an eventual paper overlay card, center lower third calm shadowed mountains for a handwritten phrase added later in HTML. Match the reference's geography, scale and color, a refined editorial photographic montage on warm paper. No words, no typography, no logos, no UI, no circles, no arrows, no cards, no watermark. Full-bleed single coherent wide background."
+    },
+    {
+      "name": "gift-reference",
+      "output": "public/images/asin/gift-reference.webp",
+      "refs": [
+        "C:/Users/kivil/AppData/Local/Temp/codex-clipboard-85335d20-dc40-421a-8f71-88e77da12fa9.png",
+        "D:/CloneGithub/Website3DTayBac/public/images/asin/gift.webp"
+      ],
+      "prompt": "Use case: product-mockup. Asset type: premium Vietnamese food gift-box editorial photograph, wide 2.2:1 landscape. Image 1 is the precise composition reference for its gift photo in the LOWER MIDDLE only; ignore the upper review cards and all website text/UI. Image 2 is a supporting reference for realistic wood, food pouch and jar textures. Recreate a luxury A SỈN gift set on an old warm wooden tabletop: large open dark walnut rectangular box slightly left of center with a silver pouch of glossy dark smoked meat on its left, an elegant dark amber corn-spirit bottle in the center with cream label and natural woven shoulder cord, cream food pouch and two small spice jars on right. A matching closed dark reddish-brown rigid gift box stands to the right, embossed tasteful fine gold mountain line art and the centered gold serif brand 'A SỈN'. Keep exact Vietnamese brand diacritic. All items fully within frame, both boxes resting on tabletop, rich warm soft directional daylight. Mild background blur, warm brown wall. Straight-on slightly elevated product photography, premium artisanal real material, products occupy 85% of image height. No additional copy, no claims, no price, no review cards, no UI, no border, no watermark."
+    },
+    {
+      "name": "footer-mountains",
+      "output": "public/images/asin/footer-mountains.webp",
+      "refs": [
+        "C:/Users/kivil/AppData/Local/Temp/codex-clipboard-4277d223-e85e-41c9-be09-ef42fe3a3d7b.png"
+      ],
+      "prompt": "Use case: illustration-story. Asset type: dark luxury website footer background, ultra-wide 5:1 landscape. Image 1 is the exact style and composition reference. Create ONLY the background: very dark warm espresso-brown #1d0d08, a detailed elegant fine copper/sepia line engraving of northern Vietnamese mountains running along the bottom edge. Left edge begins with a small mountain rising about 30% of canvas height, center line of mountains stays very low at 10-20% height leaving generous empty dark space for website text, far right has one beautiful tall pointed mountain peak reaching 90% height at 95% width. Many delicate closely spaced hand-drawn topographic ridge lines, antique etching style, warm subdued copper ink #8f5530, no solid fills. Quiet dark negative space in upper left and upper middle. Full-bleed consistent dark background, no transparency needed. NO words, no logos, no icons, no buttons, no UI, no watermark. Match reference closely."
+    },
+    {
+      "name": "journey-handover",
+      "output": "public/images/asin/journey-handover.webp",
+      "refs": [
+        "C:/Users/kivil/AppData/Local/Temp/codex-clipboard-b6e8d71d-6686-453e-a0d7-569ffe90d608.png"
+      ],
+      "prompt": "Use case: photorealistic-natural. Asset type: small circular journey thumbnail, provide a square photo. Input image 1 is a composition reference, specifically its last circular thumbnail at the far right. Close-up of two Vietnamese adults' hands passing a small elegant dark brown gift box with a subtle gold mountain illustration and cream ribbon. One person wearing a natural cream linen shirt, the other wearing muted dark indigo. Only hands, forearms and torsos partly visible, no faces. Center the complete closed gift box and hands inside the central 75% of square frame so it survives circular crop. Warm natural light, candid editorial food brand style, real natural skin texture, softly blurred neutral warm indoor background. No readable words, no claims, no watermark, no UI, no circles or borders."
+    },
+    {
+      "name": "review-portraits",
+      "output": "public/images/asin/review-portraits.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: three sample avatar portraits for an explicitly labeled illustrative website review layout. Wide 3:1 landscape triptych composed of THREE EQUAL SQUARE photo panels placed side by side, each one centered head-and-shoulders, no gutters. Left panel a fictional Vietnamese man around 40 wearing a natural beige collared shirt; center panel a fictional Vietnamese woman around 35 with shoulder-length black hair and a simple muted blue blouse; right panel a fictional Vietnamese man around 35 with short black hair wearing a dark indigo shirt. Friendly subtle natural smiles, candid realistic portrait photography, warm soft daylight, muted out-of-focus neutral foliage behind each person. Human ordinary natural faces, no glamour retouching, each head exactly in center of its panel and with enough breathing room for a circular crop. Three distinct people. No text, no labels, no stars, no quote marks, no UI, no watermarks."
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+/* A live product on a woodland stage, with the reference's soft paper edges. */
+.asin-experience {
+  padding: 34px 0 28px;
+  background: #19170f;
+  mask: url("/images/asin/experience-paper-mask.svg") center / 100% 100% no-repeat;
+}
+.asin-experience::before {
+  background:
+    linear-gradient(90deg, #15140c55, #17140c0a 46%, #12120c35),
+    url("/images/asin/experience-forest.webp") center / cover;
+}
+.asin-experience .asin-experience-grid {
+  grid-template-columns: 29% minmax(0, 1fr);
+  min-height: 365px;
+}
+.asin-experience .asin-experience-copy {
+  position: relative;
+  z-index: 2;
+  padding: 15px 30px 25px 12px;
+}
+.asin-experience .asin-eyebrow {
+  color: #e7e1d0;
+  margin-bottom: 18px;
+}
+.asin-experience h2 {
+  font-size: clamp(30px, 2.65vw, 40px);
+  line-height: 1.12;
+  color: #fff7e8;
+}
+.asin-experience p {
+  color: #d8d4c5;
+  margin: 17px 0 22px;
+  font-size: 12px;
+  line-height: 1.75;
+  max-width: 298px;
+}
+.asin-experience-cta {
+  font-size: 10px;
+  min-height: 39px;
+  background: #fff9eb;
+  color: #573d2c;
+}
+.asin-experience .asin-model-name {
+  margin-top: 15px;
+  font-size: 9px;
+  color: #bfaf93;
+}
+.asin-viewer.is-editorial {
+  grid-template-columns: minmax(0, 1fr) 136px 26%;
+  gap: 20px;
+  align-items: center;
+}
+.asin-experience .asin-viewer-stage {
+  height: 380px;
+  overflow: visible;
+  background: transparent;
+  border-radius: 0;
+  scroll-margin-top: 100px;
+}
+.asin-viewer-stump {
+  position: absolute;
+  width: 110%;
+  max-width: none;
+  height: 130px;
+  object-fit: contain;
+  bottom: 3px;
+  left: -5%;
+  pointer-events: none;
+}
+.asin-experience .asin-viewer-stage model-viewer {
+  position: absolute;
+  inset: -16px 0 auto;
+  height: 345px;
+  background: transparent;
+}
+.asin-experience .asin-viewer-poster {
+  position: absolute;
+  top: -5px;
+  width: 90%;
+  height: 330px;
+  object-fit: contain;
+  border-radius: 0;
+  mask: none;
+}
+.asin-viewer .asin-viewer-orbit {
+  width: 90%;
+  height: 80px;
+  left: 5%;
+  bottom: 87px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  z-index: 2;
+  pointer-events: none;
+  color: #fff9e8;
+  text-shadow: 0 1px 7px #20180e;
+}
+.asin-viewer-orbit svg { width: 100%; height: 100%; }
+.asin-viewer-orbit b {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 500 23px/1 "Be Vietnam Pro", sans-serif;
+}
+.asin-viewer .asin-viewer-tools {
+  bottom: 2px;
+  background: #171810d9;
+  border: 1px solid #c9ac776b;
+  backdrop-filter: blur(8px);
+}
+.asin-viewer .asin-viewer-tools button {
+  min-width: 34px;
+  width: 34px;
+  height: 34px;
+}
+.asin-viewer button:focus-visible,
+.asin-viewer-stage:focus-visible {
+  outline: 2px solid #f4d5a1;
+  outline-offset: 4px;
+}
+.asin-viewer .asin-viewer-angles { gap: 0; }
+.asin-viewer .asin-viewer-angles button {
+  font-size: 10px;
+  min-height: 46px;
+  padding: 6px 0;
+  gap: 10px;
+  color: #eee5d4;
+  border-bottom: 1px solid #dbc8a336;
+}
+.asin-viewer .asin-viewer-angles button:first-child {
+  border-top: 1px solid #dbc8a336;
+}
+.asin-viewer .asin-viewer-angles button.is-active,
+.asin-viewer .asin-viewer-angles button:hover:enabled { color: #f4d3a0; }
+.asin-viewer .asin-viewer-angles button:disabled { opacity: .5; cursor: wait; }
+.asin-viewer .asin-viewer-angles .asin-angle-thumb {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  border: 1px solid #c5ad8377;
+  padding: 4px;
+  overflow: hidden;
+  background: #bba6811a;
+}
+.asin-angle-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.asin-angle-thumb.angle-1 img { transform: scaleX(-1); }
+.asin-angle-thumb.angle-2 img { transform: rotate(-16deg); }
+.asin-angle-thumb.angle-3 img { transform: scaleX(.65); }
+.asin-angle-thumb.angle-4 img { transform: rotate(90deg) scale(.85); }
+.asin-experience .asin-viewer-angles small { margin-top: 13px; font-size: 8px; color: #baad95; }
+.asin-viewer .asin-detail-photo {
+  display: block;
+  width: 100%;
+  height: 260px;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  border: 1px solid #f0ddba99;
+  background: #211b14;
+  overflow: hidden;
+  text-align: left;
+  border-radius: 2px;
+  cursor: zoom-in;
+}
+.asin-viewer .asin-detail-photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 61%;
+  transform: scale(2.2);
+  transition: transform .35s;
+}
+.asin-viewer .asin-detail-photo:hover:enabled > img { transform: scale(2.35); }
+.asin-viewer .asin-detail-photo:disabled { cursor: wait; }
+.asin-viewer .asin-detail-photo > .asin-detail-zoom {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: 37px;
+  height: 37px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: #fff8ed;
+  color: #584130;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px #0003;
+}
+.asin-viewer .asin-detail-zoom > svg:first-child {
+  position: static;
+  padding: 0;
+  background: transparent;
+}
+.asin-viewer .asin-detail-photo > .asin-detail-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 14px 17px;
+  font-size: 11px;
+  color: #fff6e5;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(transparent, #0c0e0bd9 43%);
+}
+.asin-viewer .asin-viewer-status { bottom: 13px; font-size: 11px; }
+.asin-viewer[data-state="loading"] .asin-viewer-orbit { opacity: .4; }
+.asin-experience .asin-viewer-stage:fullscreen {
+  height: 100vh;
+  background: #19170f;
+  overflow: hidden;
+}
+.asin-experience .asin-viewer-stage:fullscreen model-viewer { inset: 0; height: calc(100% - 50px); }
+.asin-viewer-stage:fullscreen .asin-viewer-stump,
+.asin-viewer-stage:fullscreen .asin-viewer-orbit { display: none; }
+.asin-viewer-stage:fullscreen .asin-viewer-tools { bottom: 12px; }
+@media (max-width: 1199px) {
+  .asin-experience .asin-experience-grid { grid-template-columns: 29% minmax(0, 1fr); }
+  .asin-experience .asin-experience-copy { padding-left: 0; padding-right: 18px; }
+  .asin-experience h2 { font-size: 30px; }
+  .asin-viewer.is-editorial { grid-template-columns: minmax(0, 1fr) 106px 24%; gap: 12px; }
+  .asin-viewer .asin-viewer-angles button { font-size: 9px; gap: 6px; }
+  .asin-viewer .asin-viewer-angles .asin-angle-thumb { width: 30px; height: 30px; flex-basis: 30px; }
+  .asin-viewer .asin-detail-photo { height: 230px; }
+}
+@media (max-width: 900px) {
+  .asin-experience { padding: 36px 0; }
+  .asin-experience .asin-experience-grid { grid-template-columns: 36% minmax(0, 1fr); }
+  .asin-viewer.is-editorial { grid-template-columns: minmax(0, 1fr) 110px; }
+  .asin-viewer.is-editorial .asin-detail-photo { grid-column: 2; grid-row: 1; align-self: end; height: 90px; margin-bottom: 3px; }
+  .asin-viewer.is-editorial .asin-viewer-angles { grid-column: 2; grid-row: 1; align-self: start; }
+  .asin-viewer .asin-viewer-angles button { min-height: 41px; }
+  .asin-viewer.is-editorial .asin-viewer-stage { height: 375px; grid-column: 1; grid-row: 1; }
+  .asin-viewer.is-editorial .asin-detail-caption { padding: 20px 5px 6px; font-size: 8px; }
+  .asin-viewer.is-editorial .asin-detail-zoom { width: 25px; height: 25px; top: 40%; }
+  .asin-viewer.is-editorial .asin-detail-zoom svg { width: 16px; height: 16px; }
+  .asin-experience .asin-viewer-poster { height: 320px; }
+}
+@media (max-width: 580px) {
+  .asin-experience { padding: 42px 0 38px; }
+  .asin-experience::before { background-position: center, 43% center; }
+  .asin-experience .asin-experience-grid { grid-template-columns: 1fr; gap: 12px; }
+  .asin-experience .asin-experience-copy { padding: 0; }
+  .asin-experience h2 { font-size: 34px; }
+  .asin-experience p { max-width: 100%; margin: 15px 0 17px; }
+  .asin-experience .asin-model-name { margin-top: 12px; }
+  .asin-viewer.is-editorial { grid-template-columns: minmax(0, 1fr) 100px; gap: 8px; }
+  .asin-viewer.is-editorial .asin-viewer-stage { height: 365px; }
+  .asin-experience .asin-viewer-stage model-viewer { inset: max(0px, calc(195px - 50vw)) 0 auto; height: 305px; }
+  .asin-experience .asin-viewer-poster { top: max(0px, calc(195px - 50vw)); height: 305px; }
+  .asin-viewer-stump { bottom: 19px; height: 100px; }
+  .asin-viewer .asin-viewer-orbit { width: 105%; left: -2.5%; bottom: 87px; height: 55px; }
+  .asin-viewer-orbit b { font-size: 19px; bottom: -6px; }
+  .asin-viewer .asin-viewer-tools { bottom: 3px; gap: 0; padding: 2px; }
+  .asin-viewer .asin-viewer-tools button { width: 32px; min-width: 32px; height: 34px; }
+  .asin-viewer .asin-viewer-angles button { min-height: 44px; font-size: 9px; }
+  .asin-viewer .asin-viewer-angles .asin-angle-thumb { width: 29px; height: 29px; flex-basis: 29px; padding: 3px; }
+  .asin-viewer .asin-viewer-status { left: 0; right: 0; padding: 9px 5px; font-size: 10px; }
+  .asin-viewer.is-editorial .asin-detail-photo { margin-bottom: 0; height: 82px; }
+  .asin-viewer.is-compact .asin-viewer-tools button { width: 36px; min-width: 36px; height: 36px; }
+}
+@media (max-width: 359px) {
+  .asin-experience h2 { font-size: 30px; }
+  .asin-viewer.is-editorial { grid-template-columns: minmax(0, 1fr) 90px; gap: 6px; }
+  .asin-viewer .asin-viewer-angles button { font-size: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .asin-viewer .asin-detail-photo > img { transition: none; }
+}

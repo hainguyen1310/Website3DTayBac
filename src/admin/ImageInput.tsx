@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { MAX_UPLOAD_MB, uploadImage } from "../services/uploadApi";
-import type { UploadFolder } from "../services/uploadApi";
+import type { UploadFolder, UploadRendition } from "../services/uploadApi";
 
 /**
  * Ô chọn ảnh: tải tệp lên S3 rồi trả URL về cho form.
@@ -11,10 +11,12 @@ export default function ImageInput({
   value,
   onChange,
   folder,
+  rendition = "full",
 }: {
   value: string;
   onChange: (url: string) => void;
   folder: UploadFolder;
+  rendition?: UploadRendition;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -25,7 +27,7 @@ export default function ImageInput({
     setBusy(true);
     setError("");
     try {
-      onChange(await uploadImage(file, folder));
+      onChange(await uploadImage(file, folder, rendition));
     } catch (caught) {
       setError(
         caught instanceof Error ? caught.message : "Không tải được ảnh lên S3.",
@@ -80,7 +82,7 @@ export default function ImageInput({
             </button>
           )}
         </div>
-        <small>Tối đa {MAX_UPLOAD_MB}MB · JPG, PNG, WebP, AVIF, GIF</small>
+        <small>Tối đa {MAX_UPLOAD_MB}MB · JPG, PNG, WebP, AVIF, GIF{rendition === "social" ? " · tự crop 1200×630" : " · tự nén tối đa 1920px"}</small>
         {error && (
           <p className="admin-alert error" role="alert">
             {error}

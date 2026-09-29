@@ -1,7 +1,11 @@
 import type { CartLine } from "../catalog";
 import { supabase } from "../utils/supabase";
 import { brandCopy } from "../branding";
+import { loadArticleBySlug, loadArticleList, loadArticlesBySlugs, SupabaseRest } from "../seo/content";
+import type { PublishedArticle } from "../content/article";
 import type { ContactTopic } from "../operations";
+
+export type { PublishedArticle } from "../content/article";
 
 export type ContactMessageInput = {
   name: string;
@@ -29,61 +33,28 @@ export type CheckoutOrderResult = {
   totalAmountVnd: number;
 };
 
-export type PublishedArticle = {
-  id: string;
-  tag: string;
-  date: string;
-  title: string;
-  excerpt: string;
-  image: string;
-  readTime: string;
-  body: string[];
+export type ArticlePage = {
+  items: PublishedArticle[];
+  total: number;
 };
 
-type ArticleRow = {
-  slug: string;
-  tag: string;
-  title: string;
-  excerpt: string;
-  image_url: string;
-  read_time_minutes: number;
-  body: unknown;
-  published_at: string;
-};
+function brandArticle(article: PublishedArticle): PublishedArticle {
+  return { ...article, tag: brandCopy(article.tag), title: brandCopy(article.title), excerpt: brandCopy(article.excerpt) };
+}
 
-const articleDate = (value: string) =>
-  new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-    .format(new Date(value))
-    .replaceAll("/", ".");
+// Client/server dùng chung truy vấn public để phân trang, chủ đề và lỗi có cùng ý nghĩa.
+export async function listPublishedArticles(options: { offset?: number; limit?: number; topicSlug?: string } = {}): Promise<ArticlePage> {
+  const page = await loadArticleList(new SupabaseRest(), options);
+  return { items: page.items.map(brandArticle), total: page.total };
+}
 
-/** Dữ liệu tin đã xuất bản được phép đọc công khai bởi policy RLS. */
-export async function listPublishedArticles(): Promise<PublishedArticle[]> {
-  const { data, error } = await supabase
-    .from("articles")
-    .select(
-      "slug, tag, title, excerpt, image_url, read_time_minutes, body, published_at",
-    )
-    .eq("published", true)
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false });
+export async function getPublishedArticlesBySlugs(slugs: string[]): Promise<PublishedArticle[]> {
+  return (await loadArticlesBySlugs(new SupabaseRest(), slugs)).map(brandArticle);
+}
 
-  if (error) throw new Error(error.message);
-  return ((data ?? []) as ArticleRow[]).map((article) => ({
-    id: article.slug,
-    tag: brandCopy(article.tag),
-    date: articleDate(article.published_at),
-    title: brandCopy(article.title),
-    excerpt: brandCopy(article.excerpt),
-    image: article.image_url,
-    readTime: `${article.read_time_minutes} phút đọc`,
-    body: Array.isArray(article.body)
-      ? article.body.filter((paragraph): paragraph is string => typeof paragraph === "string").map(brandCopy)
-      : [],
-  }));
+export async function getPublishedArticle(slug: string): Promise<PublishedArticle | null> {
+  const article = await loadArticleBySlug(new SupabaseRest(), slug);
+  return article ? brandArticle(article) : null;
 }
 
 function checkoutItems(lines: CartLine[]) {

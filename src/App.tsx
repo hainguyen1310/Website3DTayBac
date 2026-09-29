@@ -1,7 +1,15 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import ContactPage from "./Contact";
 import { useWebsite } from "./WebsiteContext";
 import {
@@ -17,6 +25,7 @@ import {
   Leaf,
   Minus,
   Mountain,
+  Menu,
   Plus,
   Search,
   ShoppingBag,
@@ -29,16 +38,25 @@ import { CatalogProvider } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
 import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
-const AdminPage = lazy(() => import("./admin/AdminPage"));
+const AdminArea = lazy(() => import("./admin/AdminArea"));
 import {
   AboutPage,
   NewsDetailPage,
   NewsPage,
   ProductsPage,
 } from "./CommercePages";
+import { CategoryPage, ProductDetailPage } from "./StorefrontPages";
 import Home from "./Home";
+import Newsletter from "./Newsletter";
+import ProductViewer from "./ProductViewer";
+import SupportWidget from "./SupportWidget";
+import UnsubscribePage from "./Unsubscribe";
 import { createCheckoutOrder } from "./services/storeApi";
 import { useStorefrontMotion } from "./hooks/useStorefrontMotion";
+import { initAnalytics, trackEvent, trackPurchaseOnce } from "./analytics";
+import { useDocumentSeo } from "./hooks/useDocumentSeo";
+import { noindexMeta } from "./seo/meta";
+import { cartAnalyticsItems, ecommerceParams, purchaseAnalyticsParams } from "./analyticsItems";
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -52,44 +70,13 @@ function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link
       to="/"
-      className={`moc-logo ${light ? "logo-light" : ""}`}
-      aria-label="A Sỉn — Tinh hoa núi rừng Tây Bắc"
+      className={`asin-logo ${light ? "is-light" : ""}`}
+      aria-label="A Sỉn — Tinh hoa Tây Bắc"
     >
-      <div className="moc-logo-icon">
-        <svg
-          viewBox="0 0 46 26"
-          width="36"
-          height="22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M2 24L15 4L26 20L31 12L44 24H2Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M15 4L19 12M31 12L36 19"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <div className="moc-logo-text">
-        <span className="moc-logo-brand">
-          A Sỉn<span className="moc-logo-dot">.</span>
-        </span>
-        <span className="moc-logo-sub">TÂY BẮC THUẦN KHIẾT</span>
-      </div>
+      <span>A SỈN</span>
     </Link>
   );
 }
-
-
 
 function Modal({
   title,
@@ -147,70 +134,90 @@ function Modal({
 function Header() {
   const { cart, setCartOpen } = useShop();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 24);
   const location = useLocation();
-
-  const isHome = location.pathname === "/";
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const isTransparent = isHome && !scrolled;
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    const desktop = window.matchMedia("(min-width: 901px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMenuOpen(false);
+    };
+    window.addEventListener("keydown", close);
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => {
+      window.removeEventListener("keydown", close);
+      desktop.removeEventListener("change", closeOnDesktop);
+    };
+  }, []);
   return (
     <>
-      <header className={`moc-header ${isHome ? "moc-header-home" : ""} ${isTransparent ? "moc-header-transparent" : "moc-header-solid"}`}>
-        <div className="moc-header-inner">
-          <Logo light={isTransparent} />
-
-          <nav className="moc-nav" aria-label="Điều hướng chính">
-            <Link
-              to="/san-pham"
-              className={`moc-nav-link ${location.pathname === "/san-pham" ? "active" : ""}`}
-            >
-              Sản phẩm
-            </Link>
-            <Link
-              to="/gioi-thieu"
-              className={`moc-nav-link ${location.pathname === "/gioi-thieu" ? "active" : ""}`}
-            >
-              Về A Sỉn
-            </Link>
-            <Link
-              to="/tin-tuc"
-              className={`moc-nav-link ${location.pathname === "/tin-tuc" ? "active" : ""}`}
-            >
-              Tạp chí
-            </Link>
-            <Link to="/#lien-he" className="moc-nav-link">Liên hệ</Link>
-            <Link to="/thiet-ke" className="moc-nav-design" aria-current={location.pathname === "/thiet-ke" ? "page" : undefined}>
-              <Gift size={16} /> Thiết kế quà
+      <header
+        className={`asin-header${location.pathname === "/" ? " is-home" : ""}${location.pathname === "/" && !scrolled && !menuOpen ? " is-transparent" : ""}`}
+      >
+        <div className="asin-container asin-header-inner">
+          <Logo />
+          <nav
+            className={`asin-nav ${menuOpen ? "is-open" : ""}`}
+            id="site-navigation"
+            aria-label="Điều hướng chính"
+          >
+            {[
+              ["/san-pham", "Sản phẩm"],
+              ["/thiet-ke", "Hộp quà"],
+              ["/gioi-thieu", "Về A Sỉn"],
+              ["/tin-tuc", "Tin tức"],
+            ].map(([to, label]) => (
+              <Link
+                key={to}
+                to={to}
+                aria-current={location.pathname === to || (to === "/tin-tuc" && location.pathname.startsWith("/tin-tuc/")) ? "page" : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+            <Link className="asin-mobile-link" to="/lien-he">
+              Liên hệ
             </Link>
           </nav>
-
-          <div className="moc-header-actions">
+          <div className="asin-header-actions">
             <button
-              className="moc-action-btn"
               aria-label="Tìm sản phẩm"
               onClick={() => setSearchOpen(true)}
             >
-              <Search size={19} />
+              <Search size={22} strokeWidth={1.5} />
             </button>
             <button
-              className="moc-pill-cart-btn"
+              className="asin-cart-button"
               aria-label={`Giỏ hàng (${count})`}
               onClick={() => setCartOpen(true)}
             >
-              <ShoppingBag size={15} />
-              <span>Giỏ hàng ({count})</span>
-              <ArrowRight size={14} />
+              <ShoppingBag size={22} strokeWidth={1.5} />
+              <span>{count}</span>
+            </button>
+            <Link className="asin-header-contact" to="/lien-he">
+              Liên hệ
+            </Link>
+            <button
+              className="asin-menu-button"
+              aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
+              aria-expanded={menuOpen}
+              aria-controls="site-navigation"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={23} /> : <Menu size={23} />}
             </button>
           </div>
         </div>
@@ -255,7 +262,7 @@ function SearchModal({
         <input
           autoFocus
           aria-label="Từ khóa tìm kiếm"
-          placeholder="Tìm trà, mật ong, gia vị…"
+          placeholder="Tìm thịt gác bếp, gia vị, hộp quà…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -304,7 +311,7 @@ function SearchModal({
             <p>
               {favorites && !query
                 ? "Chạm vào trái tim trên sản phẩm để lưu vào đây."
-                : "Thử tìm “trà”, “mật ong” hoặc một hương vị khác nhé."}
+                : "Thử tìm “gác bếp”, “gia vị” hoặc một hương vị khác nhé."}
             </p>
           </div>
         )}
@@ -315,16 +322,34 @@ function SearchModal({
 
 function ProductModal() {
   const { selectedProduct: p, setSelectedProduct, addProduct } = useShop();
+  const [params, setParams] = useSearchParams();
   const [quantity, setQuantity] = useState(1);
+  const closeProduct = () => {
+    setSelectedProduct(null);
+    if (params.has("product")) {
+      const next = new URLSearchParams(params);
+      next.delete("product");
+      setParams(next, { replace: true });
+    }
+  };
   if (!p) return null;
   return (
     <Modal
       title="Một chút tinh hoa núi rừng"
-      onClose={() => setSelectedProduct(null)}
+      onClose={closeProduct}
       className="product-modal"
     >
       <div className="product-detail">
-        <img src={p.image} alt={p.name} />
+        {p.modelUrl ? (
+          <ProductViewer
+            src={p.modelUrl}
+            poster={p.image}
+            name={p.name}
+            compact
+          />
+        ) : (
+          <img src={p.image} alt={p.name} />
+        )}
         <div>
           <span className="eyebrow">
             {p.origin} · {p.weight}
@@ -338,7 +363,7 @@ function ProductModal() {
               className="button button-green"
               onClick={() => {
                 addProduct(p.id, quantity);
-                setSelectedProduct(null);
+                closeProduct();
               }}
             >
               <ShoppingBag size={17} /> Thêm vào giỏ
@@ -400,8 +425,19 @@ type OrderSummary = {
   type: string;
   orderCode: string;
   createdAt: string;
-  customer: { name: string; phone: string; address: string; email?: string; note?: string };
-  items: Array<{ name: string; quantity: number; unitPrice: number; design?: CartLine["design"] }>;
+  customer: {
+    name: string;
+    phone: string;
+    address: string;
+    email?: string;
+    note?: string;
+  };
+  items: Array<{
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    design?: CartLine["design"];
+  }>;
   subtotal: number;
   shipping: string;
   currency: string;
@@ -421,19 +457,64 @@ function OrderReview({
   const [error, setError] = useState("");
   const [attempted, setAttempted] = useState(false);
   const complete = async () => {
-    setSaving(true);setAttempted(true);setError("");
-    try { await onComplete(); }
-    catch (caught) { setError(caught instanceof Error ? caught.message : "Chưa thể ghi nhận đơn. Vui lòng thử lại."); }
-    finally { setSaving(false); }
+    setSaving(true);
+    setAttempted(true);
+    setError("");
+    try {
+      await onComplete();
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Chưa thể ghi nhận đơn. Vui lòng thử lại.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
-  return <div className="payment-qr">
-    {!attempted && <button className="back-link" onClick={onBack}><ArrowLeft size={15}/> Sửa thông tin đơn</button>}
-    <h3>Kiểm tra & đặt hàng</h3>
-    <p>Thanh toán khi nhận hàng (COD). A Sỉn sẽ liên hệ để xác nhận và chuẩn bị đơn.</p>
-    <div className="payment-reference"><span>Người nhận</span><b>{order.customer.name}</b><span>Điện thoại</span><b>{order.customer.phone}</b><span>Địa chỉ</span><b>{order.customer.address}</b><span>Giao hàng</span><b>{order.shipping}</b><span>Tổng dự kiến</span><strong>{money(order.subtotal)}</strong></div>
-    <button className="button button-green full-width" onClick={()=>void complete()} disabled={saving}><CheckCircle2 size={18}/>{saving ? "Đang ghi nhận…" : attempted ? "Kiểm tra & thử lại" : "Xác nhận đặt hàng COD"}</button>
-    {error && <p className="demo-note" role="alert">{error}</p>}
-  </div>;
+  return (
+    <div className="payment-qr">
+      {!attempted && (
+        <button className="back-link" onClick={onBack}>
+          <ArrowLeft size={15} /> Sửa thông tin đơn
+        </button>
+      )}
+      <h3>Kiểm tra & đặt hàng</h3>
+      <p>
+        Thanh toán khi nhận hàng (COD). A Sỉn sẽ liên hệ để xác nhận và chuẩn bị
+        đơn.
+      </p>
+      <div className="payment-reference">
+        <span>Người nhận</span>
+        <b>{order.customer.name}</b>
+        <span>Điện thoại</span>
+        <b>{order.customer.phone}</b>
+        <span>Địa chỉ</span>
+        <b>{order.customer.address}</b>
+        <span>Giao hàng</span>
+        <b>{order.shipping}</b>
+        <span>Tổng dự kiến</span>
+        <strong>{money(order.subtotal)}</strong>
+      </div>
+      <button
+        className="button button-green full-width"
+        onClick={() => void complete()}
+        disabled={saving}
+      >
+        <CheckCircle2 size={18} />
+        {saving
+          ? "Đang ghi nhận…"
+          : attempted
+            ? "Kiểm tra & thử lại"
+            : "Xác nhận đặt hàng COD"}
+      </button>
+      {error && (
+        <p className="demo-note" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
 }
 
 function Cart() {
@@ -467,8 +548,12 @@ function Cart() {
         unitPrice: linePrice(line, products),
         design: line.design,
       })),
-      subtotal: total + (total >= commerce.freeShippingFrom ? 0 : commerce.shippingFee),
-      shipping: total >= commerce.freeShippingFrom ? "Miễn phí" : money(commerce.shippingFee),
+      subtotal:
+        total + (total >= commerce.freeShippingFrom ? 0 : commerce.shippingFee),
+      shipping:
+        total >= commerce.freeShippingFrom
+          ? "Miễn phí"
+          : money(commerce.shippingFee),
       currency: "VND",
     });
   };
@@ -484,8 +569,20 @@ function Cart() {
   };
   return (
     <Modal
-      title={order ? "Đặt hàng thành công" : paymentOrder ? "Xác nhận đơn hàng" : checkout ? "Thông tin nhận quà" : "Giỏ quà của bạn"}
-      onClose={() => { setCartOpen(false); setCheckout(false); setPaymentOrder(null); }}
+      title={
+        order
+          ? "Đặt hàng thành công"
+          : paymentOrder
+            ? "Xác nhận đơn hàng"
+            : checkout
+              ? "Thông tin nhận quà"
+              : "Giỏ quà của bạn"
+      }
+      onClose={() => {
+        setCartOpen(false);
+        setCheckout(false);
+        setPaymentOrder(null);
+      }}
       className="cart-drawer"
     >
       {order ? (
@@ -493,13 +590,16 @@ function Cart() {
           <CheckCircle2 size={49} strokeWidth={1.3} />
           <h3>Đơn hàng đã được ghi nhận.</h3>
           <p>
-            Mã đơn: {order.orderCode}. A Sỉn sẽ liên hệ để xác nhận. Bạn thanh toán khi nhận được hàng.
+            Mã đơn: {order.orderCode}. A Sỉn sẽ liên hệ để xác nhận. Bạn thanh
+            toán khi nhận được hàng.
           </p>
           <div className="order-total">
             <span>Tổng tiền đơn hàng</span>
             <b>{money(order.subtotal)}</b>
           </div>
-          <p className="demo-note">Thông tin đơn và phí giao hàng đã được lưu trong hệ thống.</p>
+          <p className="demo-note">
+            Thông tin đơn và phí giao hàng đã được lưu trong hệ thống.
+          </p>
           <button className="button button-green" onClick={download}>
             <Download size={18} /> Tải thông tin đơn
           </button>
@@ -510,9 +610,19 @@ function Cart() {
       ) : paymentOrder ? (
         <OrderReview
           order={paymentOrder}
-          onBack={() => { setPaymentOrder(null); setCheckout(true); }}
+          onBack={() => {
+            setPaymentOrder(null);
+            setCheckout(true);
+          }}
           onComplete={async () => {
-            const persisted = await createCheckoutOrder(paymentOrder.customer, cart, requestId);
+            const persisted = await createCheckoutOrder(
+              paymentOrder.customer,
+              cart,
+              requestId,
+            );
+            const purchase = purchaseAnalyticsParams(cartAnalyticsItems(cart, products), persisted.totalAmountVnd, total >= commerce.freeShippingFrom ? 0 : commerce.shippingFee);
+            if (purchase) trackPurchaseOnce(persisted.orderId, purchase);
+            else console.warn("[analytics] Không gửi purchase vì snapshot giá/phí khác tổng tiền đơn đã xác nhận.");
             setOrder({
               ...paymentOrder,
               orderCode: persisted.orderNumber,
@@ -548,7 +658,8 @@ function Cart() {
                 <ArrowLeft size={15} /> Trở lại giỏ quà
               </button>
               <p className="checkout-notice">
-                Đặt hàng không cần tài khoản. Thông tin được dùng để xác nhận và giao đơn của bạn.
+                Đặt hàng không cần tài khoản. Thông tin được dùng để xác nhận và
+                giao đơn của bạn.
               </p>
               <label className="field-label" htmlFor="customer-name">
                 Họ và tên
@@ -576,10 +687,27 @@ function Cart() {
                 title="Nhập số Việt Nam gồm 10 chữ số bắt đầu bằng 0, hoặc +84 và 9 chữ số."
                 placeholder="0901234567"
               />
-              <label className="field-label" htmlFor="customer-email">Email liên hệ (không bắt buộc)</label>
-              <input id="customer-email" name="email" type="email" autoComplete="email" maxLength={254} placeholder="Email nhận phản hồi hỗ trợ" />
-              <label className="field-label" htmlFor="customer-note">Ghi chú giao hàng</label>
-              <textarea id="customer-note" name="note" rows={2} maxLength={1000} placeholder="Thời gian nhận, lưu ý cho cửa hàng…" />
+              <label className="field-label" htmlFor="customer-email">
+                Email liên hệ (không bắt buộc)
+              </label>
+              <input
+                id="customer-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                maxLength={254}
+                placeholder="Email nhận phản hồi hỗ trợ"
+              />
+              <label className="field-label" htmlFor="customer-note">
+                Ghi chú giao hàng
+              </label>
+              <textarea
+                id="customer-note"
+                name="note"
+                rows={2}
+                maxLength={1000}
+                placeholder="Thời gian nhận, lưu ý cho cửa hàng…"
+              />
               <label className="field-label" htmlFor="customer-address">
                 Địa chỉ nhận quà
               </label>
@@ -598,7 +726,11 @@ function Cart() {
                 <strong>{money(total)}</strong>
               </div>
               <p className="demo-note">
-                Phí giao hàng: {total >= commerce.freeShippingFrom ? "Miễn phí" : money(commerce.shippingFee)}. Thanh toán khi nhận hàng.
+                Phí giao hàng:{" "}
+                {total >= commerce.freeShippingFrom
+                  ? "Miễn phí"
+                  : money(commerce.shippingFee)}
+                . Thanh toán khi nhận hàng.
               </p>
               <button className="button button-green full-width" type="submit">
                 Kiểm tra đơn hàng <ArrowRight size={18} />
@@ -616,7 +748,11 @@ function Cart() {
                     <article className="cart-line" key={item.key}>
                       <div className="cart-thumbnail">
                         {item.design ? (
-                          <GiftPreview design={item.design} products={products} compact />
+                          <GiftPreview
+                            design={item.design}
+                            products={products}
+                            compact
+                          />
                         ) : (
                           <img src={p!.image} alt={p!.name} />
                         )}
@@ -644,15 +780,17 @@ function Cart() {
                         <b>{money(linePrice(item, products))}</b>
                         <Quantity
                           value={item.quantity}
-                          onChange={(quantity) =>
-                            setQuantity(item.key, quantity)
-                          }
+                          onChange={(quantity) => {
+                            setQuantity(item.key, quantity);
+                          }}
                         />
                       </div>
                       <button
                         className="remove-line"
                         aria-label={`Xóa ${lineName(item, products)}`}
-                        onClick={() => setQuantity(item.key, 0)}
+                        onClick={() => {
+                          setQuantity(item.key, 0);
+                        }}
                       >
                         <X size={15} />
                       </button>
@@ -665,17 +803,19 @@ function Cart() {
                   <span>Tạm tính</span>
                   <strong>{money(total)}</strong>
                 </div>
-                <p className="demo-note">
-                  Chưa gồm phí giao hàng.
-                </p>
+                <p className="demo-note">Chưa gồm phí giao hàng.</p>
                 <button
                   className="button button-green full-width"
-                  onClick={() => setCheckout(true)}
+                  onClick={() => {
+                    trackEvent("begin_checkout", ecommerceParams(cartAnalyticsItems(cart, products)));
+                    setCheckout(true);
+                  }}
                 >
                   Tiếp tục đặt hàng <ArrowRight size={18} />
                 </button>
                 <p className="checkout-demo">
-                  <Check size={13} /> Không cần tài khoản · Thanh toán khi nhận hàng
+                  <Check size={13} /> Không cần tài khoản · Thanh toán khi nhận
+                  hàng
                 </p>
               </div>
             </>
@@ -687,87 +827,66 @@ function Cart() {
 }
 
 function Footer() {
-  const {content:c}=useWebsite();
+  const { content: c } = useWebsite();
   const [faqOpen, setFaqOpen] = useState(false);
 
   return (
     <>
-      <footer className="moc-footer">
-        <div className="moc-container">
-          <div className="moc-footer-grid">
-            {/* Col 1: Brand & Slogan */}
-            <div className="moc-footer-col moc-footer-brand-col">
+      <footer className="asin-footer">
+        <div className="asin-container">
+          <div className="asin-footer-grid">
+            <div className="asin-footer-brand">
               <Logo light />
-              <span className="moc-footer-slogan">
-                Từ núi rừng<br />đến cuộc sống an lành.
-              </span>
-            </div>
-
-            {/* Col 2: Về A Sỉn */}
-            <div className="moc-footer-col">
-              <h4>Về A Sỉn</h4>
-              <ul>
-                <li><Link to="/gioi-thieu">Câu chuyện thương hiệu</Link></li>
-                <li><Link to="/gioi-thieu">Hành trình phát triển</Link></li>
-                <li><Link to="/gioi-thieu">Con người A Sỉn</Link></li>
-                <li><Link to="/gioi-thieu">Giá trị bền vững</Link></li>
-              </ul>
-            </div>
-
-            {/* Col 3: Sản phẩm */}
-            <div className="moc-footer-col">
-              <h4>Sản phẩm</h4>
-              <ul>
-                <li><Link to="/san-pham">Trà</Link></li>
-                <li><Link to="/san-pham">Mật ong</Link></li>
-                <li><Link to="/san-pham">Gia vị núi rừng</Link></li>
-                <li><Link to="/thiet-ke">Bộ quà tặng</Link></li>
-              </ul>
-            </div>
-
-            {/* Col 4: Hỗ trợ */}
-            <div className="moc-footer-col">
-              <h4>Hỗ trợ</h4>
-              <ul>
-                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Chính sách vận chuyển</button></li>
-                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Chính sách đổi trả</button></li>
-                <li><button onClick={() => setFaqOpen(true)} style={{ color: "inherit", padding: 0, textAlign: "left", background: "none", border: "none", cursor: "pointer", font: "inherit" }}>Hướng dẫn mua hàng</button></li>
-                <li><Link to="/lien-he">Liên hệ</Link></li>
-              </ul>
-            </div>
-
-            {/* Col 5: Kết nối với A Sỉn */}
-            <div className="moc-footer-col moc-footer-social-col">
-              <h4>Kết nối với A Sỉn</h4>
-              <div className="moc-social-links">
-                {c["social.facebook"] && <a href={c["social.facebook"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Facebook">
-                  <Facebook size={16} />
-                </a>}
-                {c["social.instagram"] && <a href={c["social.instagram"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="Instagram">
-                  <Instagram size={16} />
-                </a>}
-                {c["social.youtube"] && <a href={c["social.youtube"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="YouTube">
-                  <Youtube size={16} />
-                </a>}
-                {c["social.tiktok"] && <a href={c["social.tiktok"]} target="_blank" rel="noopener noreferrer" className="moc-social-btn" aria-label="TikTok">
-                  <TikTokIcon size={16} />
-                </a>}
+              <p>Tinh hoa Tây Bắc trong một món quà.</p>
+              <div className="asin-socials" aria-label="Mạng xã hội A Sỉn">
+                {[
+                  { key: "facebook", label: "Facebook", Icon: Facebook },
+                  { key: "tiktok", label: "TikTok", Icon: TikTokIcon },
+                  { key: "instagram", label: "Instagram", Icon: Instagram },
+                  { key: "youtube", label: "YouTube", Icon: Youtube },
+                ].map(({ key, label, Icon }) => c[`social.${key}`] ? (
+                  <a key={key} href={c[`social.${key}`]} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={18} /></a>
+                ) : (
+                  <span key={key} className="asin-social-pending" role="img" aria-label={`${label} — đang cập nhật`} title={`${label} — đang cập nhật`}><Icon size={18} /></span>
+                ))}
               </div>
-              <span className="moc-footer-script-tag">
-                Những giá trị thật đẹp<br />vẫn còn tiếp nối...
-              </span>
+            </div>
+            <div>
+              <h3>Sản phẩm</h3>
+              <Link to="/san-pham">Thịt trâu gác bếp</Link>
+              <Link to="/san-pham">Thịt lợn gác bếp</Link>
+              <Link to="/san-pham">Lạp xưởng</Link>
+              <Link to="/san-pham">Chẩm chéo & gia vị</Link>
+              <Link to="/san-pham">Thịt trâu xé</Link>
+              <Link to="/san-pham">Thịt lợn xé</Link>
+            </div>
+            <div>
+              <h3>Hộp quà</h3>
+              <Link to="/thiet-ke">Hộp quà gia đình</Link>
+              <Link to="/thiet-ke">Hộp quà đối tác</Link>
+              <Link to="/thiet-ke">Quà tặng doanh nghiệp</Link>
+              <Link to="/thiet-ke">Thiết kế hộp quà</Link>
+            </div>
+            <div>
+              <h3>Về A Sỉn</h3>
+              <Link to="/gioi-thieu">Câu chuyện</Link>
+              <Link to="/#nguon-goc">Nguồn gốc</Link>
+              <Link to="/#trai-nghiem-3d">Trải nghiệm 3D</Link>
+              <Link to="/tin-tuc">Tin tức</Link>
+              <Link to="/lien-he">Liên hệ</Link>
+            </div>
+            <div className="asin-footer-newsletter">
+              <h3>Đăng ký nhận tin</h3>
+              <Newsletter compact />
             </div>
           </div>
-
-          <div className="moc-footer-bottom">
-            <span>© 2024 A Sỉn. Tinh hoa núi rừng Việt Nam.</span>
-            <div className="moc-footer-bottom-right">
-              <svg viewBox="0 0 46 26" width="28" height="18" fill="none" className="moc-footer-mountain-icon">
-                <path d="M2 24L15 4L26 20L31 12L44 24H2Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M15 4L19 12M31 12L36 19" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span>THIẾT KẾ TỪ TÌNH YÊU TÂY BẮC.</span>
-            </div>
+          <div className="asin-footer-bottom">
+            <span>
+              © {new Date().getFullYear()} A Sỉn. Tinh hoa núi rừng Việt Nam.
+            </span>
+            <button onClick={() => setFaqOpen(true)}>
+              Mua hàng & vận chuyển <ArrowRight size={13} />
+            </button>
           </div>
         </div>
       </footer>
@@ -776,27 +895,19 @@ function Footer() {
           <div className="faq-list">
             <details open>
               <summary>Tôi có thể tự thiết kế những gì?</summary>
-              <p>
-                {c["faq.design"]}
-              </p>
+              <p>{c["faq.design"]}</p>
             </details>
             <details>
               <summary>Đơn hàng đã được gửi đi chưa?</summary>
-              <p>
-                {c["faq.order"]}
-              </p>
+              <p>{c["faq.order"]}</p>
             </details>
             <details>
               <summary>Chính sách vận chuyển</summary>
-              <p>
-                {c["faq.shipping"]}
-              </p>
+              <p>{c["faq.shipping"]}</p>
             </details>
             <details>
               <summary>Chính sách đổi trả</summary>
-              <p>
-                {c["faq.returns"]}
-              </p>
+              <p>{c["faq.returns"]}</p>
             </details>
           </div>
         </Modal>
@@ -805,67 +916,68 @@ function Footer() {
   );
 }
 
+function MissingPage() {
+  useDocumentSeo(ctx => noindexMeta(ctx), []);
+  return <main className="not-found"><Mountain size={48} /><h1>Hình như bạn đã lạc đường.</h1><p>A Sỉn vẫn ở đây, chờ bạn ghé về.</p><Link to="/" className="button button-green">Về nhà A Sỉn <ArrowRight size={18} /></Link></main>;
+}
+
 function Shell() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { cartOpen, selectedProduct, notification } = useShop();
   useEffect(() => {
-    document.title =
-      location.pathname === "/thiet-ke"
-        ? "Tự thiết kế hộp quà — A Sỉn Tây Bắc"
-        : location.pathname === "/admin"
-          ? "Quản trị — A Sỉn Tây Bắc"
-          : "A Sỉn Tây Bắc — Tinh hoa núi rừng Việt Nam";
-    // Home positions this anchor after its database-backed sections have loaded.
-    if (location.pathname === "/" && location.hash === "#lien-he") return;
+    // Preserve old contact links after moving the form to its own page.
+    if (location.pathname === "/" && location.hash === "#lien-he") {
+      navigate("/lien-he", { replace: true });
+      return;
+    }
     const id = requestAnimationFrame(() => {
       if (location.hash)
-        document
-          .getElementById(location.hash.slice(1))
-          ?.scrollIntoView({
-            behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-              ? "instant"
-              : "smooth",
-          });
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+        });
       else window.scrollTo(0, 0);
     });
     return () => cancelAnimationFrame(id);
-  }, [location]);
+  }, [location.pathname, location.hash, navigate]);
   useStorefrontMotion(location.pathname);
   return (
     <>
       <a className="skip-link" href="#main-content">
         Đến nội dung chính
       </a>
-      {location.pathname !== "/admin" && <Header />}
+      <Header />
       <div id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/san-pham" element={<ProductsPage />} />
-          <Route path="/deal-hoi" element={<Navigate to="/#deal-hoi" replace />} />
+          <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
+          <Route path="/danh-muc/:slug" element={<CategoryPage />} />
+          <Route
+            path="/deal-hoi"
+            element={<Navigate to="/#deal-hoi" replace />}
+          />
           <Route path="/gioi-thieu" element={<AboutPage />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
+          <Route path="/tin-tuc/chu-de/:topicSlug" element={<NewsPage />} />
           <Route path="/tin-tuc/:storyId" element={<NewsDetailPage />} />
+          <Route path="/huy-nhan-tin" element={<UnsubscribePage />} />
           <Route path="/lien-he" element={<ContactPage />} />
           <Route path="/thiet-ke" element={<Customizer />} />
-          <Route path="/admin" element={<Suspense fallback={<main className="admin-login"><p role="status">Đang mở trang quản trị…</p></main>}><AdminPage /></Suspense>} />
           <Route
             path="*"
-            element={
-              <main className="not-found">
-                <Mountain size={48} />
-                <h1>Hình như bạn đã lạc đường.</h1>
-                <p>A Sỉn vẫn ở đây, chờ bạn ghé về.</p>
-                <Link to="/" className="button button-green">
-                  Về nhà A Sỉn <ArrowRight size={18} />
-                </Link>
-              </main>
-            }
+            element={<MissingPage />}
           />
         </Routes>
       </div>
-      {location.pathname !== "/admin" && <Footer />}
-      {location.pathname !== "/admin" && cartOpen && <Cart />}
-      {location.pathname !== "/admin" && selectedProduct && <ProductModal key={selectedProduct.id} />}
+      <Footer />
+      <SupportWidget hidden={cartOpen || Boolean(selectedProduct)} />
+      {cartOpen && <Cart />}
+      {selectedProduct && (
+        <ProductModal key={selectedProduct.id} />
+      )}
       <div
         className={`toast ${notification ? "visible" : ""}`}
         role="status"
@@ -883,11 +995,20 @@ function Shell() {
 }
 
 export default function App() {
+  const location = useLocation();
+  useEffect(() => { initAnalytics(); }, [location.pathname, location.search]);
   return (
-    <CatalogProvider>
-      <ShopProvider>
-        <Shell />
-      </ShopProvider>
-    </CatalogProvider>
+    <Routes>
+      <Route path="/admin/*" element={
+        <Suspense fallback={<main className="admin-login"><p role="status">Đang mở khu vực quản trị…</p></main>}>
+          <AdminArea />
+        </Suspense>
+      } />
+      <Route path="*" element={
+        <CatalogProvider>
+          <ShopProvider><Shell /></ShopProvider>
+        </CatalogProvider>
+      } />
+    </Routes>
   );
 }

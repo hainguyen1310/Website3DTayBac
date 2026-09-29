@@ -1,11 +1,13 @@
+import { ASIN_CONTENT } from "./asinContent";
 export type ContentField = {
   key: string;
   label: string;
   group: string;
   value: string;
-  type?: "image" | "multiline" | "link" | "external";
+  type?: "image" | "multiline" | "link" | "external" | "select";
+  options?: Record<string, string>;
 };
-export const CONTENT_FIELDS: ContentField[] = [
+const ORIGINAL_FIELDS: ContentField[] = [
   {
     key: "hero.eyebrow",
     label: "Dòng giới thiệu",
@@ -127,6 +129,34 @@ export const CONTENT_FIELDS: ContentField[] = [
     group: "Trang sản phẩm",
     type: "image",
     value: "/images/landing-story.jpg",
+  },
+  {
+    key: "story.backgroundImage",
+    label: "Nền giấy và bản đồ núi",
+    group: "Câu chuyện",
+    type: "image",
+    value: "/images/asin/story-map-paper.webp",
+  },
+  {
+    key: "story.portraitImage",
+    label: "Ảnh con người vùng cao",
+    group: "Câu chuyện",
+    type: "image",
+    value: "/images/asin/story-portrait.webp",
+  },
+  {
+    key: "story.meatImage",
+    label: "Ảnh thịt gác bếp",
+    group: "Câu chuyện",
+    type: "image",
+    value: "/images/asin/story-smoked-meat.webp",
+  },
+  {
+    key: "story.terracesImage",
+    label: "Ảnh ruộng bậc thang",
+    group: "Câu chuyện",
+    type: "image",
+    value: "/images/asin/story-terraces.webp",
   },
   {
     key: "products.title",
@@ -389,8 +419,34 @@ export const CONTENT_FIELDS: ContentField[] = [
     value:
       "Nếu cần hỗ trợ đổi trả, gửi mã đơn và mô tả tình trạng sản phẩm qua mục Liên hệ. A Sỉn sẽ kiểm tra đơn và trao đổi phương án xử lý với bạn.",
   },
-  ...["Facebook", "Instagram", "YouTube", "TikTok"].map(label=>({key:`social.${label.toLowerCase()}`,label:`Đường dẫn ${label}`,group:"Liên hệ & chân trang",type:"external" as const,value:""})),
+  { key: "journey.image", label: "Ảnh nền hành trình", group: "Hành trình", type: "image", value: "/images/asin/journey-panorama.webp" },
+  {
+    key: "reviews.mode", label: "Hiển thị đánh giá", group: "Đánh giá", type: "select", value: "sample",
+    options: { sample: "Nội dung minh họa (có nhãn)", published: "Đánh giá thật đã được xác nhận", hidden: "Ẩn mục đánh giá" },
+  },
+  ...[
+    { name: "Anh Minh", location: "Hà Nội", quote: "Hương vị rất đặc trưng, giống vị núi rừng Tây Bắc. Bao bì đẹp, làm quà rất hợp." },
+    { name: "Chị Hương", location: "TP. Hồ Chí Minh", quote: "Sản phẩm chất lượng, nguồn gốc rõ ràng, mình rất yên tâm khi mua làm quà cho đối tác." },
+    { name: "Anh Toàn", location: "Đà Nẵng", quote: "Thịt trâu gác bếp thơm, đậm vị, rất đáng tiền. Sẽ tiếp tục ủng hộ A Sỉn lâu dài." },
+  ].flatMap((review, index): ContentField[] => [
+    { key: `reviews.${index + 1}.quote`, label: `Đánh giá ${index + 1} — nội dung`, group: "Đánh giá", type: "multiline", value: review.quote },
+    { key: `reviews.${index + 1}.name`, label: `Đánh giá ${index + 1} — tên`, group: "Đánh giá", value: review.name },
+    { key: `reviews.${index + 1}.location`, label: `Đánh giá ${index + 1} — địa điểm`, group: "Đánh giá", value: review.location },
+    { key: `reviews.${index + 1}.avatar`, label: `Đánh giá ${index + 1} — ảnh thật (tùy chọn)`, group: "Đánh giá", type: "image", value: "" },
+    { key: `reviews.${index + 1}.rating`, label: `Đánh giá ${index + 1} — số sao`, group: "Đánh giá", type: "select", value: "5", options: { "1": "1 sao", "2": "2 sao", "3": "3 sao", "4": "4 sao", "5": "5 sao" } },
+  ]),
+  ...["Facebook", "Instagram", "YouTube", "TikTok"].map((label) => ({
+    key: `social.${label.toLowerCase()}`,
+    label: `Đường dẫn ${label}`,
+    group: "Liên hệ & chân trang",
+    type: "external" as const,
+    value: "",
+  })),
 ];
+export const CONTENT_FIELDS = ORIGINAL_FIELDS.map((field) => ({
+  ...field,
+  value: ASIN_CONTENT[field.key] ?? field.value,
+}));
 export const DEFAULT_CONTENT: Record<string, string> = Object.fromEntries(
   CONTENT_FIELDS.map((f) => [f.key, f.value]),
 );
@@ -402,15 +458,24 @@ export const CONTENT_LINKS = {
   "/lien-he": "Liên hệ",
 };
 export function readContent(value: unknown): Record<string, string> {
-  const result = { ...DEFAULT_CONTENT };
+  const result = { ...DEFAULT_CONTENT, __designVersion: "asin-2026" } as Record<
+    string,
+    string
+  >;
   if (value && typeof value === "object")
     for (const field of CONTENT_FIELDS) {
+      if (
+        field.key in ASIN_CONTENT &&
+        (value as Record<string, unknown>).__designVersion !== "asin-2026"
+      )
+        continue;
       const v = (value as Record<string, unknown>)[field.key];
       if (
         typeof v === "string" &&
         v.length <= 5000 &&
         (field.type !== "link" || v in CONTENT_LINKS) &&
-        (field.type !== "image" || /^(\/[^/]|https:\/\/)/.test(v)) &&
+        (field.type !== "select" || Object.hasOwn(field.options ?? {}, v)) &&
+        (field.type !== "image" || (field.key.startsWith("reviews.") && v === "") || /^(\/[^/]|https:\/\/)/.test(v)) &&
         (field.type !== "external" || v === "" || /^https:\/\/[^\s]+$/.test(v))
       )
         result[field.key] = v;

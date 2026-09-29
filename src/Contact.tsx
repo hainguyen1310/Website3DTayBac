@@ -6,8 +6,15 @@ import { useWebsite } from "./WebsiteContext";
 import { CONTACT_TOPICS } from "./operations";
 import type { ContactTopic } from "./operations";
 import { submitContactMessage } from "./services/storeApi";
+import { PageHero } from "./PageElements";
+import { resolveZaloUrl } from "./support";
+import { ZaloIcon } from "./SupportWidget";
+import { useDocumentSeo } from "./hooks/useDocumentSeo";
+import { contactMeta } from "./seo/meta";
+import { trackEvent } from "./analytics";
 export function ContactSection() {
-  const { content: c } = useWebsite();
+  const { content: c, support } = useWebsite();
+  const zalo = support.zaloEnabled ? resolveZaloUrl(support.zaloUrl) : null;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -29,6 +36,7 @@ export function ContactSection() {
         website: String(data.get("website") ?? ""),
       });
       setSent(true);
+      trackEvent("generate_lead", { topic: String(data.get("topic")) });
     } catch (e) {
       setError(
         e instanceof Error
@@ -47,12 +55,13 @@ export function ContactSection() {
           <h2>{c["contact.title"]}</h2>
           <p>{c["contact.description"]}</p>
           <div className="asin-contact-details">
+            {zalo && <p><ZaloIcon /><span><b>Zalo</b><a href={zalo} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("zalo_click", { placement: "contact_page" })}>Nhắn tin với A Sỉn</a></span></p>}
             {c["contact.phone"] && (
               <p>
                 <Phone size={20} />
                 <span>
                   <b>Hotline</b>
-                  <a href={`tel:${c["contact.phone"].replace(/[^+\d]/g, "")}`}>
+                  <a href={`tel:${c["contact.phone"].replace(/[^+\d]/g, "")}`} onClick={() => trackEvent("phone_click", { placement: "contact_page" })}>
                     {c["contact.phone"]}
                   </a>
                 </span>
@@ -63,7 +72,7 @@ export function ContactSection() {
                 <Mail size={20} />
                 <span>
                   <b>Email</b>
-                  {c["contact.email"]}
+                  <a href={`mailto:${c["contact.email"]}`}>{c["contact.email"]}</a>
                 </span>
               </p>
             )}
@@ -195,14 +204,13 @@ export function ContactSection() {
   );
 }
 export default function ContactPage() {
+  const { content: c } = useWebsite();
+  useDocumentSeo((ctx) => contactMeta(ctx), []);
   return (
-    <main className="moc-page">
-      <nav className="moc-container moc-page-breadcrumb" aria-label="Đường dẫn">
-        <Link to="/">Trang chủ</Link>
-        <span>/</span>
-        <span>Liên hệ</span>
-      </nav>
+    <main className="moc-page asin-contact-page">
+      <PageHero current="Liên hệ" eyebrow="KẾT NỐI CÙNG A SỈN" title={"Một lời nhắn nhỏ.\nMở đầu một câu chuyện."} description={c["contact.description"]} image="/images/asin/journey-handover.webp" alt="Minh họa trao gửi hộp quà A Sỉn"><a className="asin-read-link" href="#lien-he">Gửi lời nhắn <ArrowRight size={17}/></a></PageHero>
       <ContactSection />
+      <section className="asin-container asin-contact-guide"><span className="asin-eyebrow">CÓ THỂ BẠN ĐANG QUAN TÂM</span><h2>Mua hàng cùng A Sỉn.</h2>{[["Đặt hàng & thanh toán", "faq.order"], ["Giao hàng", "faq.shipping"], ["Hỗ trợ đổi trả", "faq.returns"]].map(([title, key]) => <details key={key}><summary>{title}</summary><p>{c[key]}</p></details>)}<Link className="asin-read-link" to="/san-pham">Trở lại chọn sản phẩm <ArrowRight size={16}/></Link></section>
     </main>
   );
 }

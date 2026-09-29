@@ -2,6 +2,7 @@ export type Product = {
   id: string;
   name: string;
   category: string;
+  categorySlug?: string;
   origin: string;
   weight: string;
   price: number;
@@ -9,6 +10,8 @@ export type Product = {
   tag: string;
   description: string;
   featured?: boolean;
+  modelUrl?: string;
+  inStock?: boolean;
 };
 
 export type Deal = {
@@ -91,6 +94,7 @@ export const money = (n: number) =>
   );
 
 export const colors = [
+  { name: "Đỏ A Sỉn", value: "#681b22" },
   { name: "Xanh rừng", value: "#315442" },
   { name: "Đỏ đất", value: "#964f3e" },
   { name: "Chàm núi", value: "#3c506b" },

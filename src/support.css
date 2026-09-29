@@ -1,0 +1,77 @@
+.support-widget { position: fixed; z-index: 45; right: max(22px, env(safe-area-inset-right)); bottom: max(24px, env(safe-area-inset-bottom)); font-family: "Be Vietnam Pro", sans-serif; }
+.support-widget[hidden], .support-panel[hidden] { display: none; }
+.support-launchers { display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
+.support-launcher { position: relative; display: grid; place-items: center; width: 58px; height: 58px; border: 0; border-radius: 50%; color: white; cursor: pointer; box-shadow: 0 5px 20px #183e3633; }
+.support-zalo { background: #087bea; outline: 6px solid #087bea18; }
+.support-zalo::before { content: ""; position: absolute; inset: -11px; border: 1px solid #087bea30; border-radius: 50%; pointer-events: none; }
+.support-zalo-icon { width: 42px; height: 42px; flex-shrink: 0; }
+.support-open { background: #ee416b; }
+.support-chat-mark { display: grid; place-items: center; }
+.support-chat-mark svg { grid-area: 1/1; }
+.support-chat-mark svg:last-child { color: #344450; margin-top: 3px; }
+.support-tooltip { position: absolute; right: 72px; padding: 8px 12px; border-radius: 8px; background: #243e34; color: white; white-space: nowrap; font-size: 12px; visibility: hidden; opacity: 0; transition: opacity .15s; }
+.support-launcher:hover .support-tooltip, .support-launcher:focus-visible .support-tooltip { visibility: visible; opacity: 1; }
+.support-open[aria-expanded="true"] .support-tooltip { display: none; }
+.support-widget :focus-visible, .support-preview :focus-visible { outline: 3px solid #ddaa52; outline-offset: 3px; }
+.support-panel { position: absolute; bottom: 0; right: 78px; width: min(370px, calc(100vw - 120px)); }
+.support-chat { display: flex; flex-direction: column; height: min(555px, calc(100dvh - 48px)); overflow: hidden; background: #fff; color: #283b33; border: 1px solid #dce5de; border-radius: 20px; box-shadow: 0 18px 65px #1b382d30; font-family: "Be Vietnam Pro", sans-serif; font-size: 13px; line-height: 1.65; text-align: left; }
+.support-chat-header { display: flex; align-items: center; flex-shrink: 0; gap: 12px; padding: 19px 18px; background: #294c3d; color: white; }
+.support-avatar { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: #ffffff18; }
+.support-chat-header > div { min-width: 0; flex: 1; }
+.support-chat-header h2 { margin: 0; color: white; font: 600 16px/1.4 "Be Vietnam Pro", sans-serif; overflow-wrap: anywhere; }
+.support-chat-header p { margin: 5px 0 0; color: #e1eadf; font-size: 10px; }
+.support-chat-header button { display: grid; place-items: center; align-self: flex-start; padding: 5px; background: transparent; border: 0; color: white; cursor: pointer; }
+.support-chat-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 16px; background: #f8f7f2; }
+.support-chat-intro { margin: 0 0 18px; text-align: center; color: #7b8177; font-size: 9px; letter-spacing: 1.1px; }
+.support-bubble { width: fit-content; max-width: 94%; margin: 0 0 12px; padding: 12px 14px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.support-bubble.bot { background: white; border: 1px solid #e6e7de; border-top-left-radius: 3px; }
+.support-bubble.user { margin-left: auto; background: #294c3d; color: white; border-bottom-right-radius: 3px; }
+.support-answer-actions { display: grid; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #e6e7de; white-space: normal; }
+.support-answer-actions a { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #294c3d; font-weight: 600; font-size: 12px; line-height: 1.6; text-decoration: underline; text-underline-offset: 3px; }
+.support-answer-actions svg { flex-shrink: 0; }
+.support-suggestions { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.support-suggestions button { max-width: 100%; border: 1px solid #b8cabb; background: #fff; color: #294c3d; padding: 9px 12px; border-radius: 10px; font: inherit; font-size: 12px; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.support-suggestions button:hover { background: #eef4ed; }
+.support-restart { display: inline-flex; align-items: center; gap: 5px; margin-top: 14px; border: 0; background: none; font: inherit; font-size: 11px; color: #5b685d; cursor: pointer; }
+.support-handoff { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 11px 16px; border-top: 1px solid #e7ece5; font-size: 11px; }
+.support-handoff a { display: inline-flex; align-items: center; gap: 4px; color: #315c43; text-decoration: none; font-weight: 500; }
+.support-handoff .support-zalo-icon { width: 22px; height: 22px; color: #e2efff; }
+.support-chat-composer { display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+.support-chat-composer input { min-width: 0; flex: 1; width: 100%; height: 43px; border: 1px solid #dde4da; border-radius: 10px; padding: 10px; font: inherit; color: #283b33; background: white; }
+.support-chat-composer button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; color: white; background: #294c3d; cursor: pointer; }
+.support-chat-composer button:disabled { opacity: .4; cursor: default; }
+.support-chat-note { margin: 8px 10px 10px; text-align: center; font-size: 9px; color: #717b71; }
+.support-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.support-settings-layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 24px; align-items: start; }
+.support-settings-form { min-width: 0; }
+.support-settings-form fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+.support-settings-form .admin-card { margin-bottom: 20px; }
+.support-settings-form .admin-switch-row { justify-content: flex-start; }
+.support-settings-form input[type="checkbox"] { width: 18px; min-height: 18px; height: 18px; accent-color: #315c43; }
+.support-settings-form .support-setting-toggle { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 10px 0 18px; }
+.support-settings-form textarea { resize: vertical; }
+.support-setting-note { margin: 12px 0; color: #63735f; font-size: 12px; overflow-wrap: anywhere; }
+.support-preview { position: sticky; top: 88px; min-width: 0; }
+.support-preview > h2 { font-size: 17px; margin: 0 0 6px; }
+.support-preview > p { margin: 0 0 16px; font-size: 12px; color: #64715f; }
+.support-preview .support-chat { box-shadow: 0 10px 30px #1b382d13; }
+.support-reply-editor { border-top: 1px solid #e2e8dd; padding: 20px 0; }
+.support-reply-editor:last-child { padding-bottom: 0; }
+.support-reply-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.support-reply-toolbar .support-setting-toggle { margin: 0; }
+.support-reply-actions { display: flex; gap: 5px; }
+.support-reply-actions button { padding: 7px; }
+@media (max-width: 1200px) { .support-settings-layout { grid-template-columns: minmax(0, 1fr); } .support-preview { position: static; max-width: 400px; width: 100%; } }
+@media (max-width: 600px) {
+  .support-widget { right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); }
+  .support-launcher { width: 50px; height: 50px; }
+  .support-launchers { gap: 14px; }
+  .support-tooltip { display: none; }
+  .support-panel { right: 0; bottom: 65px; width: min(370px, calc(100vw - 48px)); }
+  .support-chat { height: min(530px, calc(100dvh - 108px)); border-radius: 16px; }
+  .support-chat-header { padding: 14px; }
+  .support-chat-composer input { font-size: 16px; }
+  .support-panel:not([hidden]) + .support-launchers .support-zalo { visibility: hidden; }
+  .support-preview .support-chat { height: 510px; }
+}
+@media (prefers-reduced-motion: reduce) { .support-tooltip { transition: none; } }

@@ -1,0 +1,21 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "codex-clipboard-abefa069-65d9-4b80-8dc5-4fad9d33a644.png",
+  "assets": [
+    {
+      "name": "experience-forest",
+      "output": "public/images/asin/experience-forest.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: panoramic dark forest background for Vietnamese food 3D product section, wide 3.5:1 landscape. Input image 1 is ONLY a style reference for the underlying background of its dark 3D section. Recreate ONLY the moody woodland background: northern Vietnamese forest at dusk, layered barely visible mountain silhouettes and mossy forest floor, soft muted warm golden haze at center, deep olive and espresso shadows, tasteful large natural leaves framing ONLY the extreme left and right edges. Left quarter very dark and quiet for cream website text, center remains open soft shadow for a separately rendered 3D product and pedestal, right quarter dark and quiet for controls. Rich refined photographic texture, atmospheric warm brown-black #19170f, realistic leaves, cinematic natural ambient lighting, subdued details similar to reference. No product, no packaging, NO stump/pedestal (it will be a separate asset), no person, no text, no logos, no white border, no UI, no watermark. Full-bleed standalone dark photographic background."
+    },
+    {
+      "name": "experience-stump",
+      "output": "public/images/asin/experience-stump.webp",
+      "prompt": "Use case: product-mockup. Asset type: isolated shallow cut-wood pedestal for a rotating 3D product on a website. Input image 1 is ONLY the visual reference; recreate a similar cut tree stump base beneath its central pouch, with NO pouch. Wide 3:1 landscape canvas, transparent background. A broad low rustic oval slice of an old tree trunk, realistic dark cracked bark sides and warm weathered flat wood grain cut surface viewed slightly from above, gently illuminated by warm light from top left. Sparse natural moss and just a few little forest leaves around the lower outer edge, no large plants. Base occupies lower 75 percent, centered, nearly full canvas width, clean empty surface for a separately rendered product. Beautiful refined photorealistic material, muted earthy brown and olive tones against genuinely transparent alpha. No background scenery, no food, no product, no tall trunk, no text, no watermark, no UI. Preserve alpha around all outer edges."
+    },
+    {
+      "name": "pork-viewer-poster",
+      "output": "public/images/asin/pork-viewer-poster.webp",
+      "prompt": "Use case: background-extraction. Image 1 is the EXACT smoked pork pouch to preserve. Remove the surrounding cream studio background and floor shadow to create a genuine transparent alpha cutout. Preserve the full silver resealable pouch, the broad glossy reddish-brown smoked pork slices, all food and packaging texture, proportions, camera orientation and colors. Keep one front-facing upright pouch, centered, completely visible without cropping. Square canvas, pouch approximately 90 percent of canvas height. Every pixel outside the pouch must be fully transparent, no cream halo or solid background. No added words, logos, props, stickers, frames, no watermark. This is a clean product cutout for the loading poster of a real 3D viewer."
+    }
+  ]
+}

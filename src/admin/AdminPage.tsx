@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import {
   ArrowUpRight,
   BarChart3,
@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  MessagesSquare,
   Megaphone,
   Menu,
   Package,
@@ -16,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../AuthContext";
-import AdminLogin, { AdminNoAccess } from "./AdminLogin";
+import { AdminNoAccess } from "./AdminLogin";
 import ContentSection from "./ContentSection";
 import CustomersSection from "./CustomersSection";
 import DashboardSection from "./DashboardSection";
@@ -26,6 +27,8 @@ import ProductsSection from "./ProductsSection";
 import PromotionsSection from "./PromotionsSection";
 import ReportsSection from "./ReportsSection";
 import SettingsSection from "./SettingsSection";
+import SupportSection from "./SupportSection";
+import { CatalogProvider } from "../CatalogContext";
 import WebsiteSection from "./WebsiteSection";
 import PasswordSetup from "./PasswordSetup";
 import { canAccess } from "../operations";
@@ -45,11 +48,13 @@ const menu: {
   { id: "content", label: "Nội dung", icon: Megaphone },
   { id: "website", label: "Nội dung website", icon: LayoutDashboard },
   { id: "messages", label: "Liên hệ", icon: Mail },
+  { id: "support", label: "Liên hệ & Chatbox", icon: MessagesSquare },
   { id: "reports", label: "Báo cáo", icon: BarChart3 },
   { id: "settings", label: "Cài đặt", icon: Settings },
 ];
 
 export default function AdminPage() {
+  const location = useLocation();
   const { session, loading, isStaff, profile, signOut } = useAuth();
   const [params, setParams] = useSearchParams();
   const allowedMenu = menu.filter(item => canAccess(profile?.role, profile?.staffScope, item.id));
@@ -69,7 +74,7 @@ export default function AdminPage() {
     );
   }
   if (params.get("setup")==="password") return <PasswordSetup />;
-  if (!session) return <AdminLogin />;
+  if (!session) return <Navigate to={`/admin/dang-nhap${location.search}`} replace />;
   if (!isStaff) return <AdminNoAccess />;
 
   const initials = (profile?.fullName || session.user.email || "A Sỉn")
@@ -98,6 +103,8 @@ export default function AdminPage() {
         return <ReportsSection />;
       case "settings":
         return <SettingsSection />;
+      case "support":
+        return <CatalogProvider><SupportSection /></CatalogProvider>;
       case "website":
         return <WebsiteSection />;
       default:

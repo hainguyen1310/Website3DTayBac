@@ -8,4 +8,5 @@ export type AdminSection =
   | "messages"
   | "reports"
   | "website"
+  | "support"
   | "settings";

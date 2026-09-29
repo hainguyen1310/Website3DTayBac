@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { cleanCart, cleanDesign, readSaved, saveLocal } from "./catalog";
 import type { CartLine, GiftDesign, Product } from "./catalog";
 import { useCatalog } from "./CatalogContext";
+import { trackEvent } from "./analytics";
+import { cartAnalyticsItems, ecommerceParams } from "./analyticsItems";
 
 type Shop = {
   products: Product[];
@@ -75,22 +77,32 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         : [...current, line];
     });
   const addProduct = (id: string, quantity = 1) => {
-    if (!catalogProducts.some((p) => p.id === id)) return;
+    if (!catalogProducts.some((p) => p.id === id && p.inStock !== false)) return;
+    const actualQuantity = Math.min(20 - (cart.find(item => item.key === id)?.quantity ?? 0), Math.max(1, Math.min(20, quantity)));
+    if (actualQuantity <= 0) return;
     add({
       key: id,
       productId: id,
       quantity: Math.max(1, Math.min(20, quantity)),
     });
+    trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([{ key: id, productId: id, quantity: actualQuantity }], catalogProducts)));
     notify("Đã thêm vào giỏ. Một chút hương rừng đang chờ bạn!");
   };
   const addGift = (input: GiftDesign) => {
     const design = cleanDesign(input, catalogProducts);
     if (!design.productIds.length) return;
-    add({ key: `gift:${JSON.stringify(design)}`, design, quantity: 1 });
+    const line = { key: `gift:${JSON.stringify(design)}`, design, quantity: 1 };
+    if ((cart.find(item => item.key === line.key)?.quantity ?? 0) >= 20) return;
+    add(line);
+    trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([line], catalogProducts)));
     notify("Đã thêm hộp quà mang dấu ấn của bạn vào giỏ.");
     setCartOpen(true);
   };
-  const setQuantity = (key: string, quantity: number) =>
+  const setQuantity = (key: string, quantity: number) => {
+    const line = cart.find(item => item.key === key);
+    if (!line) return;
+    const delta = Math.max(0, Math.min(20, quantity)) - line.quantity;
+    if (delta) trackEvent(delta > 0 ? "add_to_cart" : "remove_from_cart", ecommerceParams(cartAnalyticsItems([{ ...line, quantity: Math.abs(delta) }], catalogProducts)));
     setCart((current) =>
       quantity <= 0
         ? current.filter((item) => item.key !== key)
@@ -100,6 +112,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
               : item,
           ),
     );
+  };
   const clearCart = () => setCart([]);
   const toggleFavorite = (id: string) =>
     setFavoriteIds((current) =>

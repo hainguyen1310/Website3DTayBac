@@ -1,0 +1,130 @@
+/* Display type is local to the landing; body and controls retain Be Vietnam Pro. */
+.asin-home {
+  --moc-serif: "Cormorant Garamond Variable", Georgia, serif;
+  --serif: var(--moc-serif);
+}
+
+.asin-home h2 {
+  font-weight: 500;
+  font-size: clamp(36px, 3.1vw, 48px);
+  letter-spacing: -0.035em;
+  line-height: 1.03;
+}
+
+.asin-home .asin-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+}
+
+.asin-home .asin-reviews-dialog h2 {
+  font-size: clamp(26px, 2.4vw, 34px);
+  line-height: 1.15;
+}
+
+/* Extend the light sky underneath the transparent navigation, then dissolve
+   into the original watercolor image without a hard horizontal seam. */
+.asin-hero {
+  --hero-sky-inset: 70px;
+}
+
+.asin-hero-image {
+  top: var(--hero-sky-inset);
+  height: calc(100% - var(--hero-sky-inset));
+}
+
+.asin-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(var(--asin-header-height) + 100px);
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    #fcf1df 0%,
+    #fcf1df 40%,
+    #fcf1dfdc 58%,
+    #fcf1df70 77%,
+    #fcf1df00 100%
+  );
+}
+
+.asin-hero-copy {
+  padding-top: 32px;
+  padding-bottom: 42px;
+}
+
+.asin-hero-copy .asin-eyebrow {
+  margin-bottom: 19px;
+  font-size: 10px;
+  letter-spacing: 0.34em;
+}
+
+.asin-hero h1 {
+  max-width: 380px;
+  font-size: clamp(64px, 6.1vw, 88px);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+
+.asin-hero h1 span:nth-child(3) {
+  max-width: 310px;
+  margin-top: 13px;
+  font-size: 0.59em;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: #804039;
+  text-wrap: balance;
+}
+
+.asin-hero-copy p {
+  max-width: 305px;
+  margin: 23px 0 25px;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #605345;
+}
+
+@media (min-width: 1600px) {
+  .asin-hero { --hero-sky-inset: 84px; }
+  .asin-hero h1 { font-size: 96px; }
+  .asin-hero h1 span:nth-child(3) { max-width: 350px; }
+}
+
+@media (max-width: 1199px) {
+  .asin-hero h1 { font-size: 72px; }
+  .asin-hero h1 span:nth-child(3) { max-width: 270px; }
+  .asin-home h2 { font-size: 38px; }
+}
+
+@media (max-width: 900px) {
+  .asin-hero { --hero-sky-inset: 62px; }
+  .asin-hero h1 { font-size: 68px; }
+  .asin-hero h1 span:nth-child(3) { max-width: 245px; }
+  .asin-hero-copy p { max-width: 255px; font-size: 12px; }
+  .asin-home h2 { font-size: 38px; }
+}
+
+@media (max-width: 580px) {
+  .asin-hero-image { top: auto; height: 335px; }
+  .asin-hero-copy { padding: 25px 3px 0; }
+  .asin-hero-copy .asin-eyebrow { font-size: 9px; margin-bottom: 16px; }
+  .asin-hero h1 { max-width: 100%; font-size: 64px; }
+  .asin-hero h1 span:nth-child(3) {
+    max-width: 270px;
+    margin-top: 11px;
+    font-size: 0.58em;
+  }
+  .asin-hero-copy p { max-width: 315px; margin: 19px 0 20px; }
+  .asin-home h2 { font-size: 38px; }
+}
+
+@media (max-width: 359px) {
+  .asin-hero h1 { font-size: 58px; }
+  .asin-hero h1 span:nth-child(3) { max-width: 240px; }
+  .asin-hero-copy p { font-size: 11px; }
+  .asin-home h2 { font-size: 35px; }
+}

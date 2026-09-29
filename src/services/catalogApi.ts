@@ -13,8 +13,45 @@ type ProductRow = {
   tag: string;
   description: string;
   featured: boolean;
-  product_categories: { name: string } | { name: string }[] | null;
+  model_url?: string | null;
+  product_categories: { name: string; slug: string } | { name: string; slug: string }[] | null;
 };
+
+type StockRow = { slug: string; in_stock: boolean };
+
+/** Lỗi nguồn tồn kho giữ trạng thái chưa biết, không khẳng định còn hàng. */
+async function loadStock(): Promise<Map<string, boolean>> {
+  try {
+    const { data, error } = await supabase.rpc("public_product_stock");
+    if (error) return new Map();
+    return new Map(((data ?? []) as StockRow[]).map((row) => [row.slug, row.in_stock]));
+  } catch {
+    return new Map();
+  }
+}
+
+function toProduct(row: ProductRow, stock: Map<string, boolean>): Product {
+  return {
+    id: row.slug,
+    name: brandCopy(row.name),
+    category: brandCopy(first(row.product_categories)?.name ?? "Sản vật khác"),
+    categorySlug: first(row.product_categories)?.slug,
+    origin: row.origin,
+    weight: row.weight_label,
+    price: Number(row.price_vnd),
+    // Migrate the bundled legacy preview while the remote media sync is pending.
+    // Uploaded/customized DB image URLs continue to take precedence.
+    image:
+      row.slug === "jerky" && row.image_url === "/images/jerky.webp"
+        ? "/images/products/buffalo.webp"
+        : row.image_url,
+    tag: brandCopy(row.tag),
+    description: brandCopy(row.description),
+    featured: row.featured,
+    modelUrl: row.model_url || undefined,
+    inStock: stock.get(row.slug),
+  };
+}
 
 type DealRow = {
   promotion_id: string;
@@ -27,7 +64,7 @@ type DealRow = {
   products: { slug: string } | { slug: string }[] | null;
 };
 
-const first = <T,>(value: T | T[] | null): T | null =>
+const first = <T>(value: T | T[] | null): T | null =>
   Array.isArray(value) ? (value[0] ?? null) : value;
 
 /** Sản phẩm đang bán, đọc công khai qua policy RLS `active = true`. */
@@ -37,25 +74,49 @@ export function listStorefrontProducts(): Promise<Product[]> {
     async () => {
       const { data, error } = await supabase
         .from("products")
-        .select(
-          "slug, name, origin, weight_label, price_vnd, image_url, tag, description, featured, product_categories(name)",
-        )
+        .select("*, product_categories(name, slug)")
         .eq("active", true)
         .order("sort_order")
         .order("name");
 
       if (error) throw error;
-      return ((data ?? []) as ProductRow[]).map((row) => ({
-        id: row.slug,
-        name: brandCopy(row.name),
-        category: brandCopy(first(row.product_categories)?.name ?? "Sản vật khác"),
-        origin: row.origin,
-        weight: row.weight_label,
-        price: Number(row.price_vnd),
-        image: row.image_url,
-        tag: brandCopy(row.tag),
-        description: brandCopy(row.description),
-        featured: row.featured,
+      const stock = await loadStock();
+      return ((data ?? []) as ProductRow[]).map((row) => toProduct(row, stock));
+    },
+    60_000,
+  );
+}
+
+/** Chi tiết sản phẩm cho URL riêng `/san-pham/:slug` (B05). */
+export function getStorefrontProduct(slug: string): Promise<Product | null> {
+  const normalized = slug.trim().toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(normalized)) return Promise.resolve(null);
+  return listStorefrontProducts().then(
+    (products) => products.find((product) => product.id === normalized) ?? null,
+  );
+}
+
+export type StorefrontCategory = {
+  slug: string;
+  name: string;
+  sortOrder: number;
+};
+
+export function listStorefrontCategoryRecords(): Promise<StorefrontCategory[]> {
+  return cached(
+    "store:category-records",
+    async () => {
+      const { data, error } = await supabase
+        .from("product_categories")
+        .select("slug, name, sort_order")
+        .order("sort_order")
+        .order("name");
+
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        slug: String(row.slug),
+        name: brandCopy(String(row.name)),
+        sortOrder: Number(row.sort_order),
       }));
     },
     60_000,
@@ -94,8 +155,12 @@ export function listStorefrontDeals(): Promise<Deal[]> {
         )
         .eq("products.active", true)
         .eq("promotions.is_active", true)
-        .or(`starts_at.is.null,starts_at.lte.${now}`, { referencedTable: "promotions" })
-        .or(`ends_at.is.null,ends_at.gt.${now}`, { referencedTable: "promotions" })
+        .or(`starts_at.is.null,starts_at.lte.${now}`, {
+          referencedTable: "promotions",
+        })
+        .or(`ends_at.is.null,ends_at.gt.${now}`, {
+          referencedTable: "promotions",
+        })
         .order("sort_order");
 
       if (error) throw error;

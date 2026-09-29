@@ -20,9 +20,10 @@ export function check(error: { message: string } | null) {
   if (error) throw new Error(error.message);
 }
 export async function staff(request: Request) {
+  const authorization = request.headers.get("Authorization") || "";
+  if (!/^Bearer\s+\S+$/i.test(authorization)) return null;
+  const token = authorization.replace(/^Bearer\s+/i, "");
   const client = db();
-  const token = request.headers.get("Authorization")?.replace(/^Bearer /i, "");
-  if (!token) return null;
   const { data, error } = await client.auth.getUser(token);
   if (error || !data.user) return null;
   const { data: profile } = await client

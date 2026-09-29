@@ -4,11 +4,30 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": { "api/*.ts": { "maxDuration": 60 } },
-  "rewrites": [
+  "functions": {
+    "api/contact-reply.ts": { "maxDuration": 60 },
+    "api/mail-sync.ts": { "maxDuration": 60 },
+    "api/staff-invite.ts": { "maxDuration": 60 },
+    "api/render.ts": { "maxDuration": 60, "includeFiles": "dist/seo-shell.html" },
+    "api/seo.ts": { "maxDuration": 60 }
+  },
+  "redirects": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "website3dtaybac.vercel.app" }],
+      "destination": "https://asintaybac.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.asintaybac.com" }],
+      "destination": "https://asintaybac.com/:path*",
+      "permanent": true
     }
+  ],
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "/api/seo?asset=robots" },
+    { "source": "/sitemap.xml", "destination": "/api/seo?asset=sitemap" },
+    { "source": "^/((?!api/).*)$", "destination": "/api/render?asin_path=$1" }
   ]
 }

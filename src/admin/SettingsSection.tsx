@@ -197,12 +197,12 @@ export default function SettingsSection() {
                   </button>
                 </div>
                 <p className="admin-help">
-                  Thông tin liên hệ và nội dung các section được quản lý tại{" "}
+                  Thông tin liên hệ, Zalo và câu trả lời tự động được quản lý tại{" "}
                   <Link
                     className="care-ticket-link"
-                    to="/admin?section=website"
+                    to="/admin?section=support"
                   >
-                    Nội dung website
+                    Liên hệ & Chatbox
                   </Link>
                   .
                 </p>

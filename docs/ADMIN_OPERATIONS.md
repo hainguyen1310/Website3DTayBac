@@ -2,6 +2,14 @@
 
 Cập nhật ngày 25/09/2026. Đây là mô tả bản mã nguồn và kết quả kiểm thử cục bộ, **không phải xác nhận đã triển khai lên Supabase/Vercel thật**.
 
+## Lối vào quản trị riêng — cập nhật 27/09/2026
+
+- Đội ngũ dùng đường dẫn `/admin/dang-nhap` (local: `http://localhost:5173/admin/dang-nhap`); có thể lưu bookmark để truy cập. Header/footer cửa hàng không có liên kết đăng nhập quản trị.
+- `/admin` và các bookmark `/admin?section=...` vẫn hoạt động; khi chưa đăng nhập sẽ chuyển về trang đăng nhập và giữ phần việc được yêu cầu. Link mời đặt mật khẩu `/admin?setup=password` được giữ.
+- Khu vực `/admin/*` dùng tuyến giao diện và AuthProvider riêng, không gắn header, giỏ hàng, footer hay Catalog/ShopProvider của cửa hàng. Mã giao diện quản trị tải riêng khi truy cập; trang được gắn `noindex, nofollow`.
+- Đây là tách giao diện trên cùng website, chưa phải ứng dụng hoặc subdomain riêng. Việc bỏ liên kết công khai không thay thế Supabase Auth, RLS và kiểm tra quyền API hiện có. Nếu triển khai sang subdomain riêng sau này cần cấu hình hostname, đường dẫn mời, phiên đăng nhập và chính sách truy cập tương ứng.
+- Đã kiểm tra chuyển hướng người chưa đăng nhập và hiển thị trên mobile; không đăng nhập thử bằng tài khoản của người dùng trong lần sửa này.
+
 ## Kết quả rà soát
 
 Trước thay đổi, admin chưa đủ để vận hành độc lập: thiếu nội dung landing page, hồ sơ khách chỉ có thông tin cơ bản, hộp thư không có lịch sử phản hồi, COD thiếu bước xử lý phù hợp và một số thao tác ghi nhiều bảng có thể lưu dở dang. Các phần sau đã được bổ sung:

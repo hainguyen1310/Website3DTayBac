@@ -1,7 +1,9 @@
 import { supabase } from "../utils/supabase";
 import { cached, invalidateCache } from "./cache";
 import { readPages } from "./pagination";
-import { vietnamDay } from "../operations";
+import { slugify, vietnamDay } from "../operations";
+import { parseArticleBody } from "../content/blocks";
+import type { ArticleBody } from "../content/blocks";
 
 export type OrderStatus =
   | "awaiting_payment"
@@ -639,13 +641,29 @@ export type AdminArticle = {
   id: string;
   slug: string;
   tag: string;
+  tagSlug: string;
   title: string;
   excerpt: string;
   imageUrl: string;
   readTimeMinutes: number;
-  body: string[];
+  body: ArticleBody;
   published: boolean;
   publishedAt: string | null;
+  firstPublishedAt: string | null;
+  scheduledAt: string | null;
+  contentModifiedAt: string | null;
+  authorName: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  socialImageUrl: string | null;
+  socialTitle: string | null;
+  socialDescription: string | null;
+  sourceName: string | null;
+  sourceUrl: string | null;
+  canonicalPath: string | null;
+  relatedProductSlugs: string[];
+  relatedArticleSlugs: string[];
+  archived: boolean;
   updatedAt: string;
 };
 
@@ -656,40 +674,74 @@ export type ArticleInput = {
   excerpt: string;
   imageUrl: string;
   readTimeMinutes: number;
-  body: string[];
+  body: ArticleBody;
   published: boolean;
+  scheduledAt: string | null;
+  authorName: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  socialImageUrl: string | null;
+  socialTitle: string | null;
+  socialDescription: string | null;
+  sourceName: string | null;
+  sourceUrl: string | null;
+  canonicalPath: string | null;
+  relatedProductSlugs: string[];
+  relatedArticleSlugs: string[];
 };
+
+export type SaveArticleResult = {
+  id: string;
+  updatedAt: string;
+  redirectFrom: string | null;
+};
+
+const ARTICLE_ADMIN_COLUMNS =
+  "id, slug, tag, tag_slug, title, excerpt, image_url, read_time_minutes, body, published, published_at, first_published_at, scheduled_at, content_modified_at, author_name, seo_title, seo_description, social_image_url, social_title, social_description, source_name, source_url, canonical_path, related_product_slugs, related_article_slugs, archived, updated_at";
+
+const stringList = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
 export function listAdminArticles(): Promise<AdminArticle[]> {
   return cached("admin:articles", async () => {
     const { data, error } = await supabase
       .from("articles")
-      .select(
-        "id, slug, tag, title, excerpt, image_url, read_time_minutes, body, published, published_at, updated_at",
-      )
+      .select(ARTICLE_ADMIN_COLUMNS)
       .order("published_at", { ascending: false, nullsFirst: true });
     fail(error);
     return (data ?? []).map((row) => ({
       id: row.id as string,
       slug: row.slug as string,
       tag: row.tag as string,
+      tagSlug: (row.tag_slug as string) || slugify(row.tag as string),
       title: row.title as string,
       excerpt: row.excerpt as string,
       imageUrl: row.image_url as string,
       readTimeMinutes: Number(row.read_time_minutes),
-      body: Array.isArray(row.body)
-        ? (row.body as unknown[]).filter(
-            (paragraph): paragraph is string => typeof paragraph === "string",
-          )
-        : [],
+      body: parseArticleBody(row.body),
       published: Boolean(row.published),
       publishedAt: (row.published_at as string | null) ?? null,
+      firstPublishedAt: (row.first_published_at as string | null) ?? null,
+      scheduledAt: (row.scheduled_at as string | null) ?? null,
+      contentModifiedAt: (row.content_modified_at as string | null) ?? null,
+      authorName: (row.author_name as string | null) ?? null,
+      seoTitle: (row.seo_title as string | null) ?? null,
+      seoDescription: (row.seo_description as string | null) ?? null,
+      socialImageUrl: (row.social_image_url as string | null) ?? null,
+      socialTitle: (row.social_title as string | null) ?? null,
+      socialDescription: (row.social_description as string | null) ?? null,
+      sourceName: (row.source_name as string | null) ?? null,
+      sourceUrl: (row.source_url as string | null) ?? null,
+      canonicalPath: (row.canonical_path as string | null) ?? null,
+      relatedProductSlugs: stringList(row.related_product_slugs),
+      relatedArticleSlugs: stringList(row.related_article_slugs),
+      archived: Boolean(row.archived),
       updatedAt: row.updated_at as string,
     }));
   });
 }
 
-function articlePayload(input: ArticleInput, publishedAt: string | null) {
+function articleRpcPayload(input: ArticleInput) {
   return {
     slug: input.slug.trim(),
     tag: input.tag.trim(),
@@ -697,47 +749,105 @@ function articlePayload(input: ArticleInput, publishedAt: string | null) {
     excerpt: input.excerpt.trim(),
     image_url: input.imageUrl.trim(),
     read_time_minutes: Math.min(120, Math.max(1, Math.round(input.readTimeMinutes))),
-    body: input.body.filter((paragraph) => paragraph.trim()),
+    body: input.body,
     published: input.published,
-    published_at: input.published ? (publishedAt ?? new Date().toISOString()) : null,
+    scheduled_at: input.scheduledAt,
+    author_name: input.authorName?.trim() || null,
+    seo_title: input.seoTitle?.trim() || null,
+    seo_description: input.seoDescription?.trim() || null,
+    social_image_url: input.socialImageUrl?.trim() || null,
+    social_title: input.socialTitle?.trim() || null,
+    social_description: input.socialDescription?.trim() || null,
+    source_name: input.sourceName?.trim() || null,
+    source_url: input.sourceUrl?.trim() || null,
+    canonical_path: input.canonicalPath?.trim() || null,
+    related_product_slugs: input.relatedProductSlugs.slice(0, 6),
+    related_article_slugs: input.relatedArticleSlugs.slice(0, 6),
   };
 }
 
-export async function createArticle(
+/** Lưu bài qua RPC: giữ ngày xuất bản đầu, ghi redirect khi đổi slug (B09/B11). */
+export async function saveAdminArticle(
+  id: string | null,
   input: ArticleInput,
-  publishedAt: string | null = null,
-): Promise<void> {
-  const { error } = await supabase
-    .from("articles")
-    .insert(articlePayload(input, publishedAt));
+  expectedUpdatedAt: string | null,
+): Promise<SaveArticleResult> {
+  const { data, error } = await supabase.rpc("save_admin_article", {
+    p_id: id,
+    p_article: articleRpcPayload(input),
+    p_expected_updated_at: expectedUpdatedAt,
+  });
   fail(error);
+  const row = (Array.isArray(data) ? data[0] : data) as
+    | { article_id: string; updated_at: string; redirect_from: string | null }
+    | undefined;
+  if (!row) throw new Error("Không lưu được bài viết.");
   afterWrite();
+  return {
+    id: row.article_id,
+    updatedAt: row.updated_at,
+    redirectFrom: row.redirect_from ?? null,
+  };
 }
 
-export async function updateArticle(
-  id: string,
-  input: ArticleInput,
-  publishedAt: string | null = null,
-): Promise<void> {
-  const { data, error } = await supabase
-    .from("articles")
-    .update(articlePayload(input, publishedAt))
-    .eq("id", id)
-    .select("id");
+export const createArticle = (input: ArticleInput) => saveAdminArticle(null, input, null);
+export const updateArticle = (id: string, input: ArticleInput, expectedUpdatedAt: string | null) =>
+  saveAdminArticle(id, input, expectedUpdatedAt);
+
+export async function archiveArticle(id: string, archived = true): Promise<void> {
+  const { error } = await supabase.rpc("archive_admin_article", { p_id: id, p_archived: archived });
   fail(error);
-  ensureAffected(data, "cập nhật bài viết");
   afterWrite();
 }
 
 export async function deleteArticle(id: string): Promise<void> {
-  const { data, error } = await supabase
-    .from("articles")
-    .delete()
-    .eq("id", id)
-    .select("id");
+  const { error } = await supabase.rpc("delete_admin_article", { p_id: id });
   fail(error);
-  ensureAffected(data, "xóa bài viết");
   afterWrite();
+}
+
+export type AdminArticleRevision = {
+  id: number;
+  slug: string;
+  reason: string;
+  title: string;
+  changedByName: string | null;
+  createdAt: string;
+};
+
+export function listArticleRevisions(articleId: string): Promise<AdminArticleRevision[]> {
+  return cached(`admin:article-revisions:${articleId}`, async () => {
+    const { data, error } = await supabase
+      .from("article_revisions")
+      .select("id, slug, reason, snapshot, created_at, profiles(full_name)")
+      .eq("article_id", articleId)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    fail(error);
+    return (data ?? []).map((row) => {
+      const profile = first(
+        row.profiles as { full_name: string | null } | { full_name: string | null }[] | null,
+      );
+      const snapshot = (row.snapshot ?? {}) as { title?: string };
+      return {
+        id: Number(row.id),
+        slug: row.slug as string,
+        reason: row.reason as string,
+        title: snapshot.title ?? "",
+        changedByName: profile?.full_name ?? null,
+        createdAt: row.created_at as string,
+      };
+    });
+  });
+}
+
+export async function restoreArticleRevision(revisionId: number): Promise<string> {
+  const { data, error } = await supabase.rpc("restore_article_revision", {
+    p_revision_id: revisionId,
+  });
+  fail(error);
+  afterWrite();
+  return String(data);
 }
 
 /* ------------------------------------------------------------------ */

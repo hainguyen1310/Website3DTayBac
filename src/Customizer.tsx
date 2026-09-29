@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,7 +9,7 @@ import {
   RotateCcw,
   Save,
   ShoppingBag,
-  Sparkles,
+  X,
 } from "lucide-react";
 import {
   cleanDesign,
@@ -26,14 +26,31 @@ import type { GiftDesign } from "./catalog";
 import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
 import GiftPreview from "./GiftPreview";
+import { PageHero } from "./PageElements";
+import { giftComponents } from "./giftSelection";
+import { useDocumentSeo } from "./hooks/useDocumentSeo";
+import { giftMeta } from "./seo/meta";
 
 export default function Customizer() {
-  const { products, loading, source } = useCatalog();
+  useDocumentSeo((ctx) => giftMeta(ctx), []);
+  const { products: catalogProducts, loading, error, reload, source } = useCatalog();
+  const products = useMemo(() => giftComponents(catalogProducts), [catalogProducts]);
   const [design, setDesign] = useState<GiftDesign>({ ...defaultDesign, productIds: [] });
   const [restored, setRestored] = useState(false);
   const [step, setStep] = useState(0);
+  const panelRef = useRef<HTMLElement>(null);
   const { addGift, notify } = useShop();
   const steps = ["Chọn sản vật", "Thêm sắc riêng", "Gửi lời thương"];
+  const selectedProducts = products.filter(product => design.productIds.includes(product.id));
+  const ready = restored && !loading && !error;
+  const goToStep = (next: number) => {
+    if (step === next) return;
+    setStep(next);
+    requestAnimationFrame(() => {
+      panelRef.current?.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      panelRef.current?.querySelector<HTMLElement>(".step-heading h2")?.focus({ preventScroll: true });
+    });
+  };
   const update = (change: Partial<GiftDesign>) =>
     setDesign((current) => ({ ...current, ...change }));
   useEffect(() => {
@@ -49,31 +66,18 @@ export default function Customizer() {
     }
     setDesign((current) => cleanDesign(current, products));
   }, [products, loading, source, restored]);
-  const toggleProduct = (id: string) =>
-    update({
-      productIds: design.productIds.includes(id)
-        ? design.productIds.filter((p) => p !== id)
-        : [...design.productIds, id],
-    });
+  const toggleProduct = (id: string) => setDesign(current => ({
+    ...current,
+    productIds: current.productIds.includes(id)
+      ? current.productIds.filter(p => p !== id)
+      : current.productIds.length < 4 ? [...current.productIds, id] : current.productIds,
+  }));
   return (
-    <main className="customizer-page">
-      <div className="container">
-        <Link to="/" className="back-link">
-          <ArrowLeft size={16} /> Về nhà A Sỉn
-        </Link>
-        <div className="custom-heading" data-reveal="rise">
-          <span className="eyebrow">
-            <Sparkles size={14} /> A SỈN — THEO CÁCH CỦA BẠN
-          </span>
-          <h1>
-            Món quà của bạn.
-            <br />
-            <em>Câu chuyện của riêng bạn.</em>
-          </h1>
-          <p>Chọn chút hương rừng, thêm một sắc màu, gửi ngàn lời thương.</p>
-        </div>
+    <main className="customizer-page asin-customizer-page moc-page">
+      <PageHero current="Thiết kế hộp quà" eyebrow="HỘP QUÀ A SỈN" title={"Món quà của bạn.\nCâu chuyện của riêng bạn."} description="Chọn những hương vị bạn yêu, thêm sắc màu và gửi một lời nhắn riêng đến người nhận." image="/images/asin/gift-reference.webp" alt="Minh họa hộp quà đặc sản A Sỉn"><a className="asin-read-link" href="#thiet-ke-hop-qua">Bắt đầu gói quà <ArrowRight size={17}/></a></PageHero>
+      <div className="container" id="thiet-ke-hop-qua">
         <div className="customizer-grid">
-          <section className="preview-panel" data-reveal="landscape" aria-label="Xem trước hộp quà">
+          <section className="preview-panel" aria-label="Xem trước hộp quà">
             <div className="preview-top">
               <span>
                 <span className="live-dot" /> XEM TRƯỚC TRỰC TIẾP
@@ -86,32 +90,44 @@ export default function Customizer() {
               <span>Một chiếc hộp nhỏ. Đong đầy sự quan tâm.</span>
             </div>
           </section>
-          <section className="design-panel" aria-label="Tùy chỉnh hộp quà">
+          <section ref={panelRef} className="design-panel" aria-label="Tùy chỉnh hộp quà">
             <div className="stepper" aria-label="Các bước thiết kế">
               {steps.map((title, i) => (
                 <button
                   key={title}
                   className={step === i ? "active" : ""}
-                  onClick={() => setStep(i)}
+                  onClick={() => goToStep(i)}
+                  disabled={i > 0 && (!ready || !design.productIds.length)}
                   aria-current={step === i ? "step" : undefined}
                 >
                   <span>{i < step ? <Check size={14} /> : `0${i + 1}`}</span>
-                  {title}
+                  <b>{title}</b>
                 </button>
               ))}
             </div>
             {step === 0 && (
               <div className="step-content">
                 <div className="step-heading">
-                  <h2>Gói những điều bạn thích</h2>
+                  <h2 tabIndex={-1}>Gói những điều bạn thích</h2>
                   <p>Chọn từ 1 đến 4 sản vật cho hộp quà của bạn.</p>
                 </div>
+                <div className="gift-selection-summary">
+                  <div className="gift-selection-summary-heading"><h3>Trong hộp của bạn</h3><span>{design.productIds.length} / 4 món</span></div>
+                  {selectedProducts.length > 0 && <ul className="gift-selected-items" aria-label="Sản vật đã chọn">
+                    {selectedProducts.map(product => <li key={product.id}><img src={product.image} alt=""/><span>{product.name}</span><button aria-label={`Bỏ ${product.name} khỏi hộp`} onClick={() => toggleProduct(product.id)}><X size={15}/></button></li>)}
+                  </ul>}
+                  <p id="gift-selection-help" className="asin-selection-count" aria-live="polite">{design.productIds.length === 4 ? "Hộp đã đủ 4 món. Bỏ một món bên trên để chọn món khác." : selectedProducts.length ? `Bạn có thể chọn thêm ${4 - design.productIds.length} món.` : "Chọn món bên dưới để bắt đầu gói quà."}</p>
+                </div>
+                {loading || error || !products.length ? <div className="asin-builder-state" role={error ? "alert" : "status"}><p>{loading ? "Đang tải các sản vật…" : error ? "Chưa tải được sản phẩm. Hãy thử lại để tiếp tục chọn quà." : "A Sỉn đang chuẩn bị danh mục quà tặng."}</p>{error ? <button className="asin-button" onClick={() => void reload()}>Thử lại</button> : !loading && <Link className="asin-read-link" to="/lien-he">Nhờ A Sỉn tư vấn <ArrowRight size={16}/></Link>}</div> : null}
                 <div className="product-choices">
                   {products.map((p) => (
                     <button
                       key={p.id}
                       className={`product-choice ${design.productIds.includes(p.id) ? "selected" : ""}`}
                       aria-pressed={design.productIds.includes(p.id)}
+                      aria-label={`${design.productIds.includes(p.id) ? "Bỏ chọn" : "Chọn"} ${p.name}`}
+                      aria-describedby="gift-selection-help"
+                      disabled={!ready || (design.productIds.length >= 4 && !design.productIds.includes(p.id))}
                       onClick={() => toggleProduct(p.id)}
                     >
                       <img src={p.image} alt="" />
@@ -128,6 +144,7 @@ export default function Customizer() {
                     </button>
                   ))}
                 </div>
+                <Link className="gift-ready-link" to="/san-pham">Tìm hộp quà phối sẵn? Xem tại cửa hàng <ArrowRight size={14}/></Link>
                 <div className="packaging-note">
                   <Gift size={18} />
                   <span>
@@ -140,7 +157,7 @@ export default function Customizer() {
             {step === 1 && (
               <div className="step-content">
                 <div className="step-heading">
-                  <h2>Một sắc màu, một dấu ấn</h2>
+                  <h2 tabIndex={-1}>Một sắc màu, một dấu ấn</h2>
                   <p>Lấy cảm hứng từ những điều bình dị của núi rừng.</p>
                 </div>
                 <fieldset>
@@ -196,7 +213,7 @@ export default function Customizer() {
             {step === 2 && (
               <div className="step-content">
                 <div className="step-heading">
-                  <h2>Điều muốn nói, gửi cùng A Sỉn</h2>
+                  <h2 tabIndex={-1}>Điều muốn nói, gửi cùng A Sỉn</h2>
                   <p>Một lời nhắn nhỏ khiến món quà thêm đáng nhớ.</p>
                 </div>
                 <label className="field-label" htmlFor="recipient">
@@ -265,7 +282,7 @@ export default function Customizer() {
                 {step > 0 && (
                   <button
                     className="button button-outline back-step"
-                    onClick={() => setStep(step - 1)}
+                    onClick={() => goToStep(step - 1)}
                     aria-label="Bước trước"
                   >
                     <ArrowLeft size={18} />
@@ -274,15 +291,15 @@ export default function Customizer() {
                 {step < 2 ? (
                   <button
                     className="button button-green"
-                    disabled={!design.productIds.length}
-                    onClick={() => setStep(step + 1)}
+                    disabled={!ready || !design.productIds.length}
+                    onClick={() => goToStep(step + 1)}
                   >
                     Tiếp tục <ArrowRight size={18} />
                   </button>
                 ) : (
                   <button
                     className="button button-green"
-                    disabled={!design.productIds.length}
+                    disabled={!ready || !design.productIds.length}
                     onClick={() => addGift(design)}
                   >
                     <ShoppingBag size={18} /> Thêm hộp quà vào giỏ
@@ -304,11 +321,8 @@ export default function Customizer() {
                 </button>
                 <button
                   onClick={() => {
-                    setDesign({
-                      ...defaultDesign,
-                      productIds: [...defaultDesign.productIds],
-                    });
-                    setStep(0);
+                    setDesign(cleanDesign(defaultDesign, products));
+                    goToStep(0);
                     notify("Đã trở về mẫu thiết kế ban đầu.");
                   }}
                 >
