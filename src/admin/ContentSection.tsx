@@ -46,6 +46,11 @@ import type { ContentBlock } from "../content/blocks";
 
 const ARTICLE_TOPICS = ["Từ bản làng", "Gợi ý tặng quà", "Vị Tây Bắc"];
 
+function isFutureArticle(article: Pick<AdminArticle, 'scheduledAt' | 'publishedAt'>): boolean {
+  const release = article.scheduledAt || article.publishedAt;
+  return Boolean(release && new Date(release).getTime() > Date.now());
+}
+
 type ArticleForm = {
   id: string | null;
   updatedAt: string | null;
@@ -604,7 +609,7 @@ export default function ContentSection() {
   const visibleArticles = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return articles.filter((article) => {
-      const scheduled = article.published && Boolean(article.scheduledAt && new Date(article.scheduledAt).getTime() > Date.now());
+      const scheduled = article.published && isFutureArticle(article);
       if (statusFilter === "archived" && !article.archived) return false;
       if (statusFilter !== "archived" && article.archived) return false;
       if (statusFilter === "published" && (!article.published || scheduled)) return false;
@@ -681,9 +686,9 @@ export default function ContentSection() {
           />
           <div className="metric-grid admin-list-metrics">
             <article><span>Tổng bài viết</span><strong>{articles.filter((a) => !a.archived).length}</strong><small>Trong kho nội dung</small></article>
-            <article><span>Đã đăng</span><strong>{articles.filter((a) => a.published && !a.archived && (!a.scheduledAt || new Date(a.scheduledAt).getTime() <= Date.now())).length}</strong><small>Hiển thị trên website</small></article>
+            <article><span>Đã đăng</span><strong>{articles.filter((a) => a.published && !a.archived && !isFutureArticle(a)).length}</strong><small>Hiển thị trên website</small></article>
             <article><span>Bản nháp</span><strong>{articles.filter((a) => !a.published && !a.archived).length}</strong><small>Chưa công khai</small></article>
-            <article><span>Đã lên lịch</span><strong>{articles.filter((a) => a.published && a.scheduledAt && new Date(a.scheduledAt).getTime() > Date.now()).length}</strong><small>Chờ đến giờ</small></article>
+            <article><span>Đã lên lịch</span><strong>{articles.filter((a) => a.published && !a.archived && isFutureArticle(a)).length}</strong><small>Chờ đến giờ</small></article>
             <article><span>Lưu trữ</span><strong>{articles.filter((a) => a.archived).length}</strong><small>Đã ẩn khỏi website</small></article>
           </div>
           <div className="admin-card admin-filter-toolbar">
@@ -739,7 +744,7 @@ export default function ContentSection() {
                           {article.archived
                             ? <span className="admin-tag">Đã lưu trữ</span>
                             : article.published
-                              ? <span className="admin-tag">{article.scheduledAt && new Date(article.scheduledAt).getTime() > Date.now() ? "Đã lên lịch" : "Đã đăng"}</span>
+                              ? <span className="admin-tag">{isFutureArticle(article) ? "Đã lên lịch" : "Đã đăng"}</span>
                               : <span className="admin-tag">Bản nháp</span>}
                         </td>
                         <td>

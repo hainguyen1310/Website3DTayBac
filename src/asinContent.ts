@@ -52,7 +52,7 @@ export const ASIN_CONTENT: Record<string, string> = {
 };
 export const SIGNATURE_PRODUCTS = [
   {
-    id: "jerky",
+    id: "trau-gac-bep-tay-bac",
     name: "Thịt trâu gác bếp",
     image: "/images/products/buffalo.webp",
     type: "ĐẶC SẢN GÁC BẾP",

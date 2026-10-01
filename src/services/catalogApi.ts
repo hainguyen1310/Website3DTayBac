@@ -42,7 +42,7 @@ function toProduct(row: ProductRow, stock: Map<string, boolean>): Product {
     // Migrate the bundled legacy preview while the remote media sync is pending.
     // Uploaded/customized DB image URLs continue to take precedence.
     image:
-      row.slug === "jerky" && row.image_url === "/images/jerky.webp"
+      ["jerky", "trau-gac-bep-tay-bac"].includes(row.slug) && row.image_url === "/images/jerky.webp"
         ? "/images/products/buffalo.webp"
         : row.image_url,
     tag: brandCopy(row.tag),

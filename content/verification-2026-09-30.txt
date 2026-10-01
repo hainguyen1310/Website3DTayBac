@@ -1,0 +1,25 @@
+A Sỉn — xác minh nội dung và Admin ngày 30/09/2026
+
+Nội dung đã thực hiện:
+- Viết lại 4 bài mẫu; bổ sung 8 bài cẩm nang và một bài góc trà văn phòng.
+- 13 bài công khai được đọc lại qua API và trả HTTP 200 trên asintaybac.com.
+- Mỗi bài có H2/H3, không còn nội dung minh họa hoặc thương hiệu Mộc.
+- 4 URL sản phẩm cũ trả HTTP 308 sang slug tiếng Việt không dấu.
+
+Kiểm tra qua form Admin sẵn có tại localhost:5173, dùng tài khoản Admin đang đăng nhập và database Supabase thật:
+- Create: nhập tiêu đề, chuyên mục, mô tả, 5 block, tác giả; tải ảnh; chọn sản phẩm liên quan; tạo bản nháp thành công.
+- Read: mở lại bài vừa tạo; nội dung, ảnh, H2/H3 và sản phẩm liên quan được giữ.
+- Update: rút gọn slug thành goc-tra-van-phong, đổi thời lượng đọc, bật xuất bản; lưu thành công, có thông báo redirect.
+- Archive: xác nhận lưu trữ; bài biến mất khỏi truy vấn API công khai.
+- Restore: khôi phục bài về bản nháp; đăng lại thành công. API công khai trả published=true, archived=false.
+- Kiểm tra trình duyệt production: bài góc trà có tác giả, ảnh, H2/H3 và liên kết sản phẩm đúng slug mới.
+
+Giới hạn phạm vi:
+- Không thực hiện xóa vĩnh viễn. Lưu trữ/khôi phục không chứng minh thao tác xóa vĩnh viễn.
+- Các thao tác ghi qua UI dùng frontend localhost và database thật; đọc bài công khai đã kiểm tra trên production.
+- Chưa phải kiểm thử toàn bộ CRUD của các phân hệ đơn hàng, khách hàng, khuyến mãi, cài đặt hoặc mọi vai trò.
+
+Lỗi được xử lý:
+- Hàm save_admin_article có biến trả về updated_at trùng tên cột: migration 20260930000000 sửa RETURNING bằng tên cột đủ điều kiện. Người dùng đã áp dụng; tạo và sửa qua UI thành công.
+- Admin đếm bài có published_at trong tương lai thành đã đăng nếu scheduled_at trống: kiểm tra ngày phát hành dựa trên scheduled_at hoặc published_at, dùng nhất quán cho bộ lọc, nhãn và số liệu.
+- Trang chủ và ảnh sản phẩm trâu cập nhật theo slug mới để tiếp tục nhận đúng sản phẩm thật.

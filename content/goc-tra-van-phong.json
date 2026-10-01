@@ -1,0 +1,55 @@
+{
+  "id": "a853e920-7e1c-474a-b9b7-3a288580a909",
+  "slug": "goc-tra-van-phong",
+  "tag": "Cẩm nang sản vật",
+  "title": "Góc trà ở văn phòng: chuẩn bị gọn cho một giờ nghỉ dễ chịu",
+  "excerpt": "Chuẩn bị dụng cụ cá nhân, chọn quy cách trà vừa dùng và giữ góc pha sạch để giờ nghỉ ở văn phòng nhẹ nhàng hơn.",
+  "image_url": "https://pqnjhwcvvvsfjgiazfqx.supabase.co/storage/v1/object/public/site-images/articles/2026/09/1790746774839-tea-8a86b416.webp",
+  "read_time_minutes": 2,
+  "body": [
+    {
+      "text": "Một góc trà ở văn phòng không cần nhiều dụng cụ. Điều cần nhất là cách dùng thuận tiện, sạch và không làm phiền người ngồi cạnh. Bắt đầu từ một chiếc cốc chịu nhiệt, phần trà vừa đủ cho một lần pha và chỗ đặt an toàn, xa máy tính cùng dây điện.",
+      "type": "paragraph"
+    },
+    {
+      "text": "Chuẩn bị ít món nhưng đúng nhu cầu",
+      "type": "heading",
+      "level": 2
+    },
+    {
+      "text": "Chọn loại trà bạn đã biết cách pha và làm theo hướng dẫn trên nhãn. Mang lượng vừa nhu cầu, đóng kín phần còn lại và dùng muỗng khô. Nếu dùng bình cá nhân, kiểm tra hướng dẫn của bình về nước nóng và vệ sinh; không tận dụng một chai chưa rõ khả năng chịu nhiệt. Chỉ pha lượng sẽ uống trong giờ nghỉ để tránh để đồ uống kéo dài trên bàn.",
+      "type": "paragraph"
+    },
+    {
+      "text": "Giữ góc pha sạch và tôn trọng không gian chung",
+      "type": "heading",
+      "level": 3
+    },
+    {
+      "text": "Không dùng chung cốc cá nhân khi chưa vệ sinh, không để muỗng ướt trong hộp trà và dọn bã sau khi pha. Nếu mời đồng nghiệp, hỏi họ thích vị thanh hay đậm rồi pha phần nhỏ. Để đường hoặc món thêm riêng để mỗi người chọn. Cuối giờ nghỉ, rửa dụng cụ theo hướng dẫn, làm khô và trả lại mặt bàn gọn gàng. Một góc trà dễ chịu nên giúp mọi người nghỉ ngơi, không tạo thêm việc dọn dẹp cho người khác.",
+      "type": "paragraph"
+    }
+  ],
+  "published": true,
+  "published_at": "2026-09-30T05:39:56.030465+00:00",
+  "created_at": "2026-09-30T05:39:41.379143+00:00",
+  "updated_at": "2026-09-30T05:40:40.081872+00:00",
+  "tag_slug": "cam-nang-san-vat",
+  "first_published_at": "2026-09-30T05:39:56.030465+00:00",
+  "scheduled_at": null,
+  "content_modified_at": "2026-09-30T05:39:41.379143+00:00",
+  "author_name": "Ban biên tập A Sỉn",
+  "source_name": null,
+  "source_url": null,
+  "seo_title": null,
+  "seo_description": null,
+  "social_image_url": null,
+  "social_title": null,
+  "social_description": null,
+  "canonical_path": null,
+  "related_product_slugs": [
+    "tra-shan-tuyet-co-thu"
+  ],
+  "related_article_slugs": [],
+  "archived": false
+}
