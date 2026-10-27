@@ -11,6 +11,7 @@ export type SiteRoute =
   | { kind: "category"; slug: string }
   | { kind: "gift" }
   | { kind: "about" }
+  | { kind: "origin" }
   | { kind: "news"; page: number; topic?: string }
   | { kind: "article"; slug: string }
   | { kind: "contact" }
@@ -69,6 +70,7 @@ export function matchSiteRoute(pathname: string, search: URLSearchParams): SiteR
 
   if (first === "thiet-ke" && segments.length === 1) return { kind: "gift" };
   if (first === "gioi-thieu" && segments.length === 1) return { kind: "about" };
+  if (first === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first === "lien-he" && segments.length === 1) return { kind: "contact" };
   if (first === "huy-nhan-tin" && segments.length === 1) return { kind: "unsubscribe" };
 
@@ -162,6 +164,8 @@ export function routePath(route: SiteRoute): string {
       return "/thiet-ke";
     case "about":
       return "/gioi-thieu";
+    case "origin":
+      return "/nguon-goc";
     case "news": {
       if (route.topic) return `/tin-tuc/chu-de/${route.topic}`;
       return "/tin-tuc";

@@ -16,6 +16,10 @@ import { aboutMeta, categoryMeta, noindexMeta, productMeta, productsMeta } from 
 import { toSeoProductInput } from "./seo/product";
 import { trackEvent } from "./analytics";
 import { ecommerceParams, productAnalyticsItem } from "./analyticsItems";
+import GiftShowcase from "./GiftShowcase";
+import LandingJourney from "./LandingJourney";
+import { giftComponents } from "./giftSelection";
+import { originMeta } from "./seo/meta";
 
 function ContentState({ loading, error, emptyText, reload }: { loading: boolean; error: boolean; emptyText: string; reload: () => void }) {
   return <div className="moc-page-state" role={error ? "alert" : "status"}>
@@ -61,8 +65,9 @@ function ProductCard({ product, deal, position = 0 }: { product: Product; deal?:
 }
 
 export function ProductsPage() {
-  const {content:c}=useWebsite();
-  const { products, categories, deals, loading, error, reload } = useCatalog();
+  const { products, deals, loading, error, reload } = useCatalog();
+  const retailProducts = useMemo(() => giftComponents(products), [products]);
+  const categories = useMemo(() => [ALL_CATEGORY, ...new Set(retailProducts.map(product => product.category))], [retailProducts]);
   const { setSelectedProduct } = useShop();
   const [params] = useSearchParams();
   const linkedProductId = params.get("product");
@@ -75,11 +80,11 @@ export function ProductsPage() {
   const [category, setCategory] = useState(ALL_CATEGORY);
   const [sort, setSort] = useState("default");
   const visibleProducts = useMemo(() => {
-    const filtered = products.filter(product => (category === ALL_CATEGORY || product.category === category) && normalizeSearch(`${product.name} ${product.category} ${product.origin}`).includes(normalizeSearch(query.trim())));
+    const filtered = retailProducts.filter(product => (category === ALL_CATEGORY || product.category === category) && normalizeSearch(`${product.name} ${product.category} ${product.origin}`).includes(normalizeSearch(query.trim())));
     if (sort === "price-asc") filtered.sort((a, b) => a.price - b.price);
     if (sort === "price-desc") filtered.sort((a, b) => b.price - a.price);
     return filtered;
-  }, [products, category, query, sort]);
+  }, [retailProducts, category, query, sort]);
   const linkedProduct = useMemo(
     () => (linkedProductId ? products.find(product => product.id === linkedProductId) : undefined),
     [linkedProductId, products],
@@ -100,9 +105,9 @@ export function ProductsPage() {
   }, [loading, error, visibleProducts]);
 
   return <main className="moc-page moc-shop-page">
-    <PageHero current="Sản phẩm" eyebrow="SẢN VẬT A SỈN" title={c["shop.title"]} description={c["shop.intro"]} image={c["shop.image"]} alt="Đặc sản gác bếp và gia vị Tây Bắc"><a className="asin-read-link" href="#danh-muc">Chọn hương vị của bạn <ArrowRight size={17}/></a></PageHero>
-    <div className="asin-container"><ShopAssurances/></div>
+    <GiftShowcase />
     <section id="danh-muc" className="moc-container moc-shop-catalog" aria-label="Danh mục sản phẩm">
+      <div className="asin-retail-heading"><span className="asin-eyebrow">SẢN VẬT A SỈN</span><h2>Các sản phẩm bán lẻ</h2><p>Chọn hương vị để thưởng thức hoặc ghép thành hộp quà của bạn.</p></div>
       {linkedProductId && !loading && !error && !products.some(product => product.id === linkedProductId) && <p className="admin-alert note" role="status">Sản phẩm trong liên kết không còn trong danh mục đang bán. Bạn có thể chọn sản phẩm khác bên dưới.</p>}
       <div className="moc-shop-toolbar">
         <label className="moc-page-search"><Search size={19} strokeWidth={1.5} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm hương vị bạn yêu…" aria-label="Tìm sản phẩm" />{query && <button onClick={() => setQuery("")} aria-label="Xóa từ khóa tìm kiếm"><X size={17} /></button>}</label>
@@ -112,8 +117,26 @@ export function ProductsPage() {
       <div className="moc-shop-result" aria-live="polite"><span>{loading ? "Đang tải sản vật…" : error ? "Chưa tải được danh mục" : `${visibleProducts.length} sản vật dành cho bạn`}</span><span>Chắt chiu từ những điều mộc mạc.</span></div>
       {loading || error ? <ContentState loading={loading} error={error} emptyText="" reload={() => void reload()} /> : visibleProducts.length ? <div className="moc-shop-grid">{visibleProducts.map(product => <ProductCard key={product.id} product={product} deal={deals.find(deal => deal.productId === product.id)} />)}</div> : <div className="moc-page-state" role="status"><Search size={30} strokeWidth={1.2} /><h2>Chưa tìm thấy sản vật phù hợp.</h2><p>Thử một từ khóa hoặc danh mục khác nhé.</p>{(query || category !== ALL_CATEGORY) && <button className="moc-text-arrow-link" onClick={() => { setQuery(""); setCategory(ALL_CATEGORY); }}>Xem tất cả sản phẩm <ArrowRight size={16} /></button>}</div>}
     </section>
-    <GiftInvitation />
+    <div className="asin-container"><ShopAssurances/></div>
     <Newsletter />
+  </main>;
+}
+
+export function OriginPage() {
+  const { content: c } = useWebsite();
+  useDocumentSeo((ctx) => originMeta(ctx), []);
+  return <main className="moc-page asin-origin-page">
+    <PageHero current="Nguồn gốc" eyebrow="TỪ VÙNG CAO ĐẾN BẠN" title="Mỗi hương vị, một nguồn cội." description="Tìm hiểu vùng nguyên liệu, những người làm nên sản vật và cách hương vị Tây Bắc được gìn giữ qua từng gian bếp." image={c["story.terracesImage"]} alt="Ruộng bậc thang và vùng nguyên liệu Tây Bắc" />
+    <section className="asin-container asin-origin-details" aria-labelledby="origin-details-title">
+      <h2 id="origin-details-title">Theo dấu hương vị Tây Bắc</h2>
+      <div>{[
+        { image: c["story.terracesImage"], title: "Bắt đầu từ vùng đất", text: "Khí hậu, địa hình và nhịp mùa vụ góp phần tạo nên hương vị của sản vật vùng cao. Thông tin xuất xứ cụ thể được thể hiện trên từng trang sản phẩm." },
+        { image: c["story.portraitImage"], title: "Gắn với con người", text: "Phía sau mỗi sản vật là những đôi tay và kinh nghiệm được gìn giữ trong đời sống bản địa. Câu chuyện A Sỉn đưa bạn đến gần hơn với con người vùng cao." },
+        { image: c["story.meatImage"], title: "Giữ nét chế biến truyền thống", text: "Hương khói bếp, mắc khén và gia vị núi rừng làm nên nét riêng của đặc sản Tây Bắc. Xem cách thưởng thức và bảo quản trong thông tin từng sản phẩm." },
+      ].map(item => <article key={item.title}><img src={item.image} alt={item.title} width={600} height={400} loading="lazy" /><h3>{item.title}</h3><p>{item.text}</p></article>)}</div>
+      <div className="asin-actions"><Link className="asin-button" to="/san-pham">Xem xuất xứ từng sản phẩm <ArrowRight size={17} /></Link><Link className="asin-read-link" to="/lien-he">Hỏi thêm về nguồn gốc <ArrowRight size={17} /></Link></div>
+    </section>
+    <LandingJourney />
   </main>;
 }
 

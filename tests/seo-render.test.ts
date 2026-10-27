@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderSitePage } from "../src/seo/renderSite.ts";
+import { matchSiteRoute, routePath } from "../src/seo/paths.ts";
 import { handleSeoAsset } from "../server/seo/handler.ts";
 import type { SeoEnvironment } from "../src/seo/config.ts";
 
@@ -27,6 +28,12 @@ test("static pages render and unknown URLs return 404", async () => {
   const gift = await renderSitePage({ pathname: "/thiet-ke", search: new URLSearchParams(), requestHost: "asintaybac.com", env: offlineEnv });
   assert.equal(gift.status, 200);
   assert.match(gift.bodyHtml, /hộp quà/i);
+
+  const origin = await renderSitePage({ pathname: "/nguon-goc", search: new URLSearchParams(), requestHost: "asintaybac.com", env: offlineEnv });
+  assert.equal(origin.status, 200);
+  assert.equal(origin.seo.canonical, "https://asintaybac.com/nguon-goc");
+  assert.match(origin.bodyHtml, /Nguồn gốc sản vật A Sỉn/);
+  assert.equal(routePath(matchSiteRoute("/nguon-goc", new URLSearchParams())), "/nguon-goc");
 
   const missing = await renderSitePage({ pathname: "/khong-ton-tai", search: new URLSearchParams(), requestHost: "asintaybac.com", env: offlineEnv });
   assert.equal(missing.status, 404);

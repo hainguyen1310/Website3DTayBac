@@ -90,7 +90,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   };
   const addGift = (input: GiftDesign) => {
     const design = cleanDesign(input, catalogProducts);
-    if (!design.productIds.length) return;
+    if (!design.productIds.length || (design.includeCard && !design.message.trim()) || design.productIds.some(id => catalogProducts.find(product => product.id === id)?.inStock === false)) return;
     const line = { key: `gift:${JSON.stringify(design)}`, design, quantity: 1 };
     if ((cart.find(item => item.key === line.key)?.quantity ?? 0) >= 20) return;
     add(line);

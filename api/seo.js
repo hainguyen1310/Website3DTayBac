@@ -438,6 +438,7 @@ function matchSiteRoute(pathname, search) {
   }
   if (first2 === "thiet-ke" && segments.length === 1) return { kind: "gift" };
   if (first2 === "gioi-thieu" && segments.length === 1) return { kind: "about" };
+  if (first2 === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first2 === "lien-he" && segments.length === 1) return { kind: "contact" };
   if (first2 === "huy-nhan-tin" && segments.length === 1) return { kind: "unsubscribe" };
   if (first2 === "tin-tuc") {
@@ -479,6 +480,7 @@ var STATIC_PAGES = [
   { path: "/san-pham", changefreq: "weekly", priority: "0.9" },
   { path: "/thiet-ke", changefreq: "monthly", priority: "0.8" },
   { path: "/gioi-thieu", changefreq: "monthly", priority: "0.6" },
+  { path: "/nguon-goc", changefreq: "monthly", priority: "0.6" },
   { path: "/tin-tuc", changefreq: "weekly", priority: "0.7" },
   { path: "/lien-he", changefreq: "yearly", priority: "0.5" }
 ];

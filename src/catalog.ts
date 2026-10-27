@@ -94,16 +94,21 @@ export const money = (n: number) =>
   );
 
 export const colors = [
-  { name: "Đỏ A Sỉn", value: "#681b22" },
-  { name: "Xanh rừng", value: "#315442" },
-  { name: "Đỏ đất", value: "#964f3e" },
-  { name: "Chàm núi", value: "#3c506b" },
-  { name: "Nâu mộc", value: "#967650" },
+  { name: "Đỏ đô", value: "#681b22" },
+  { name: "Xanh", value: "#315442" },
 ];
+
+export const boxSizes = [
+  { value: "medium", name: "Size vừa" },
+  { value: "large", name: "Size to" },
+] as const;
+export const GIFT_CAPACITY = 4;
 
 export const patterns = ["Thổ cẩm", "Triền núi", "Tối giản"];
 
 export type GiftDesign = {
+  size: "medium" | "large";
+  includeCard: boolean;
   productIds: string[];
   color: string;
   pattern: string;
@@ -112,11 +117,13 @@ export type GiftDesign = {
 };
 
 export const defaultDesign: GiftDesign = {
+  size: "medium",
+  includeCard: false,
   productIds: ["tea", "honey"],
   color: colors[0].value,
   pattern: patterns[0],
-  message: "Gói chút an lành, gửi người thương.",
-  recipient: "Người thương",
+  message: "",
+  recipient: "",
 };
 
 export type CartLine = {
@@ -150,7 +157,14 @@ export function cleanDesign(
   const d = (
     value && typeof value === "object" ? value : {}
   ) as Partial<GiftDesign>;
+  // Older saved designs always included a card. Explicit opt-out clears card text.
+  const includeCard = typeof d.includeCard === "boolean" ? d.includeCard : Boolean(
+    (typeof d.message === "string" && d.message.trim()) ||
+    (typeof d.recipient === "string" && d.recipient.trim()),
+  );
   return {
+    size: d.size === "large" ? "large" : "medium",
+    includeCard,
     productIds: Array.isArray(d.productIds)
       ? [
           ...new Set(
@@ -158,7 +172,7 @@ export function cleanDesign(
               list.some((product) => product.id === id),
             ),
           ),
-        ].slice(0, 4)
+        ].slice(0, GIFT_CAPACITY)
       : [...defaultDesign.productIds],
     color: colors.some((c) => c.value === d.color)
       ? d.color!
@@ -167,11 +181,11 @@ export function cleanDesign(
       ? d.pattern!
       : defaultDesign.pattern,
     message:
-      typeof d.message === "string"
+      includeCard && typeof d.message === "string"
         ? d.message.slice(0, 90)
         : defaultDesign.message,
     recipient:
-      typeof d.recipient === "string"
+      includeCard && typeof d.recipient === "string"
         ? d.recipient.slice(0, 30)
         : defaultDesign.recipient,
   };

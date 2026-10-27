@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { checkoutItems } from "../src/checkoutItems.ts";
 import {
   BOX_PRICE,
   cleanCart,
@@ -53,10 +54,12 @@ test("saved cart discards invalid products and empty custom gifts and caps quant
 test("cart round trip preserves exact personalization and pricing", () => {
   const design = {
     ...defaultDesign,
+    includeCard: true,
+    size: "large" as const,
     productIds: ["jerky", "spice"],
     recipient: "Mẹ",
     message: "Một chút bình yên.",
-    color: "#964f3e",
+    color: "#315442",
     pattern: "Triền núi",
   };
   const roundTrip = cleanCart(
@@ -64,4 +67,39 @@ test("cart round trip preserves exact personalization and pricing", () => {
   );
   assert.deepEqual(roundTrip[0].design, design);
   assert.equal(linePrice(roundTrip[0]) * roundTrip[0].quantity, 960000);
+});
+
+test("opting out of a gift card clears its content and keeps box size after cart restore", () => {
+  const design = cleanDesign({ ...defaultDesign, size: "large", includeCard: false, message: "Old greeting", recipient: "Old recipient" });
+  assert.equal(design.includeCard, false);
+  assert.equal(design.message, "");
+  assert.equal(design.recipient, "");
+  const restored = cleanCart([{ key: "large-no-card", design, quantity: 1 }]);
+  assert.deepEqual(restored[0].design, design);
+  assert.equal(design.size, "large");
+});
+
+test("legacy gifts retain their cards and invalid new options use safe defaults", () => {
+  const legacy = cleanDesign({ productIds: ["tea"], color: "#315442", message: "Chúc mừng", recipient: "Mẹ" });
+  assert.equal(legacy.includeCard, true);
+  assert.equal(legacy.message, "Chúc mừng");
+  assert.equal(legacy.size, "medium");
+  const invalid = cleanDesign({ size: "invalid", includeCard: "false", message: 123, recipient: {} });
+  assert.equal(invalid.size, "medium");
+  assert.equal(invalid.includeCard, false);
+  assert.equal(invalid.message, "");
+});
+
+test("checkout carries box size and optional card text without exposing disabled card content", () => {
+  const items = checkoutItems([
+    { key: "with-card", quantity: 1, design: { ...defaultDesign, size: "large", includeCard: true, message: "Chúc mừng!" } },
+    { key: "without-card", quantity: 2, design: { ...defaultDesign, includeCard: false, message: "Old text", recipient: "Old recipient" } },
+    { key: "tea", quantity: 1, productId: "tea" },
+  ]);
+  assert.equal(items[0].design?.size, "large");
+  assert.equal(items[0].design?.includeCard, true);
+  assert.equal(items[0].design?.message, "Chúc mừng!");
+  assert.equal(items[1].design?.message, "");
+  assert.equal(items[1].design?.recipient, "");
+  assert.deepEqual(items[2], { kind: "product", product_id: "tea", quantity: 1 });
 });

@@ -1,4 +1,5 @@
 import type { CartLine } from "../catalog";
+import { checkoutItems } from "../checkoutItems";
 import { supabase } from "../utils/supabase";
 import { brandCopy } from "../branding";
 import { loadArticleBySlug, loadArticleList, loadArticlesBySlugs, SupabaseRest } from "../seo/content";
@@ -55,28 +56,6 @@ export async function getPublishedArticlesBySlugs(slugs: string[]): Promise<Publ
 export async function getPublishedArticle(slug: string): Promise<PublishedArticle | null> {
   const article = await loadArticleBySlug(new SupabaseRest(), slug);
   return article ? brandArticle(article) : null;
-}
-
-function checkoutItems(lines: CartLine[]) {
-  return lines.map((line) =>
-    line.design
-      ? {
-          kind: "gift_box",
-          product_ids: line.design.productIds,
-          quantity: line.quantity,
-          design: {
-            color: line.design.color,
-            pattern: line.design.pattern,
-            recipient: line.design.recipient,
-            message: line.design.message,
-          },
-        }
-      : {
-          kind: "product",
-          product_id: line.productId,
-          quantity: line.quantity,
-        },
-  );
 }
 
 /** Gửi lời nhắn qua RPC để khách không có quyền đọc hộp thư liên hệ. */

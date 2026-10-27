@@ -9,7 +9,7 @@ test("custom gifts exclude ready-made boxes and repair saved selections without 
     { ...products[0], id: "legacy-gift", category: "Hộp quà & combo" },
   ];
   const available = giftComponents(catalog);
-  const repaired = cleanDesign({ ...defaultDesign, productIds: ["tea", "gift-new-name", "legacy-gift", "honey"], recipient: "Mẹ", message: "Thương mẹ." }, available);
+  const repaired = cleanDesign({ ...defaultDesign, includeCard: true, productIds: ["tea", "gift-new-name", "legacy-gift", "honey"], recipient: "Mẹ", message: "Thương mẹ." }, available);
   assert.deepEqual(available.map(product => product.id), products.map(product => product.id));
   assert.deepEqual(repaired.productIds, ["tea", "honey"]);
   assert.equal(repaired.recipient, "Mẹ");

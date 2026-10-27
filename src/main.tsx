@@ -26,6 +26,7 @@ import "./asin-experience.css";
 import "./asin-lower.css";
 import "./asin-typography.css";
 import "./asin-pages.css";
+import "./storefront-structure.css";
 
 // GA4 sẵn sàng trước khi trang con gửi sự kiện; tự tắt ở admin/preview/localhost.
 initAnalytics();

@@ -17,6 +17,7 @@ const STATIC_PAGES: Array<{ path: string; changefreq: string; priority: string }
   { path: "/san-pham", changefreq: "weekly", priority: "0.9" },
   { path: "/thiet-ke", changefreq: "monthly", priority: "0.8" },
   { path: "/gioi-thieu", changefreq: "monthly", priority: "0.6" },
+  { path: "/nguon-goc", changefreq: "monthly", priority: "0.6" },
   { path: "/tin-tuc", changefreq: "weekly", priority: "0.7" },
   { path: "/lien-he", changefreq: "yearly", priority: "0.5" },
 ];

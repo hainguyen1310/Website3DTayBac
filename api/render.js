@@ -608,6 +608,7 @@ function matchSiteRoute(pathname, search) {
   }
   if (first2 === "thiet-ke" && segments.length === 1) return { kind: "gift" };
   if (first2 === "gioi-thieu" && segments.length === 1) return { kind: "about" };
+  if (first2 === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first2 === "lien-he" && segments.length === 1) return { kind: "contact" };
   if (first2 === "huy-nhan-tin" && segments.length === 1) return { kind: "unsubscribe" };
   if (first2 === "tin-tuc") {
@@ -661,6 +662,8 @@ function routePath(route) {
       return "/thiet-ke";
     case "about":
       return "/gioi-thieu";
+    case "origin":
+      return "/nguon-goc";
     case "news": {
       if (route.topic) return `/tin-tuc/chu-de/${route.topic}`;
       return "/tin-tuc";
@@ -925,7 +928,7 @@ function giftMeta(ctx) {
     ctx,
     route: { kind: "gift" },
     title: "T\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0 T\xE2y B\u1EAFc \u2014 A S\u1EC9n",
-    description: "T\u1EF1 ch\u1ECDn s\u1EA3n v\u1EADt, m\xE0u h\u1ED9p v\xE0 l\u1EDDi nh\u1EAFn \u0111\u1EC3 t\u1EA1o m\u1ED9t m\xF3n qu\xE0 mang d\u1EA5u \u1EA5n ri\xEAng. H\u1ED9p qu\xE0 A S\u1EC9n ph\xF9 h\u1EE3p bi\u1EBFu t\u1EB7ng gia \u0111\xECnh, \u0111\u1ED1i t\xE1c v\xE0 d\u1ECBp l\u1EC5.",
+    description: "C\xE1 nh\xE2n h\xF3a h\u1ED9p qu\xE0 A S\u1EC9n qua 4 b\u01B0\u1EDBc: ch\u1ECDn size v\u1EEBa ho\u1EB7c to, m\xE0u xanh ho\u1EB7c \u0111\u1ECF \u0111\xF4, s\u1EA3n ph\u1EA9m b\xEAn trong v\xE0 thi\u1EC7p l\u1EDDi ch\xFAc t\xF9y ch\u1ECDn.",
     canonicalPath: "/thiet-ke",
     jsonLd: [
       breadcrumbJsonLd(ctx, [
@@ -933,6 +936,19 @@ function giftMeta(ctx) {
         { name: "H\u1ED9p qu\xE0", path: "/thiet-ke" }
       ])
     ]
+  });
+}
+function originMeta(ctx) {
+  return meta({
+    ctx,
+    route: { kind: "origin" },
+    title: "Ngu\u1ED3n g\u1ED1c s\u1EA3n v\u1EADt \u2014 A S\u1EC9n T\xE2y B\u1EAFc",
+    description: "Kh\xE1m ph\xE1 v\xF9ng nguy\xEAn li\u1EC7u, con ng\u01B0\u1EDDi v\xE0 c\xE1ch ch\u1EBF bi\u1EBFn truy\u1EC1n th\u1ED1ng ph\xEDa sau c\xE1c s\u1EA3n v\u1EADt T\xE2y B\u1EAFc c\u1EE7a A S\u1EC9n.",
+    canonicalPath: "/nguon-goc",
+    jsonLd: [breadcrumbJsonLd(ctx, [
+      { name: "Trang ch\u1EE7", path: "/" },
+      { name: "Ngu\u1ED3n g\u1ED1c", path: "/nguon-goc" }
+    ])]
   });
 }
 function aboutMeta(ctx) {
@@ -1044,8 +1060,9 @@ function navHtml() {
       <ul>
         <li>${link("/", "Trang ch\u1EE7")}</li>
         <li>${link("/san-pham", "S\u1EA3n ph\u1EA9m")}</li>
-        <li>${link("/thiet-ke", "H\u1ED9p qu\xE0")}</li>
-        <li>${link("/gioi-thieu", "V\u1EC1 A S\u1EC9n")}</li>
+        <li>${link("/thiet-ke", "H\u1ED9p qu\xE0 3D")}</li>
+        <li>${link("/nguon-goc", "Ngu\u1ED3n g\u1ED1c")}</li>
+        <li>${link("/gioi-thieu", "V\u1EC1 ch\xFAng t\xF4i")}</li>
         <li>${link("/tin-tuc", "Tin t\u1EE9c")}</li>
         <li>${link("/lien-he", "Li\xEAn h\u1EC7")}</li>
       </ul>
@@ -1190,9 +1207,12 @@ async function renderHome(ctx, client) {
   }
   const body = prerenderWrap(`<main>
       <h1>A S\u1EC9n \u2014 Tinh hoa T\xE2y B\u1EAFc trong m\u1ED9t m\xF3n qu\xE0</h1>
-      <p>\u0110\u1EB7c s\u1EA3n g\xE1c b\u1EBFp, gia v\u1ECB n\xFAi r\u1EEBng v\xE0 nh\u1EEFng m\xF3n qu\xE0 mang d\u1EA5u \u1EA5n T\xE2y B\u1EAFc. ${link("/gioi-thieu", "T\xECm hi\u1EC3u c\xE2u chuy\u1EC7n A S\u1EC9n")} ho\u1EB7c ${link("/thiet-ke", "t\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0")}.</p>
+      <p>\u0110\u1EB7c s\u1EA3n g\xE1c b\u1EBFp, gia v\u1ECB n\xFAi r\u1EEBng v\xE0 nh\u1EEFng m\xF3n qu\xE0 mang d\u1EA5u \u1EA5n T\xE2y B\u1EAFc. ${link("/san-pham", "Kh\xE1m ph\xE1 s\u1EA3n ph\u1EA9m")} ho\u1EB7c ${link("/thiet-ke", "L\xE0m h\u1ED9p qu\xE0 3D")}.</p>
+      <section><h2>C\xE2u chuy\u1EC7n A S\u1EC9n</h2><p>T\u1EEB con ng\u01B0\u1EDDi v\xF9ng cao \u0111\u1EBFn m\u1ED9t m\xF3n qu\xE0 ch\xE2n th\xE0nh. ${link("/gioi-thieu", "Kh\xE1m ph\xE1 c\xE2u chuy\u1EC7n")}</p></section>
       ${products.length ? `<section aria-labelledby="seo-home-products"><h2 id="seo-home-products">S\u1EA3n v\u1EADt n\u1ED5i b\u1EADt</h2><ul>${products.slice(0, 6).map(productCard).join("")}</ul><p>${link("/san-pham", "Xem t\u1EA5t c\u1EA3 s\u1EA3n ph\u1EA9m")}</p></section>` : `<p>${link("/san-pham", "Xem s\u1EA3n ph\u1EA9m")}</p>`}
-      ${articles.length ? `<section aria-labelledby="seo-home-news"><h2 id="seo-home-news">C\xE2u chuy\u1EC7n m\u1EDBi</h2><ul>${articles.map(articleCard).join("")}</ul><p>${link("/tin-tuc", "\u0110\u1ECDc t\u1EA1p ch\xED A S\u1EC9n")}</p></section>` : ""}
+      <section><h2>L\xFD do ch\u1ECDn A S\u1EC8N</h2><p>Nguy\xEAn li\u1EC7u tuy\u1EC3n ch\u1ECDn, h\u01B0\u01A1ng v\u1ECB truy\u1EC1n th\u1ED1ng v\xE0 nh\u1EEFng m\xF3n qu\xE0 \u0111\u01B0\u1EE3c ch\u0103m ch\xFAt. ${link("/nguon-goc", "Kh\xE1m ph\xE1 ngu\u1ED3n g\u1ED1c")}</p></section>
+      <section><h2>\u0110\xE1nh gi\xE1 c\u1EE7a kh\xE1ch h\xE0ng</h2><p>${link("/#danh-gia", "Xem c\xE1c \u0111\xE1nh gi\xE1 tr\xEAn trang ch\u1EE7")}</p></section>
+      <section aria-labelledby="seo-home-news"><h2 id="seo-home-news">Tin t\u1EE9c</h2>${articles.length ? `<ul>${articles.map(articleCard).join("")}</ul>` : ""}<p>${link("/tin-tuc", "\u0110\u1ECDc t\u1EA1p ch\xED A S\u1EC9n")}</p></section>
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
@@ -1218,17 +1238,18 @@ async function renderProducts(ctx, client) {
   } catch {
     return serviceUnavailablePage(ctx, { kind: "products" });
   }
+  const retailProducts = products.filter((product) => product.categorySlug !== "hop-qua" && !/^hộp quà(?:\s|$)/iu.test(product.categoryName?.trim() ?? ""));
   const body = prerenderWrap(`<main>
-      <h1>S\u1EA3n v\u1EADt & \u0111\u1EB7c s\u1EA3n T\xE2y B\u1EAFc</h1>
-      <p>Ch\u1ECDn h\u01B0\u01A1ng v\u1ECB b\u1EA1n y\xEAu v\xE0 \u0111\u1EB7t h\xE0ng thanh to\xE1n khi nh\u1EADn h\xE0ng. ${link("/thiet-ke", "G\xF3i th\xE0nh h\u1ED9p qu\xE0")} \u0111\u1EC3 g\u1EEDi t\u1EB7ng.</p>
-      <ul>${products.map(productCard).join("")}</ul>
-      ${productCategoryLinks(products)}
+      <h1>Gh\xE9p h\u01B0\u01A1ng v\u1ECB. G\u1EEDi m\xF3n qu\xE0 ri\xEAng.</h1>
+      <section><h2>H\u1ED9p qu\xE0 3D A S\u1EC9n</h2><p>${link("/thiet-ke", "Kh\xE1m ph\xE1 h\u1ED9p qu\xE0 t\u1EB7ng")} v\xE0 ch\u1ECDn s\u1EA3n v\u1EADt, m\xE0u h\u1ED9p, l\u1EDDi nh\u1EAFn c\u1EE7a b\u1EA1n.</p></section>
+      <section><h2>C\xE1c s\u1EA3n ph\u1EA9m b\xE1n l\u1EBB</h2><ul>${retailProducts.map(productCard).join("")}</ul></section>
+      ${productCategoryLinks(retailProducts)}
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
   return {
     status: 200,
-    seo: productsMeta(ctx, products),
+    seo: productsMeta(ctx, retailProducts),
     bodyHtml: body,
     cacheControl: PUBLIC_CONTENT_CACHE,
     bootstrap: {
@@ -1423,7 +1444,7 @@ function staticPage(ctx, route, title, intro) {
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
-  const seo = route.kind === "gift" ? giftMeta(ctx) : route.kind === "about" ? aboutMeta(ctx) : route.kind === "contact" ? contactMeta(ctx) : homeMeta(ctx);
+  const seo = route.kind === "gift" ? giftMeta(ctx) : route.kind === "about" ? aboutMeta(ctx) : route.kind === "origin" ? originMeta(ctx) : route.kind === "contact" ? contactMeta(ctx) : homeMeta(ctx);
   return { status: 200, seo, bodyHtml: body, cacheControl: PUBLIC_CONTENT_CACHE };
 }
 async function renderSitePage(input) {
@@ -1499,8 +1520,10 @@ async function renderSitePage(input) {
         ctx,
         route,
         "T\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0 T\xE2y B\u1EAFc",
-        "T\u1EF1 ch\u1ECDn s\u1EA3n v\u1EADt, m\xE0u h\u1ED9p v\xE0 l\u1EDDi nh\u1EAFn \u0111\u1EC3 t\u1EA1o m\u1ED9t m\xF3n qu\xE0 mang d\u1EA5u \u1EA5n ri\xEAng c\xF9ng A S\u1EC9n."
+        "Ch\u1ECDn size h\u1ED9p v\u1EEBa ho\u1EB7c to, m\xE0u xanh ho\u1EB7c \u0111\u1ECF \u0111\xF4, s\u1EA3n ph\u1EA9m b\xEAn trong r\u1ED3i ch\u1ECDn vi\u1EBFt thi\u1EC7p ho\u1EB7c kh\xF4ng. N\u1EBFu vi\u1EBFt thi\u1EC7p, nh\u1EADp l\u1EDDi ch\xFAc v\xE0o ph\u1EA7n ghi ch\xFA."
       );
+    case "origin":
+      return staticPage(ctx, route, "Ngu\u1ED3n g\u1ED1c s\u1EA3n v\u1EADt A S\u1EC9n", "Kh\xE1m ph\xE1 v\xF9ng nguy\xEAn li\u1EC7u T\xE2y B\u1EAFc, nh\u1EEFng ng\u01B0\u1EDDi s\u1EA3n xu\u1EA5t b\u1EA3n \u0111\u1ECBa v\xE0 c\xE1ch ch\u1EBF bi\u1EBFn truy\u1EC1n th\u1ED1ng ph\xEDa sau t\u1EEBng s\u1EA3n v\u1EADt. Xem th\xF4ng tin xu\u1EA5t x\u1EE9 c\u1EE5 th\u1EC3 tr\xEAn trang s\u1EA3n ph\u1EA9m ho\u1EB7c li\xEAn h\u1EC7 A S\u1EC9n \u0111\u1EC3 t\xECm hi\u1EC3u th\xEAm.");
     case "about":
       return staticPage(
         ctx,

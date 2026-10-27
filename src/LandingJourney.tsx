@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { Gift, HandHeart, Leaf, Wheat } from "lucide-react";
+import { ArrowRight, Gift, HandHeart, Leaf, Wheat } from "lucide-react";
 import { useWebsite } from "./WebsiteContext";
 
 export default function LandingJourney() {
   const { content: c } = useWebsite();
-  const storyUrl = new URL("/gioi-thieu", window.location.origin).href;
+  const storyUrl = new URL("/nguon-goc", window.location.origin).href;
   const steps = [
     { label: "Vùng nguyên liệu Tây Bắc", image: c["story.terracesImage"] },
     { label: "Người sản xuất bản địa", image: c["story.portraitImage"] },
@@ -21,8 +21,9 @@ export default function LandingJourney() {
       <div className="asin-journey">
         <div className="asin-container asin-journey-grid">
           <div className="asin-journey-copy">
-            <span className="asin-eyebrow">HÀNH TRÌNH TỪ VÙNG CAO ĐẾN BẠN</span>
-            <h2 id="journey-title">Giữ trọn hương vị<br />nguyên bản.</h2>
+            <span className="asin-eyebrow">TỪ VÙNG CAO ĐẾN BẠN</span>
+            <h2 id="journey-title">Lý do chọn<br />A SỈN.</h2>
+            <Link className="asin-button asin-origin-cta" to="/nguon-goc">Khám phá nguồn gốc <ArrowRight size={16} /></Link>
           </div>
           <ol>
             {steps.map(({ label, image }, index) => (
@@ -32,7 +33,7 @@ export default function LandingJourney() {
                     <img src={image} alt="" loading="lazy" width={112} height={112} />
                   </div>
                 ) : (
-                  <Link to="/gioi-thieu" className="asin-journey-icon asin-journey-qr" aria-label="Đọc câu chuyện nguồn gốc A Sỉn">
+                  <Link to="/nguon-goc" className="asin-journey-icon asin-journey-qr" aria-label="Đọc câu chuyện nguồn gốc A Sỉn">
                     <QRCodeSVG value={storyUrl} size={78} marginSize={2} level="M" bgColor="#fffaf1" fgColor="#29231d" />
                   </Link>
                 )}

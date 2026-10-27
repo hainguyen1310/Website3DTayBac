@@ -8,9 +8,7 @@ import {
   HandHeart,
   Heart,
   MapPin,
-  Play,
   ShieldCheck,
-  Sparkles,
   Truck,
   Users,
   Wheat,
@@ -19,8 +17,7 @@ import { useCatalog } from "./CatalogContext";
 import { useShop } from "./ShopContext";
 import { money } from "./catalog";
 import { useWebsite } from "./WebsiteContext";
-import { PORK_MODEL, SIGNATURE_PRODUCTS } from "./asinContent";
-import ProductViewer from "./ProductViewer";
+import { SIGNATURE_PRODUCTS } from "./asinContent";
 import LandingJourney from "./LandingJourney";
 import LandingReviews from "./LandingReviews";
 import { LandingNews } from "./Journal";
@@ -33,7 +30,6 @@ export default function Home() {
   const { setSelectedProduct } = useShop();
   useDocumentSeo((ctx) => homeMeta(ctx), []);
   const rail = useRef<HTMLDivElement>(null);
-  const pork = products.find((p) => p.id === "thit-lon-gac-bep");
   return (
     <main className="asin-home">
       <section className="asin-hero" aria-labelledby="hero-title">
@@ -55,15 +51,12 @@ export default function Home() {
             </h1>
             <p>{c["hero.description"]}</p>
             <div className="asin-actions">
-              <Link className="asin-button" to={c["hero.link"]}>
+              <Link className="asin-button" to="/san-pham">
                 {c["hero.cta"]} <ArrowRight size={17} />
               </Link>
-              <a
-                className="asin-button asin-button-light"
-                href="#trai-nghiem-3d"
-              >
-                <Play size={18} /> Trải nghiệm 3D
-              </a>
+              <Link className="asin-button asin-button-light" to="/thiet-ke">
+                Làm hộp quà 3D <ArrowRight size={18} />
+              </Link>
             </div>
           </div>
         </div>
@@ -93,25 +86,19 @@ export default function Home() {
           câu chuyện.
         </span>
       </section>
-      <section className="asin-values" aria-label="Giá trị A Sỉn">
+      <aside className="asin-values" aria-label="Giá trị A Sỉn">
         <div className="asin-container">
-          {[ShieldCheck, Wheat, Gift, Box, Truck].map((Icon, i) => (
-            <div className="asin-value" key={i}>
-              <Icon size={33} strokeWidth={1.25} />
+          {[ShieldCheck, Wheat, Gift, Box, Truck].map((Icon, index) => (
+            <div className="asin-value" key={index}>
+              <Icon size={33} strokeWidth={1.25} aria-hidden="true" />
               <div>
-                <b>
-                  {i === 4 ? "Giao hàng toàn quốc" : c[`values.${i + 1}.title`]}
-                </b>
-                <small>
-                  {i === 4
-                    ? "Nâng niu từng món quà"
-                    : c[`values.${i + 1}.text`]}
-                </small>
+                <b>{index === 4 ? "Giao hàng toàn quốc" : c[`values.${index + 1}.title`]}</b>
+                <small>{index === 4 ? "Nâng niu từng món quà" : c[`values.${index + 1}.text`]}</small>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </aside>
       <section
         className="asin-story"
         id="cau-chuyen"
@@ -298,82 +285,8 @@ export default function Home() {
           </button>
         </div>
       </section>
-      <section
-        className="asin-experience"
-        id="trai-nghiem-3d"
-        aria-labelledby="experience-title"
-      >
-        <div className="asin-container asin-experience-grid">
-          <div className="asin-experience-copy">
-            <span className="asin-eyebrow">TRẢI NGHIỆM 3D</span>
-            <h2 id="experience-title">
-              Chạm để thấy
-              <br />
-              gần hơn Tây Bắc.
-            </h2>
-            <p>
-              Xem sản phẩm với mô hình 3D chân thực. Xoay mọi góc độ, phóng
-              to từng chi tiết, giúp bạn hiểu rõ hơn về sản phẩm trước khi mua.
-            </p>
-            <a className="asin-button asin-button-light asin-experience-cta" href="#san-pham-3d">
-              Khám phá 360° <ArrowRight size={16} />
-            </a>
-            <span className="asin-model-name">
-              <Box size={17} /> Thịt lợn gác bếp Tây Bắc
-            </span>
-          </div>
-          <ProductViewer
-            src={pork?.modelUrl || PORK_MODEL}
-            poster="/images/asin/pork-viewer-poster.webp"
-            name="Thịt lợn gác bếp Tây Bắc"
-            detailPoster="/images/products/pork.webp"
-            stageId="san-pham-3d"
-          />
-        </div>
-      </section>
       <LandingJourney />
       <LandingReviews />
-      <section
-        className="asin-gift asin-paper"
-        id="qua-tang"
-        aria-labelledby="gift-title"
-      >
-        <div className="asin-container asin-gift-grid">
-          <div>
-            <span className="asin-eyebrow">HỘP QUÀ A SỈN</span>
-            <h2 id="gift-title">{c["gift.title"]}</h2>
-            <p>{c["gift.description"]}</p>
-            <Link className="asin-button" to={c["gift.link"]}>
-              {c["gift.cta"]} <ArrowRight size={16} />
-            </Link>
-          </div>
-          <div className="asin-gift-image">
-            <img
-              src={c["gift.image"]}
-              alt="Hộp quà gỗ với thịt gác bếp và gia vị Tây Bắc; ảnh minh họa bộ quà"
-              width={1600}
-              height={728}
-              loading="lazy"
-            />
-          </div>
-          <div className="asin-gift-options">
-            <span className="asin-eyebrow">CÁ NHÂN HÓA HỘP QUÀ</span>
-            {[
-              { Icon: Gift, text: "Chọn sản phẩm theo nhu cầu" },
-              { Icon: Sparkles, text: "Thiết kế thông điệp riêng" },
-              { Icon: Users, text: "Phù hợp doanh nghiệp, đối tác" },
-            ].map(({ Icon, text }) => (
-              <Link to="/thiet-ke" key={text}>
-                <Icon size={24} strokeWidth={1.1} />
-                <span>{text}</span>
-              </Link>
-            ))}
-            <Link to="/thiet-ke" aria-label="Bắt đầu thiết kế hộp quà">
-              <ArrowRight size={23} />
-            </Link>
-          </div>
-        </div>
-      </section>
       <LandingNews />
     </main>
   );

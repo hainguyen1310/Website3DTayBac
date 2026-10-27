@@ -9,20 +9,23 @@ export default function GiftPreview({
   products,
   compact = false,
   showProducts = false,
+  rotation,
 }: {
   design: GiftDesign;
   products: Product[];
   compact?: boolean;
   showProducts?: boolean;
+  rotation?: number;
 }) {
   return (
     <div
-      className={`gift-stage ${compact ? "compact" : ""}`}
+      className={`gift-stage ${compact ? "compact" : ""} is-size-${design.size}`}
       style={{ "--box-color": design.color } as CSSProperties}
     >
       <div className="gift-floor" />
       <div
         className={`gift-box pattern-${design.pattern === "Thổ cẩm" ? "weave" : design.pattern === "Triền núi" ? "mountain" : "plain"}`}
+        style={rotation === undefined ? undefined : { transform: `rotateX(24deg) rotateY(${rotation}deg) rotateZ(-9deg)` }}
       >
         <div className="box-depth" />
         <div className="box-lid">
@@ -35,11 +38,11 @@ export default function GiftPreview({
           <div className="box-motto">GÓI TRỌN TINH HOA NÚI RỪNG</div>
           <div className="box-pattern bottom-pattern" />
           <div className="box-ribbon" />
-          <div className="gift-note">
+          {design.includeCard && <div className="gift-note">
             <span>Gửi {design.recipient || "người thương"},</span>
             <p>{design.message || "Một món quà từ núi rừng."}</p>
             <i>Thương mến, A Sỉn</i>
-          </div>
+          </div>}
         </div>
       </div>
       {showProducts && (

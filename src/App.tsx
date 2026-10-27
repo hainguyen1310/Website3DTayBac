@@ -32,7 +32,7 @@ import {
   X,
   Youtube,
 } from "lucide-react";
-import { colors, linePrice, money } from "./catalog";
+import { boxSizes, colors, linePrice, money } from "./catalog";
 import type { CartLine, Product } from "./catalog";
 import { CatalogProvider } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
@@ -45,7 +45,7 @@ import {
   NewsPage,
   ProductsPage,
 } from "./CommercePages";
-import { CategoryPage, ProductDetailPage } from "./StorefrontPages";
+import { CategoryPage, OriginPage, ProductDetailPage } from "./StorefrontPages";
 import Home from "./Home";
 import Newsletter from "./Newsletter";
 import ProductViewer from "./ProductViewer";
@@ -134,6 +134,7 @@ function Modal({
 function Header() {
   const { cart, setCartOpen } = useShop();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(() => window.scrollY > 24);
   const location = useLocation();
@@ -151,7 +152,7 @@ function Header() {
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
-    const desktop = window.matchMedia("(min-width: 901px)");
+    const desktop = window.matchMedia("(min-width: 1101px)");
     const closeOnDesktop = () => {
       if (desktop.matches) setMenuOpen(false);
     };
@@ -175,9 +176,11 @@ function Header() {
             aria-label="Điều hướng chính"
           >
             {[
+              ["/", "Trang chủ"],
               ["/san-pham", "Sản phẩm"],
-              ["/thiet-ke", "Hộp quà"],
-              ["/gioi-thieu", "Về A Sỉn"],
+              ["/thiet-ke", "Hộp quà 3D"],
+              ["/nguon-goc", "Nguồn gốc"],
+              ["/gioi-thieu", "Về chúng tôi"],
               ["/tin-tuc", "Tin tức"],
             ].map(([to, label]) => (
               <Link
@@ -188,17 +191,16 @@ function Header() {
                 {label}
               </Link>
             ))}
-            <Link className="asin-mobile-link" to="/lien-he">
-              Liên hệ
-            </Link>
           </nav>
           <div className="asin-header-actions">
-            <button
+            <form className="asin-header-search" role="search" onSubmit={(event) => { event.preventDefault(); setSearchOpen(true); }}>
+              <input aria-label="Tìm kiếm sản phẩm" placeholder="Tìm sản phẩm…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} />
+            <button type="submit"
               aria-label="Tìm sản phẩm"
-              onClick={() => setSearchOpen(true)}
             >
               <Search size={22} strokeWidth={1.5} />
             </button>
+            </form>
             <button
               className="asin-cart-button"
               aria-label={`Giỏ hàng (${count})`}
@@ -207,9 +209,6 @@ function Header() {
               <ShoppingBag size={22} strokeWidth={1.5} />
               <span>{count}</span>
             </button>
-            <Link className="asin-header-contact" to="/lien-he">
-              Liên hệ
-            </Link>
             <button
               className="asin-menu-button"
               aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
@@ -222,7 +221,7 @@ function Header() {
           </div>
         </div>
       </header>
-      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      {searchOpen && <SearchModal initialQuery={searchQuery} onClose={() => setSearchOpen(false)} />}
     </>
   );
 }
@@ -230,11 +229,13 @@ function Header() {
 function SearchModal({
   onClose,
   favorites = false,
+  initialQuery = "",
 }: {
   onClose: () => void;
   favorites?: boolean;
+  initialQuery?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const { products, setSelectedProduct, favoriteIds } = useShop();
   const normalize = (text: string) =>
     text
@@ -417,7 +418,7 @@ function Quantity({
 
 function lineName(line: CartLine, list: Product[]) {
   return line.design
-    ? `Hộp quà gửi ${line.design.recipient || "người thương"}`
+    ? (line.design.includeCard && line.design.recipient ? `Hộp quà gửi ${line.design.recipient}` : "Hộp quà cá nhân hóa")
     : (list.find((p) => p.id === line.productId)?.name ?? "Sản vật");
 }
 
@@ -768,11 +769,12 @@ function Cart() {
                                   (c) => c.value === item.design!.color,
                                 )?.name
                               }{" "}
-                              · {item.design.pattern}
+                              · {boxSizes.find(size => size.value === item.design!.size)?.name}
+                              · {item.design.includeCard ? "Có viết thiệp" : "Không viết thiệp"}
                             </small>
-                            <span className="cart-gift-note">
+                            {item.design.includeCard && <span className="cart-gift-note">
                               “{item.design.message}”
-                            </span>
+                            </span>}
                           </>
                         ) : (
                           <small>{p!.weight}</small>
@@ -870,8 +872,8 @@ function Footer() {
             <div>
               <h3>Về A Sỉn</h3>
               <Link to="/gioi-thieu">Câu chuyện</Link>
-              <Link to="/#nguon-goc">Nguồn gốc</Link>
-              <Link to="/#trai-nghiem-3d">Trải nghiệm 3D</Link>
+              <Link to="/nguon-goc">Nguồn gốc</Link>
+              <Link to="/thiet-ke">Hộp quà 3D</Link>
               <Link to="/tin-tuc">Tin tức</Link>
               <Link to="/lien-he">Liên hệ</Link>
             </div>
@@ -960,6 +962,7 @@ function Shell() {
             element={<Navigate to="/#deal-hoi" replace />}
           />
           <Route path="/gioi-thieu" element={<AboutPage />} />
+          <Route path="/nguon-goc" element={<OriginPage />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
           <Route path="/tin-tuc/chu-de/:topicSlug" element={<NewsPage />} />
           <Route path="/tin-tuc/:storyId" element={<NewsDetailPage />} />

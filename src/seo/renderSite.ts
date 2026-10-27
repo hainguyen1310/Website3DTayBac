@@ -18,6 +18,7 @@ import { PUBLIC_CONTENT_CACHE } from "./cachePolicy.ts";
 import type { SiteRoute } from "./paths.ts";
 import {
   aboutMeta,
+  originMeta,
   articleMeta,
   categoryMeta,
   contactMeta,
@@ -71,8 +72,9 @@ function navHtml(): string {
       <ul>
         <li>${link("/", "Trang chủ")}</li>
         <li>${link("/san-pham", "Sản phẩm")}</li>
-        <li>${link("/thiet-ke", "Hộp quà")}</li>
-        <li>${link("/gioi-thieu", "Về A Sỉn")}</li>
+        <li>${link("/thiet-ke", "Hộp quà 3D")}</li>
+        <li>${link("/nguon-goc", "Nguồn gốc")}</li>
+        <li>${link("/gioi-thieu", "Về chúng tôi")}</li>
         <li>${link("/tin-tuc", "Tin tức")}</li>
         <li>${link("/lien-he", "Liên hệ")}</li>
       </ul>
@@ -241,9 +243,12 @@ async function renderHome(ctx: SeoContext, client: SupabaseRest): Promise<Render
   }
   const body = prerenderWrap(`<main>
       <h1>A Sỉn — Tinh hoa Tây Bắc trong một món quà</h1>
-      <p>Đặc sản gác bếp, gia vị núi rừng và những món quà mang dấu ấn Tây Bắc. ${link("/gioi-thieu", "Tìm hiểu câu chuyện A Sỉn")} hoặc ${link("/thiet-ke", "tự thiết kế hộp quà")}.</p>
+      <p>Đặc sản gác bếp, gia vị núi rừng và những món quà mang dấu ấn Tây Bắc. ${link("/san-pham", "Khám phá sản phẩm")} hoặc ${link("/thiet-ke", "Làm hộp quà 3D")}.</p>
+      <section><h2>Câu chuyện A Sỉn</h2><p>Từ con người vùng cao đến một món quà chân thành. ${link("/gioi-thieu", "Khám phá câu chuyện")}</p></section>
       ${products.length ? `<section aria-labelledby="seo-home-products"><h2 id="seo-home-products">Sản vật nổi bật</h2><ul>${products.slice(0, 6).map(productCard).join("")}</ul><p>${link("/san-pham", "Xem tất cả sản phẩm")}</p></section>` : `<p>${link("/san-pham", "Xem sản phẩm")}</p>`}
-      ${articles.length ? `<section aria-labelledby="seo-home-news"><h2 id="seo-home-news">Câu chuyện mới</h2><ul>${articles.map(articleCard).join("")}</ul><p>${link("/tin-tuc", "Đọc tạp chí A Sỉn")}</p></section>` : ""}
+      <section><h2>Lý do chọn A SỈN</h2><p>Nguyên liệu tuyển chọn, hương vị truyền thống và những món quà được chăm chút. ${link("/nguon-goc", "Khám phá nguồn gốc")}</p></section>
+      <section><h2>Đánh giá của khách hàng</h2><p>${link("/#danh-gia", "Xem các đánh giá trên trang chủ")}</p></section>
+      <section aria-labelledby="seo-home-news"><h2 id="seo-home-news">Tin tức</h2>${articles.length ? `<ul>${articles.map(articleCard).join("")}</ul>` : ""}<p>${link("/tin-tuc", "Đọc tạp chí A Sỉn")}</p></section>
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
@@ -270,17 +275,18 @@ async function renderProducts(ctx: SeoContext, client: SupabaseRest): Promise<Re
   } catch {
     return serviceUnavailablePage(ctx, { kind: "products" });
   }
+  const retailProducts = products.filter(product => product.categorySlug !== "hop-qua" && !/^hộp quà(?:\s|$)/iu.test(product.categoryName?.trim() ?? ""));
   const body = prerenderWrap(`<main>
-      <h1>Sản vật & đặc sản Tây Bắc</h1>
-      <p>Chọn hương vị bạn yêu và đặt hàng thanh toán khi nhận hàng. ${link("/thiet-ke", "Gói thành hộp quà")} để gửi tặng.</p>
-      <ul>${products.map(productCard).join("")}</ul>
-      ${productCategoryLinks(products)}
+      <h1>Ghép hương vị. Gửi món quà riêng.</h1>
+      <section><h2>Hộp quà 3D A Sỉn</h2><p>${link("/thiet-ke", "Khám phá hộp quà tặng")} và chọn sản vật, màu hộp, lời nhắn của bạn.</p></section>
+      <section><h2>Các sản phẩm bán lẻ</h2><ul>${retailProducts.map(productCard).join("")}</ul></section>
+      ${productCategoryLinks(retailProducts)}
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
   return {
     status: 200,
-    seo: productsMeta(ctx, products),
+    seo: productsMeta(ctx, retailProducts),
     bodyHtml: body,
     cacheControl: PUBLIC_CONTENT_CACHE,
     bootstrap: {
@@ -497,6 +503,8 @@ function staticPage(ctx: SeoContext, route: SiteRoute, title: string, intro: str
       ? giftMeta(ctx)
       : route.kind === "about"
         ? aboutMeta(ctx)
+        : route.kind === "origin"
+          ? originMeta(ctx)
         : route.kind === "contact"
           ? contactMeta(ctx)
           : homeMeta(ctx);
@@ -574,8 +582,10 @@ export async function renderSitePage(input: RenderSiteInput): Promise<RenderedPa
         ctx,
         route,
         "Tự thiết kế hộp quà Tây Bắc",
-        "Tự chọn sản vật, màu hộp và lời nhắn để tạo một món quà mang dấu ấn riêng cùng A Sỉn.",
+        "Chọn size hộp vừa hoặc to, màu xanh hoặc đỏ đô, sản phẩm bên trong rồi chọn viết thiệp hoặc không. Nếu viết thiệp, nhập lời chúc vào phần ghi chú.",
       );
+    case "origin":
+      return staticPage(ctx, route, "Nguồn gốc sản vật A Sỉn", "Khám phá vùng nguyên liệu Tây Bắc, những người sản xuất bản địa và cách chế biến truyền thống phía sau từng sản vật. Xem thông tin xuất xứ cụ thể trên trang sản phẩm hoặc liên hệ A Sỉn để tìm hiểu thêm.");
     case "about":
       return staticPage(
         ctx,

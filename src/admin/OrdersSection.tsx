@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowUpRight, Download, Eye, Search } from "lucide-react";
-import { money } from "../catalog";
+import { boxSizes, colors, money } from "../catalog";
 import { useAuth } from "../AuthContext";
 import { supabase } from "../utils/supabase";
 import { invalidateCache } from "../services/cache";
@@ -224,6 +224,10 @@ function OrderDetail({
                   <small>
                     {item.sku ?? "Không SKU"} · SL {item.quantity}
                   </small>
+                  {item.giftDesign && <>
+                    <small>{boxSizes.find(size => size.value === item.giftDesign?.size)?.name ?? "Size vừa"} · {colors.find(color => color.value === item.giftDesign?.color)?.name ?? "Màu hộp theo thiết kế"} · {item.giftDesign.includeCard === false ? "Không viết thiệp" : "Có viết thiệp"}</small>
+                    {item.giftDesign.includeCard !== false && typeof item.giftDesign.message === "string" && item.giftDesign.message && <small className="admin-gift-message">Lời chúc: {item.giftDesign.message}</small>}
+                  </>}
                 </span>
                 <b>{money(item.lineTotalVnd)}</b>
               </li>

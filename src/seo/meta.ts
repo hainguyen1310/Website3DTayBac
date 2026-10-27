@@ -267,7 +267,7 @@ export function giftMeta(ctx: SeoContext): SeoMeta {
     route: { kind: "gift" },
     title: "Tự thiết kế hộp quà Tây Bắc — A Sỉn",
     description:
-      "Tự chọn sản vật, màu hộp và lời nhắn để tạo một món quà mang dấu ấn riêng. Hộp quà A Sỉn phù hợp biếu tặng gia đình, đối tác và dịp lễ.",
+      "Cá nhân hóa hộp quà A Sỉn qua 4 bước: chọn size vừa hoặc to, màu xanh hoặc đỏ đô, sản phẩm bên trong và thiệp lời chúc tùy chọn.",
     canonicalPath: "/thiet-ke",
     jsonLd: [
       breadcrumbJsonLd(ctx, [
@@ -275,6 +275,20 @@ export function giftMeta(ctx: SeoContext): SeoMeta {
         { name: "Hộp quà", path: "/thiet-ke" },
       ]),
     ],
+  });
+}
+
+export function originMeta(ctx: SeoContext): SeoMeta {
+  return meta({
+    ctx,
+    route: { kind: "origin" },
+    title: "Nguồn gốc sản vật — A Sỉn Tây Bắc",
+    description: "Khám phá vùng nguyên liệu, con người và cách chế biến truyền thống phía sau các sản vật Tây Bắc của A Sỉn.",
+    canonicalPath: "/nguon-goc",
+    jsonLd: [breadcrumbJsonLd(ctx, [
+      { name: "Trang chủ", path: "/" },
+      { name: "Nguồn gốc", path: "/nguon-goc" },
+    ])],
   });
 }
 
