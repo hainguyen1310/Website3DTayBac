@@ -22,6 +22,7 @@ import {
 } from "./services/catalogApi";
 import type { StorefrontCategory } from "./services/catalogApi";
 import { readBootstrap } from "./seo/bootstrap";
+import { mergeStorefrontProducts } from "./storefront/products";
 
 export const DEFAULT_NOTICE = "Từ bản làng, gửi đến bạn.";
 
@@ -111,7 +112,8 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const value = useMemo<Catalog>(
-    () => ({ ...data, loading, error, reload: load }),
+    // Danh mục Figma luôn hiển thị; giá/tồn kho trong cơ sở dữ liệu được ưu tiên khi có.
+    () => ({ ...data, products: mergeStorefrontProducts(data.products), loading, error, reload: load }),
     [data, loading, error, load],
   );
 

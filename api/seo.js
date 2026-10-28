@@ -149,7 +149,7 @@ function normalizeImageUrl(value) {
   const url = cleanText(value, 500);
   if (!url) return "";
   if (/^https:\/\//i.test(url)) return url;
-  if (url.startsWith("/") && !url.startsWith("//")) return url;
+  if (url.startsWith("/") && isSafeHref(url)) return url;
   return "";
 }
 function normalizeBlock(value) {
@@ -158,7 +158,7 @@ function normalizeBlock(value) {
   switch (block.type) {
     case "paragraph": {
       const text = cleanText(block.text);
-      return text ? { type: "paragraph", text } : null;
+      return text ? { type: "paragraph", text, ...block.style === "lead" ? { style: "lead" } : {} } : null;
     }
     case "heading": {
       const text = cleanText(block.text, 300);
@@ -183,6 +183,16 @@ function normalizeBlock(value) {
         alt: cleanText(block.alt, 300),
         caption: cleanText(block.caption, 300)
       };
+    }
+    case "image-pair": {
+      if (!Array.isArray(block.images) || block.images.length !== 2) return null;
+      const images = block.images.map((image) => normalizeBlock({ ...image, type: "image" }));
+      const [left, right] = images;
+      if (left?.type !== "image" || right?.type !== "image") return null;
+      return { type: "image-pair", images: [
+        { url: left.url, alt: left.alt, caption: left.caption },
+        { url: right.url, alt: right.alt, caption: right.caption }
+      ] };
     }
     case "cta": {
       const label = cleanText(block.label, 120);

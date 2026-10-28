@@ -8,6 +8,12 @@ import "@fontsource-variable/lora";
 import "@fontsource-variable/lora/wght-italic.css";
 import "@fontsource-variable/cormorant-garamond";
 import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+import "@fontsource/playball/400.css";
+import "@fontsource/playfair-display/400.css";
+import "@fontsource/playfair-display/500.css";
+import "@fontsource/playfair-display/600.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display-sc/400.css";
 import App from "./App";
 import { initAnalytics } from "./analytics";
 import { WebsiteProvider } from "./WebsiteContext";
@@ -27,6 +33,12 @@ import "./asin-lower.css";
 import "./asin-typography.css";
 import "./asin-pages.css";
 import "./storefront-structure.css";
+import "./storefront/styles/base.css";
+import "./storefront/styles/chrome.css";
+import "./storefront/styles/components.css";
+import "./storefront/styles/pages.css";
+import "./storefront/styles/gift.css";
+import "./storefront/styles/detail.css";
 
 // GA4 sẵn sàng trước khi trang con gửi sự kiện; tự tắt ở admin/preview/localhost.
 initAnalytics();

@@ -104,7 +104,7 @@ function blockToHtml(block: ContentBlock): string {
     case "heading":
       return `<h${block.level}>${renderInline(block.text)}</h${block.level}>`;
     case "paragraph":
-      return `<p>${renderInline(block.text)}</p>`;
+      return `<p${block.style === "lead" ? ' class="article-lead"' : ""}>${renderInline(block.text)}</p>`;
     case "list": {
       const tag = block.ordered ? "ol" : "ul";
       return `<${tag}>${block.items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</${tag}>`;
@@ -113,6 +113,8 @@ function blockToHtml(block: ContentBlock): string {
       return `<blockquote><p>${renderInline(block.text)}</p></blockquote>`;
     case "image":
       return `<figure><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
+    case "image-pair":
+      return `<div class="sf-article-pair">${block.images.map((image) => blockToHtml({ type: "image", ...image })).join("")}</div>`;
     case "cta":
       return `<p class="asin-prerender-cta">${link(block.href, block.label)}</p>`;
     case "divider":

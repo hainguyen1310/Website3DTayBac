@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanDesign, defaultDesign, giftPrice, products, BOX_PRICE } from "../src/catalog.ts";
+import { CARD_PRICE, boxSizes, cleanDesign, defaultDesign, giftPrice, products } from "../src/catalog.ts";
 import { giftComponents } from "../src/giftSelection.ts";
 
 test("custom gifts exclude ready-made boxes and repair saved selections without changing personalization", () => {
@@ -14,5 +14,5 @@ test("custom gifts exclude ready-made boxes and repair saved selections without 
   assert.deepEqual(repaired.productIds, ["tea", "honey"]);
   assert.equal(repaired.recipient, "Mẹ");
   assert.equal(repaired.message, "Thương mẹ.");
-  assert.equal(giftPrice(repaired, available), BOX_PRICE + products[0].price + products[1].price);
+  assert.equal(giftPrice(repaired, available), boxSizes[0].price + CARD_PRICE + products[0].price + products[1].price);
 });

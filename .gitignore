@@ -9,3 +9,10 @@ test-results/
 .vercel
 
 tmp/
+
+# Ảnh/3D gốc (~900MB) — bản web dùng public/media và public/models đã tối ưu.
+assets-src/
+# Dữ liệu cục bộ của công cụ.
+.agentic-qe/
+.claude-flow/
+.claude/

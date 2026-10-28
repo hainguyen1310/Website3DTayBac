@@ -1,0 +1,14 @@
+# Không upload lên Vercel khi deploy bằng CLI.
+# Ảnh/3D gốc (~900MB): bản web dùng public/media và public/models đã tối ưu.
+assets-src
+# Secret local: Vercel dùng biến môi trường của project.
+.env
+.env.*
+!.env.example
+# Công cụ và kết quả cục bộ.
+.agentic-qe
+.claude-flow
+.claude
+test-results
+dist
+node_modules

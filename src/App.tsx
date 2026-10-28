@@ -19,37 +19,32 @@ import {
   CheckCircle2,
   ChevronRight,
   Download,
-  Facebook,
   Gift,
-  Instagram,
   Leaf,
   Minus,
   Mountain,
-  Menu,
   Plus,
   Search,
   ShoppingBag,
   X,
-  Youtube,
 } from "lucide-react";
 import { boxSizes, colors, linePrice, money } from "./catalog";
 import type { CartLine, Product } from "./catalog";
 import { CatalogProvider } from "./CatalogContext";
 import { ShopProvider, useShop } from "./ShopContext";
-import Customizer from "./Customizer";
 import GiftPreview from "./GiftPreview";
 const AdminArea = lazy(() => import("./admin/AdminArea"));
-import {
-  AboutPage,
-  NewsDetailPage,
-  NewsPage,
-  ProductsPage,
-} from "./CommercePages";
-import { CategoryPage, OriginPage, ProductDetailPage } from "./StorefrontPages";
-import Home from "./Home";
-import Newsletter from "./Newsletter";
+import { CategoryPage } from "./StorefrontPages";
 import ProductViewer from "./ProductViewer";
 import SupportWidget from "./SupportWidget";
+import { SiteFooter, SiteHeader } from "./storefront/SiteChrome";
+import HomePage from "./storefront/pages/HomePage";
+import ProductsPage from "./storefront/pages/ProductsPage";
+import ProductDetailPage from "./storefront/pages/ProductDetailPage";
+import OriginPage from "./storefront/pages/OriginPage";
+import AboutPage from "./storefront/pages/AboutPage";
+import { ArticlePage, NewsPage } from "./storefront/pages/NewsPage";
+import GiftBuilderPage from "./storefront/gift/GiftBuilderPage";
 import UnsubscribePage from "./Unsubscribe";
 import { createCheckoutOrder } from "./services/storeApi";
 import { useStorefrontMotion } from "./hooks/useStorefrontMotion";
@@ -58,25 +53,7 @@ import { useDocumentSeo } from "./hooks/useDocumentSeo";
 import { noindexMeta } from "./seo/meta";
 import { cartAnalyticsItems, ecommerceParams, purchaseAnalyticsParams } from "./analyticsItems";
 
-function TikTokIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743 2.896 2.896 0 0 1 2.31-4.636c.314 0 .618.05.903.142V9.432a6.34 6.34 0 0 0-.903-.065 6.341 6.341 0 0 0-6.34 6.34 6.341 6.341 0 0 0 10.774 4.545c1.61-1.396 2.05-3.69 1.905-5.753a8.167 8.167 0 0 0 4.767 1.503V12.55a4.78 4.78 0 0 1-1-.17 4.836 4.836 0 0 1-1.93-1.04 4.76 4.76 0 0 1-1.065-1.579 4.778 4.778 0 0 1-.345-1.925l.006-.05V6.686z" />
-    </svg>
-  );
-}
 
-function Logo({ light = false }: { light?: boolean }) {
-  return (
-    <Link
-      to="/"
-      className={`asin-logo ${light ? "is-light" : ""}`}
-      aria-label="A Sỉn — Tinh hoa Tây Bắc"
-    >
-      <span>A SỈN</span>
-    </Link>
-  );
-}
 
 function Modal({
   title,
@@ -132,96 +109,11 @@ function Modal({
 }
 
 function Header() {
-  const { cart, setCartOpen } = useShop();
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(() => window.scrollY > 24);
-  const location = useLocation();
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  useEffect(() => {
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    const desktop = window.matchMedia("(min-width: 1101px)");
-    const closeOnDesktop = () => {
-      if (desktop.matches) setMenuOpen(false);
-    };
-    window.addEventListener("keydown", close);
-    desktop.addEventListener("change", closeOnDesktop);
-    return () => {
-      window.removeEventListener("keydown", close);
-      desktop.removeEventListener("change", closeOnDesktop);
-    };
-  }, []);
+  const [search, setSearch] = useState<string | null>(null);
   return (
     <>
-      <header
-        className={`asin-header${location.pathname === "/" ? " is-home" : ""}${location.pathname === "/" && !scrolled && !menuOpen ? " is-transparent" : ""}`}
-      >
-        <div className="asin-container asin-header-inner">
-          <Logo />
-          <nav
-            className={`asin-nav ${menuOpen ? "is-open" : ""}`}
-            id="site-navigation"
-            aria-label="Điều hướng chính"
-          >
-            {[
-              ["/", "Trang chủ"],
-              ["/san-pham", "Sản phẩm"],
-              ["/thiet-ke", "Hộp quà 3D"],
-              ["/nguon-goc", "Nguồn gốc"],
-              ["/gioi-thieu", "Về chúng tôi"],
-              ["/tin-tuc", "Tin tức"],
-            ].map(([to, label]) => (
-              <Link
-                key={to}
-                to={to}
-                aria-current={location.pathname === to || (to === "/tin-tuc" && location.pathname.startsWith("/tin-tuc/")) ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <div className="asin-header-actions">
-            <form className="asin-header-search" role="search" onSubmit={(event) => { event.preventDefault(); setSearchOpen(true); }}>
-              <input aria-label="Tìm kiếm sản phẩm" placeholder="Tìm sản phẩm…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} />
-            <button type="submit"
-              aria-label="Tìm sản phẩm"
-            >
-              <Search size={22} strokeWidth={1.5} />
-            </button>
-            </form>
-            <button
-              className="asin-cart-button"
-              aria-label={`Giỏ hàng (${count})`}
-              onClick={() => setCartOpen(true)}
-            >
-              <ShoppingBag size={22} strokeWidth={1.5} />
-              <span>{count}</span>
-            </button>
-            <button
-              className="asin-menu-button"
-              aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
-              aria-expanded={menuOpen}
-              aria-controls="site-navigation"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X size={23} /> : <Menu size={23} />}
-            </button>
-          </div>
-        </div>
-      </header>
-      {searchOpen && <SearchModal initialQuery={searchQuery} onClose={() => setSearchOpen(false)} />}
+      <SiteHeader onSearch={setSearch} />
+      {search !== null && <SearchModal initialQuery={search} onClose={() => setSearch(null)} />}
     </>
   );
 }
@@ -834,64 +726,7 @@ function Footer() {
 
   return (
     <>
-      <footer className="asin-footer">
-        <div className="asin-container">
-          <div className="asin-footer-grid">
-            <div className="asin-footer-brand">
-              <Logo light />
-              <p>Tinh hoa Tây Bắc trong một món quà.</p>
-              <div className="asin-socials" aria-label="Mạng xã hội A Sỉn">
-                {[
-                  { key: "facebook", label: "Facebook", Icon: Facebook },
-                  { key: "tiktok", label: "TikTok", Icon: TikTokIcon },
-                  { key: "instagram", label: "Instagram", Icon: Instagram },
-                  { key: "youtube", label: "YouTube", Icon: Youtube },
-                ].map(({ key, label, Icon }) => c[`social.${key}`] ? (
-                  <a key={key} href={c[`social.${key}`]} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={18} /></a>
-                ) : (
-                  <span key={key} className="asin-social-pending" role="img" aria-label={`${label} — đang cập nhật`} title={`${label} — đang cập nhật`}><Icon size={18} /></span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3>Sản phẩm</h3>
-              <Link to="/san-pham">Thịt trâu gác bếp</Link>
-              <Link to="/san-pham">Thịt lợn gác bếp</Link>
-              <Link to="/san-pham">Lạp xưởng</Link>
-              <Link to="/san-pham">Chẩm chéo & gia vị</Link>
-              <Link to="/san-pham">Thịt trâu xé</Link>
-              <Link to="/san-pham">Thịt lợn xé</Link>
-            </div>
-            <div>
-              <h3>Hộp quà</h3>
-              <Link to="/thiet-ke">Hộp quà gia đình</Link>
-              <Link to="/thiet-ke">Hộp quà đối tác</Link>
-              <Link to="/thiet-ke">Quà tặng doanh nghiệp</Link>
-              <Link to="/thiet-ke">Thiết kế hộp quà</Link>
-            </div>
-            <div>
-              <h3>Về A Sỉn</h3>
-              <Link to="/gioi-thieu">Câu chuyện</Link>
-              <Link to="/nguon-goc">Nguồn gốc</Link>
-              <Link to="/thiet-ke">Hộp quà 3D</Link>
-              <Link to="/tin-tuc">Tin tức</Link>
-              <Link to="/lien-he">Liên hệ</Link>
-            </div>
-            <div className="asin-footer-newsletter">
-              <h3>Đăng ký nhận tin</h3>
-              <Newsletter compact />
-            </div>
-          </div>
-          <div className="asin-footer-bottom">
-            <span>
-              © {new Date().getFullYear()} A Sỉn. Tinh hoa núi rừng Việt Nam.
-            </span>
-            <button onClick={() => setFaqOpen(true)}>
-              Mua hàng & vận chuyển <ArrowRight size={13} />
-            </button>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter onPolicy={() => setFaqOpen(true)} />
       {faqOpen && (
         <Modal title="A Sỉn giải đáp" onClose={() => setFaqOpen(false)}>
           <div className="faq-list">
@@ -953,7 +788,7 @@ function Shell() {
       <Header />
       <div id="main-content" tabIndex={-1}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/san-pham" element={<ProductsPage />} />
           <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
           <Route path="/danh-muc/:slug" element={<CategoryPage />} />
@@ -965,10 +800,10 @@ function Shell() {
           <Route path="/nguon-goc" element={<OriginPage />} />
           <Route path="/tin-tuc" element={<NewsPage />} />
           <Route path="/tin-tuc/chu-de/:topicSlug" element={<NewsPage />} />
-          <Route path="/tin-tuc/:storyId" element={<NewsDetailPage />} />
+          <Route path="/tin-tuc/:storyId" element={<ArticlePage />} />
           <Route path="/huy-nhan-tin" element={<UnsubscribePage />} />
           <Route path="/lien-he" element={<ContactPage />} />
-          <Route path="/thiet-ke" element={<Customizer />} />
+          <Route path="/thiet-ke" element={<GiftBuilderPage />} />
           <Route
             path="*"
             element={<MissingPage />}

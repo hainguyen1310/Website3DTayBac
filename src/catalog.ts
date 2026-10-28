@@ -12,6 +12,8 @@ export type Product = {
   featured?: boolean;
   modelUrl?: string;
   inStock?: boolean;
+  /** Loại ngăn trong hộp quà 3D mà sản phẩm vừa vặn. */
+  giftSlot?: GiftSlotType;
 };
 
 export type Deal = {
@@ -93,23 +95,70 @@ export const money = (n: number) =>
     n,
   );
 
+/** Màu vỏ hộp: giá trị hex cũ được giữ để giỏ hàng đã lưu vẫn hợp lệ. */
 export const colors = [
-  { name: "Đỏ đô", value: "#681b22" },
-  { name: "Xanh", value: "#315442" },
+  { name: "Đỏ trầm", value: "#681b22" },
+  { name: "Xanh rêu", value: "#315442" },
+  { name: "Đen than", value: "#2b2622" },
+];
+
+export type GiftSize = "medium" | "large";
+export type GiftSlotType = "bag" | "jar" | "cham" | "bottle";
+export type GiftSlotId = "bagA" | "bagB" | "jar" | "cham" | "bottle";
+export type GiftSlot = {
+  id: GiftSlotId;
+  type: GiftSlotType;
+  label: string;
+  /** Món cố định đã gồm trong giá vỏ hộp. */
+  fixed?: string;
+};
+
+type BoxSize = {
+  value: GiftSize;
+  name: string;
+  dimensions: string;
+  description: string;
+  price: number;
+  slots: readonly GiftSlot[];
+};
+
+const BASE_SLOTS: GiftSlot[] = [
+  { id: "bagA", type: "bag", label: "Ngăn túi thứ nhất" },
+  { id: "bagB", type: "bag", label: "Ngăn túi thứ hai" },
+  { id: "jar", type: "jar", label: "Ngăn hũ" },
+  { id: "cham", type: "cham", label: "Ngăn chẩm chéo", fixed: "cham-cheo" },
 ];
 
 export const boxSizes = [
-  { value: "medium", name: "Size vừa" },
-  { value: "large", name: "Size to" },
-] as const;
-export const GIFT_CAPACITY = 4;
+  {
+    value: "medium",
+    name: "Sinh Lộc",
+    dimensions: "22 × 22 × 10 cm",
+    description: "Kích thước 22 × 22 × 10 cm, gọn gàng cho 3 món.",
+    price: 250000,
+    slots: BASE_SLOTS,
+  },
+  {
+    value: "large",
+    name: "Thịnh Đỉnh",
+    dimensions: "32 × 32 × 14 cm",
+    description: "Kích thước 32 × 32 × 14 cm, dành cho hộp quà nhiều món.",
+    price: 420000,
+    slots: [...BASE_SLOTS, { id: "bottle", type: "bottle", label: "Ngăn rượu", fixed: "ruou-ngo-ban-pho" }],
+  },
+] as const satisfies readonly BoxSize[];
+
+export const CARD_PRICE = 30000;
+export const GIFT_CAPACITY = 3;
 
 export const patterns = ["Thổ cẩm", "Triền núi", "Tối giản"];
 
 export type GiftDesign = {
-  size: "medium" | "large";
+  size: GiftSize;
   includeCard: boolean;
+  /** Món khách tự chọn, theo thứ tự ngăn; có thể trùng nhau. */
   productIds: string[];
+  slots: Partial<Record<GiftSlotId, string>>;
   color: string;
   pattern: string;
   message: string;
@@ -118,8 +167,9 @@ export type GiftDesign = {
 
 export const defaultDesign: GiftDesign = {
   size: "medium",
-  includeCard: false,
-  productIds: ["tea", "honey"],
+  includeCard: true,
+  productIds: [],
+  slots: {},
   color: colors[0].value,
   pattern: patterns[0],
   message: "",
@@ -133,21 +183,38 @@ export type CartLine = {
   quantity: number;
 };
 
-export const BOX_PRICE = 65000;
+export const sizeOf = (size: GiftSize) => boxSizes.find((item) => item.value === size) ?? boxSizes[0];
+
+/** Ngăn khách được chọn (không gồm món cố định). */
+export const choosableSlots = (size: GiftSize): GiftSlot[] => sizeOf(size).slots.filter((slot) => !("fixed" in slot && slot.fixed));
+
+/** Món cố định đã gồm trong giá vỏ hộp. */
+export const includedProductIds = (size: GiftSize): string[] =>
+  sizeOf(size).slots.flatMap((slot) => ("fixed" in slot && slot.fixed ? [slot.fixed] : []));
 
 export const findProduct = (list: Product[], id: string | undefined) =>
   list.find((product) => product.id === id);
 
 export const giftPrice = (design: GiftDesign, list: Product[] = products) =>
-  BOX_PRICE +
-  list
-    .filter((product) => design.productIds.includes(product.id))
-    .reduce((sum, product) => sum + product.price, 0);
+  sizeOf(design.size).price +
+  (design.includeCard ? CARD_PRICE : 0) +
+  design.productIds.reduce((sum, id) => sum + (findProduct(list, id)?.price ?? 0), 0);
 
 export function linePrice(line: CartLine, list: Product[] = products) {
   return line.design
     ? giftPrice(line.design, list)
     : (findProduct(list, line.productId)?.price ?? 0);
+}
+
+function cleanSlots(raw: unknown, size: GiftSize, list: Product[]): Partial<Record<GiftSlotId, string>> {
+  if (!raw || typeof raw !== "object") return {};
+  const source = raw as Record<string, unknown>;
+  const slots: Partial<Record<GiftSlotId, string>> = {};
+  for (const slot of choosableSlots(size)) {
+    const product = findProduct(list, typeof source[slot.id] === "string" ? source[slot.id] as string : undefined);
+    if (product && (!product.giftSlot || product.giftSlot === slot.type)) slots[slot.id] = product.id;
+  }
+  return slots;
 }
 
 export function cleanDesign(
@@ -162,18 +229,20 @@ export function cleanDesign(
     (typeof d.message === "string" && d.message.trim()) ||
     (typeof d.recipient === "string" && d.recipient.trim()),
   );
+  const size: GiftSize = d.size === "large" ? "large" : "medium";
+  const hasSlots = Boolean(d.slots && typeof d.slots === "object" && Object.keys(d.slots).length);
+  const slots = hasSlots ? cleanSlots(d.slots, size, list) : {};
+  // Thiết kế cũ chưa có ngăn: giữ danh sách món không trùng như trước.
+  const productIds = hasSlots
+    ? choosableSlots(size).flatMap((slot) => (slots[slot.id] ? [slots[slot.id]!] : []))
+    : Array.isArray(d.productIds)
+      ? [...new Set(d.productIds.filter((id) => list.some((product) => product.id === id)))].slice(0, GIFT_CAPACITY)
+      : [...defaultDesign.productIds];
   return {
-    size: d.size === "large" ? "large" : "medium",
+    size,
     includeCard,
-    productIds: Array.isArray(d.productIds)
-      ? [
-          ...new Set(
-            d.productIds.filter((id) =>
-              list.some((product) => product.id === id),
-            ),
-          ),
-        ].slice(0, GIFT_CAPACITY)
-      : [...defaultDesign.productIds],
+    productIds,
+    slots,
     color: colors.some((c) => c.value === d.color)
       ? d.color!
       : defaultDesign.color,

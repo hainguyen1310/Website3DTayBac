@@ -41,10 +41,12 @@ import {
   useAsync,
 } from "./ui";
 import ImageInput from "./ImageInput";
-import { renderInline, toBlocks, validateArticleBody } from "../content/blocks";
+import { blocksToPlainText, estimateReadMinutes, toBlocks, validateArticleBody } from "../content/blocks";
 import type { ContentBlock } from "../content/blocks";
+import { ArticleBlocks } from "../content/ArticleBlocks";
+import { editorialArticles, referenceArticleBody } from "../content/editorial";
 
-const ARTICLE_TOPICS = ["Từ bản làng", "Gợi ý tặng quà", "Vị Tây Bắc"];
+const ARTICLE_TOPICS = ["Câu chuyện A SỈN", "Văn hoá – Ẩm thực", "Nguồn nguyên liệu", "Hoạt động cộng đồng", "Kinh nghiệm – Mẹo hay", "Từ bản làng", "Gợi ý tặng quà", "Vị Tây Bắc"];
 
 function isFutureArticle(article: Pick<AdminArticle, 'scheduledAt' | 'publishedAt'>): boolean {
   const release = article.scheduledAt || article.publishedAt;
@@ -194,6 +196,8 @@ function changeBlockType(block: ContentBlock, type: ContentBlock["type"]): Conte
       return { type: "list", ordered: block.type === "list" ? block.ordered : false, items: block.type === "list" ? block.items : [""] };
     case "image":
       return { type: "image", url: block.type === "image" ? block.url : "", alt: "", caption: "" };
+    case "image-pair":
+      return { type: "image-pair", images: [{ url: "", alt: "", caption: "" }, { url: "", alt: "", caption: "" }] };
     case "cta":
       return { type: "cta", label: block.type === "cta" ? block.label : "", href: block.type === "cta" ? block.href : "/san-pham", productId: block.type === "cta" ? block.productId : "" };
     default:
@@ -203,11 +207,12 @@ function changeBlockType(block: ContentBlock, type: ContentBlock["type"]): Conte
 
 const BLOCK_LABELS: Array<[ContentBlock["type"], string]> = [
   ["paragraph", "Đoạn văn"],
-  ["heading", "Tiêu đề H2/H3"],
+  ["heading", "Tiêu đề mục"],
   ["list", "Danh sách"],
   ["quote", "Trích dẫn"],
   ["image", "Ảnh"],
-  ["cta", "Nút CTA"],
+  ["image-pair", "Hai ảnh cạnh nhau"],
+  ["cta", "Nút liên kết"],
   ["divider", "Đường kẻ"],
 ];
 
@@ -218,7 +223,9 @@ function BlockFields({ block, products, onChange }: {
 }) {
   switch (block.type) {
     case "paragraph":
-      return <textarea rows={3} value={block.text} aria-label="Nội dung đoạn văn" onChange={(e) => onChange({ ...block, text: e.target.value })} placeholder="Viết đoạn văn. Có thể dùng [nhãn](/duong-dan) hoặc **nhấn mạnh**." />;
+      return <div><textarea rows={5} value={block.text} aria-label="Nội dung đoạn văn" onChange={(e) => onChange({ ...block, text: e.target.value })} placeholder="Viết hoặc dán đoạn văn tại đây." />
+        <label className="admin-block-row"><input type="checkbox" checked={block.style === "lead"} onChange={(e) => onChange({ ...block, style: e.target.checked ? "lead" : undefined })} /> Đoạn mở đầu in nghiêng</label>
+      </div>;
     case "heading":
       return <div className="admin-block-row">
         <select value={block.level} aria-label="Cấp tiêu đề" onChange={(e) => onChange({ ...block, level: e.target.value === "3" ? 3 : 2 })}>
@@ -242,6 +249,13 @@ function BlockFields({ block, products, onChange }: {
           <input value={block.caption} aria-label="Chú thích ảnh" onChange={(e) => onChange({ ...block, caption: e.target.value })} placeholder="Chú thích (không bắt buộc)" />
         </div>
       </div>;
+    case "image-pair":
+      return <div className="admin-photo-pair">{block.images.map((image, index) => <div key={index}>
+        <b>Ảnh {index + 1}</b>
+        <ImageInput value={image.url} folder="articles" onChange={(url) => onChange({ ...block, images: block.images.map((item, i) => i === index ? { ...item, url } : item) as typeof block.images })} />
+        <input value={image.alt} aria-label={`Mô tả ảnh ${index + 1}`} placeholder="Mô tả ảnh" onChange={(e) => onChange({ ...block, images: block.images.map((item, i) => i === index ? { ...item, alt: e.target.value } : item) as typeof block.images })} />
+        <input value={image.caption} aria-label={`Chú thích ảnh ${index + 1}`} placeholder="Chú thích (không bắt buộc)" onChange={(e) => onChange({ ...block, images: block.images.map((item, i) => i === index ? { ...item, caption: e.target.value } : item) as typeof block.images })} />
+      </div>)}</div>;
     case "cta":
       return <div className="admin-block-row">
         <input value={block.label} aria-label="Nhãn nút" onChange={(e) => onChange({ ...block, label: e.target.value })} placeholder="Nhãn nút (vd: Xem sản vật)" />
@@ -273,20 +287,20 @@ function BlockEditor({ blocks, products, onChange }: {
     {blocks.map((block, index) => (
       <article className="admin-block" key={index}>
         <header>
-          <select value={block.type} aria-label={`Loại block ${index + 1}`} onChange={(e) => update(index, changeBlockType(block, e.target.value as ContentBlock["type"]))}>
+          <select value={block.type} aria-label={`Loại nội dung ${index + 1}`} onChange={(e) => update(index, changeBlockType(block, e.target.value as ContentBlock["type"]))}>
             {BLOCK_LABELS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
           <div className="admin-block-actions">
             <button type="button" onClick={() => move(index, -1)} disabled={index === 0} aria-label="Di chuyển lên"><ArrowUp size={14} /></button>
             <button type="button" onClick={() => move(index, 1)} disabled={index === blocks.length - 1} aria-label="Di chuyển xuống"><ArrowDown size={14} /></button>
-            <button type="button" className="danger" onClick={() => onChange(blocks.filter((_, itemIndex) => itemIndex !== index))} aria-label="Xóa block"><Trash2 size={14} /></button>
+            <button type="button" className="danger" onClick={() => onChange(blocks.filter((_, itemIndex) => itemIndex !== index))} aria-label="Xóa khối nội dung"><Trash2 size={14} /></button>
           </div>
         </header>
         <BlockFields block={block} products={products} onChange={(next) => update(index, next)} />
       </article>
     ))}
     <div className="admin-block-add">
-      <span>Thêm block:</span>
+      <span>Thêm nội dung:</span>
       {BLOCK_LABELS.map(([type, label]) => (
         <button type="button" key={type} className="admin-ghost" onClick={() => onChange([...blocks, changeBlockType({ type: "paragraph", text: "" }, type)])}>
           <Plus size={13} /> {label}
@@ -332,28 +346,7 @@ function ArticlePreview({ form }: { form: ArticleForm }) {
     <p>{form.excerpt}</p>
     <p className="admin-preview-byline">{form.authorName || "A Sỉn"} · {form.scheduledAt && new Date(form.scheduledAt).getTime() > Date.now() ? `Dự kiến ${formatDateTime(form.scheduledAt)}` : formatDateTime(form.firstPublishedAt || new Date().toISOString())}</p>
     {form.imageUrl && <img src={form.imageUrl} alt="" />}
-    <div className="admin-preview-body">
-      {form.body.map((block, index) => {
-        switch (block.type) {
-          case "heading":
-            return block.level === 3 ? <h3 key={index}>{block.text}</h3> : <h2 key={index}>{block.text}</h2>;
-          case "paragraph":
-            return <p key={index} dangerouslySetInnerHTML={{ __html: renderInline(block.text) }} />;
-          case "list": {
-            const items = block.items.filter((item) => item.trim()).map((item, itemIndex) => <li key={itemIndex} dangerouslySetInnerHTML={{ __html: renderInline(item) }} />);
-            return block.ordered ? <ol key={index}>{items}</ol> : <ul key={index}>{items}</ul>;
-          }
-          case "quote":
-            return <blockquote key={index}><p dangerouslySetInnerHTML={{ __html: renderInline(block.text) }} /></blockquote>;
-          case "image":
-            return block.url ? <figure key={index}><img src={block.url} alt={block.alt} />{block.caption && <figcaption>{block.caption}</figcaption>}</figure> : null;
-          case "cta":
-            return block.label ? <p key={index}><span className="asin-button">{block.label} → {block.href}</span></p> : null;
-          default:
-            return <hr key={index} />;
-        }
-      })}
-    </div>
+    <div className="sf-article-body admin-preview-body"><ArticleBlocks body={form.body} preview /></div>
   </div>;
 }
 
@@ -462,7 +455,7 @@ function ArticleEditor({ article, articles, onClose, onSaved }: {
       title={form.id ? "Chỉnh sửa bài đăng" : "Tạo bài đăng mới"}
       subtitle="Soạn nội dung có cấu trúc, đặt lịch và kiểm tra cách bài viết xuất hiện."
       onBack={requestClose}
-      topAction={form.id ? <button className="admin-ghost" onClick={() => setPreview(true)}><Eye size={15} /> Xem trước</button> : undefined}
+      topAction={<button className="admin-ghost" onClick={() => setPreview(true)}><Eye size={15} /> Xem trước</button>}
       aside={
         <>
           <section>
@@ -538,6 +531,18 @@ function ArticleEditor({ article, articles, onClose, onSaved }: {
       }
     >
       <AdminError message={actionError} />
+      {!form.id && <label className="admin-template-picker">Bắt đầu từ một bài mẫu
+        <select aria-label="Chọn bài mẫu" value="" onChange={(event) => {
+          const sample = editorialArticles.find((item) => item.slug === event.target.value);
+          if (!sample) return;
+          if ((form.title || blocksToPlainText(form.body).trim()) && !window.confirm("Dùng bài mẫu sẽ thay tiêu đề, mô tả, ảnh và nội dung đang soạn. Tiếp tục?")) return;
+          let nextSlug = sample.slug;
+          let suffix = 2;
+          while (articles.some((item) => item.slug === nextSlug)) nextSlug = `${sample.slug}-${suffix++}`;
+          setForm({ ...form, title: sample.title, slug: nextSlug, tag: sample.tag, excerpt: sample.excerpt, imageUrl: sample.image_url, authorName: sample.author_name, body: structuredClone(sample.body), readTimeMinutes: String(sample.read_time_minutes) });
+        }}><option value="">— Chọn bài mẫu hoặc tự viết bên dưới —</option>{editorialArticles.map((sample) => <option key={sample.slug} value={sample.slug}>{sample.title}</option>)}</select>
+        <FieldHint>Bài mẫu có sẵn ảnh, đoạn mở đầu và ba đề mục. Bạn có thể sửa mọi nội dung trước khi lưu.</FieldHint>
+      </label>}
       <div className="admin-form-grid">
         <label>
           Tiêu đề
@@ -572,8 +577,15 @@ function ArticleEditor({ article, articles, onClose, onSaved }: {
         </label>
         <div className="full">
           <span className="admin-field-label">Nội dung bài viết</span>
+          <div className="admin-writing-tools">
+            <button type="button" className="admin-ghost" onClick={() => {
+              if (blocksToPlainText(form.body).trim() && !window.confirm("Thay nội dung đang soạn bằng bài mẫu gồm đoạn mở đầu, 3 đề mục và hai ảnh cạnh nhau? Tiêu đề và thông tin bài được giữ lại.")) return;
+              setForm({ ...form, body: referenceArticleBody(), readTimeMinutes: "5" });
+            }}><Plus size={14} /> Dùng mẫu 3 mục + 2 ảnh</button>
+            <span aria-live="polite">{blocksToPlainText(form.body).split(/\s+/).filter(Boolean).length} từ · khoảng {estimateReadMinutes(form.body)} phút đọc</span>
+          </div>
+          <FieldHint>Chọn mẫu để có bố cục như bài tham khảo, rồi thay nội dung và ảnh theo câu chuyện của bạn. Có thể thêm, xóa hoặc di chuyển từng khối bên dưới.</FieldHint>
           <BlockEditor blocks={form.body} products={products} onChange={(body) => setForm({ ...form, body })} />
-          <FieldHint>Trong đoạn văn có thể dùng **nhấn mạnh** và [nhãn](đường-dẫn) nội bộ hoặc https.</FieldHint>
         </div>
       </div>
     </AdminEditorPage>

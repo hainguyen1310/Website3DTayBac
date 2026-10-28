@@ -219,7 +219,7 @@ function normalizeImageUrl(value) {
   const url = cleanText(value, 500);
   if (!url) return "";
   if (/^https:\/\//i.test(url)) return url;
-  if (url.startsWith("/") && !url.startsWith("//")) return url;
+  if (url.startsWith("/") && isSafeHref(url)) return url;
   return "";
 }
 function normalizeBlock(value) {
@@ -228,7 +228,7 @@ function normalizeBlock(value) {
   switch (block.type) {
     case "paragraph": {
       const text = cleanText(block.text);
-      return text ? { type: "paragraph", text } : null;
+      return text ? { type: "paragraph", text, ...block.style === "lead" ? { style: "lead" } : {} } : null;
     }
     case "heading": {
       const text = cleanText(block.text, 300);
@@ -253,6 +253,16 @@ function normalizeBlock(value) {
         alt: cleanText(block.alt, 300),
         caption: cleanText(block.caption, 300)
       };
+    }
+    case "image-pair": {
+      if (!Array.isArray(block.images) || block.images.length !== 2) return null;
+      const images = block.images.map((image2) => normalizeBlock({ ...image2, type: "image" }));
+      const [left, right] = images;
+      if (left?.type !== "image" || right?.type !== "image") return null;
+      return { type: "image-pair", images: [
+        { url: left.url, alt: left.alt, caption: left.caption },
+        { url: right.url, alt: right.alt, caption: right.caption }
+      ] };
     }
     case "cta": {
       const label = cleanText(block.label, 120);
@@ -1088,7 +1098,7 @@ function blockToHtml(block) {
     case "heading":
       return `<h${block.level}>${renderInline(block.text)}</h${block.level}>`;
     case "paragraph":
-      return `<p>${renderInline(block.text)}</p>`;
+      return `<p${block.style === "lead" ? ' class="article-lead"' : ""}>${renderInline(block.text)}</p>`;
     case "list": {
       const tag2 = block.ordered ? "ol" : "ul";
       return `<${tag2}>${block.items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</${tag2}>`;
@@ -1097,6 +1107,8 @@ function blockToHtml(block) {
       return `<blockquote><p>${renderInline(block.text)}</p></blockquote>`;
     case "image":
       return `<figure><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
+    case "image-pair":
+      return `<div class="sf-article-pair">${block.images.map((image2) => blockToHtml({ type: "image", ...image2 })).join("")}</div>`;
     case "cta":
       return `<p class="asin-prerender-cta">${link(block.href, block.label)}</p>`;
     case "divider":

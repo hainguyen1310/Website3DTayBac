@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { renderSitePage } from "../src/seo/renderSite.ts";
+import { articleBodyToHtml, renderSitePage } from "../src/seo/renderSite.ts";
+import { articleFromRow } from "../src/content/article.ts";
 import { matchSiteRoute, routePath } from "../src/seo/paths.ts";
 import { handleSeoAsset } from "../server/seo/handler.ts";
 import type { SeoEnvironment } from "../src/seo/config.ts";
@@ -14,6 +15,22 @@ const offlineEnv: SeoEnvironment = {
   supabaseUrl: "",
   supabasePublicKey: "",
 };
+
+test("server article HTML preserves the lead and both photos with escaped captions", () => {
+  const article = articleFromRow({ id: "test", slug: "test", title: "Bài thử", excerpt: "Mở đầu", tag: "Câu chuyện", image_url: "/cover.webp", read_time_minutes: 3, published_at: null, body: [
+    { type: "paragraph", style: "lead", text: "Mở đầu <script>" },
+    { type: "image-pair", images: [
+      { url: "/village.webp", alt: "Bản làng", caption: "<b>Sáng</b>" },
+      { url: "/food.webp", alt: "Đặc sản", caption: "" },
+    ] },
+  ] });
+  const html = articleBodyToHtml(article);
+  assert.match(html, /class="article-lead"/);
+  assert.match(html, /class="sf-article-pair"/);
+  assert.equal((html.match(/<img /g) || []).length, 2);
+  assert.match(html, /&lt;b&gt;Sáng&lt;\/b&gt;/);
+  assert.doesNotMatch(html, /<script>/);
+});
 
 test("home renders content, canonical and internal links without data", async () => {
   const page = await renderSitePage({ pathname: "/", search: new URLSearchParams(), requestHost: "asintaybac.com", env: offlineEnv });

@@ -542,3 +542,11 @@
 .admin-preview-body h2 { margin-top: 22px; }
 .admin-preview-body figure img { width: 100%; height: auto; border-radius: 12px; }
 .admin-preview-body figcaption { font-size: 13px; color: #6b5544; margin-top: 4px; }
+.admin-photo-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-photo-pair > div { min-width: 0; display: grid; gap: 10px; align-content: start; }
+.admin-photo-pair .admin-image-input { grid-template-columns: 1fr; }
+.admin-writing-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-block: 12px; }
+.admin-writing-tools > span { color: #6b5544; font-size: 13px; }
+.admin-template-picker { display: grid; gap: 8px; padding: 18px; margin-bottom: 22px; background: #f7f1e6; border: 1px solid #e6d8c6; border-radius: 12px; }
+.admin-preview-body .sf-article-quote p { margin: 0; }
+@media (max-width: 600px) { .admin-photo-pair { grid-template-columns: 1fr; } }

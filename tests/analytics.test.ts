@@ -24,16 +24,16 @@ async function harness(t: TestContext, url = "https://asintaybac.com/", storage 
 }
 
 test("cart payload supports products and gift boxes without gift recipient/message", () => {
-  const design = { ...defaultDesign, recipient: "Private Recipient", message: "private@example.com" };
+  const design = { ...defaultDesign, productIds: ["tea", "honey"], recipient: "Private Recipient", message: "private@example.com" };
   const items = cartAnalyticsItems([{ key: "tea", productId: "tea", quantity: 2 }, { key: JSON.stringify(design), design, quantity: 1 }], products);
   assert.equal(items.length, 2);
   assert.equal(items[0].quantity, 2);
   assert.equal(items[1].item_id, "gift-box");
-  assert.equal(items[1].price, 495000);
+  assert.equal(items[1].price, 710000);
   assert.doesNotMatch(JSON.stringify(items), /Private Recipient|private@example|recipient|message/);
-  assert.equal(ecommerceParams(items).value, 855000);
-  const purchase = purchaseAnalyticsParams(items, 885000, 30000)!;
-  assert.equal(purchase.value, 855000);
+  assert.equal(ecommerceParams(items).value, 1070000);
+  const purchase = purchaseAnalyticsParams(items, 1100000, 30000)!;
+  assert.equal(purchase.value, 1070000);
   assert.equal(purchase.shipping, 30000);
   assert.equal(purchaseAnalyticsParams(items, 800000, 30000), null);
 });

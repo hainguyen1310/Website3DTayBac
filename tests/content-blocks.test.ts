@@ -90,3 +90,23 @@ test("Vietnamese date formatting uses dd.mm.yyyy", () => {
   assert.equal(formatVietnameseDate("2026-09-29T00:00:00Z"), "29.09.2026");
   assert.equal(formatVietnameseDate(null), "");
 });
+
+test("article lead and paired photos survive a save and reload without unsafe image URLs", () => {
+  const body = parseArticleBody(JSON.parse(JSON.stringify([
+    { type: "paragraph", text: "Lời mở đầu", style: "lead" },
+    { type: "image-pair", images: [
+      { url: "/village.webp", alt: "Bản làng", caption: "Sớm vùng cao" },
+      { url: "https://example.com/food.webp", alt: "Đặc sản", caption: "" },
+    ] },
+  ])));
+  assert.equal(body.length, 2);
+  assert.deepEqual(body[0], { type: "paragraph", text: "Lời mở đầu", style: "lead" });
+  assert.equal(toBlocks(body)[1].type, "image-pair");
+  assert.match(blocksToPlainText(body), /Sớm vùng cao/);
+  assert.equal(normalizeBlock({ type: "image-pair", images: [
+    { url: "/ok.webp", alt: "", caption: "" },
+    { url: "javascript:alert(1)", alt: "", caption: "" },
+  ] }), null);
+  assert.equal(normalizeBlock({ type: "image-pair", images: [{ url: "/one.webp" }] }), null);
+  assert.equal(normalizeBlock({ type: "image", url: "/\\evil.example/x.png" }), null);
+});
