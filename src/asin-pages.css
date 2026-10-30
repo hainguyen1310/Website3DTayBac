@@ -241,32 +241,6 @@
 .not-found { background: #f8ecd9 url('/images/asin/products-mountain-right.webp') right bottom / 400px auto no-repeat; }
 .not-found h1 { color: #681b22; font-family: var(--moc-serif); }
 /* Operations use the brand palette with readable, compact sans-serif controls. */
-.admin-shell { --sans: "Be Vietnam Pro",sans-serif; color: #4b392e; background: #f6f1e9; }
-.admin-shell .admin-sidebar { background: #481318; color: #f4e3cc; }
-.admin-shell .admin-sidebar nav button { color: #dfc7b0; }
-.admin-shell .admin-sidebar nav button.active { color: #fff8ec; background: #ffffff14; box-shadow: inset 3px 0 #d8b17c; }
-.admin-shell .admin-logo > span { color: #681b22; background: #eed4ad; }
-.admin-shell .admin-logo b { font-family: "Cormorant Garamond Variable",Georgia,serif; font-size: 29px; }
-.admin-shell .admin-topbar { background: #fffaf1; border-color: #e5d8c6; }
-.admin-shell :is(.admin-breadcrumb b,.admin-editor-crumb b,.admin-section-header h1,.admin-editor-header h1) { color: #681b22; }
-.admin-shell :is(.admin-section-header h1,.admin-editor-header h1) { font-family: var(--sans); font-size: 27px; font-weight: 600; }
-.admin-shell .admin-primary, .admin-login .admin-primary { background: #681b22; border-color: #681b22; color: #fff7e8; }
-.admin-shell .admin-primary:hover, .admin-login .admin-primary:hover { background: #852d35; }
-.admin-shell :is(.admin-card,.admin-editor-main,.admin-editor-aside > *, .admin-editor-footer) { border-color: #e5d8c6; }
-.admin-shell :is(.admin-card h2,.admin-form-section h2,.admin-editor-aside h2) { color: #684335; }
-.admin-shell :is(input:not([type="checkbox"]):not([type="file"]),select,textarea) { border-color: #d9ccbb; color: #4b392e; }
-.admin-shell input[type="checkbox"] { accent-color: #681b22; }
-.admin-shell .admin-table th { color: #796957; background: #faf5ec; }
-.admin-shell .admin-table tbody tr:hover { background: #fffbf4; }
-.admin-shell :is(button,a,input,select,textarea):focus-visible { outline-color: #b67862; }
-.admin-login { background: linear-gradient(90deg,#f8ecd9fa,#f8ecd9bb),url('/images/asin/journey-panorama.webp') center/cover; }
-.admin-login-card { background: #fff8edf5; border-color: #dfc8a6; box-shadow: 0 18px 70px #55302112; }
-.admin-login-card h1 { color: #681b22; font: 500 41px/1.08 "Cormorant Garamond Variable",Georgia,serif; }
-.admin-login-card :is(p,label) { color: #796957; }
-.admin-login-badge { color: #8b493c; }
-.admin-login-card input { border-color: #d9c4a6; background: #fffdf6; }
-.admin-login-card input:focus { border-color: #98463f; box-shadow: 0 0 0 3px #98463f15; }
-.admin-login-back { color: #681b22; }
 @media (min-width: 901px) { .asin-nav { gap: clamp(12px,1.6vw,25px); } .asin-header-inner { gap: 26px; } }
 @media (max-width: 1199px) {
   .moc-shop-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }

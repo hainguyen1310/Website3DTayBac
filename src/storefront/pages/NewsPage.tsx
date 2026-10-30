@@ -32,8 +32,13 @@ export function NewsPage() {
   };
 
   return (
-    <main className="sf-page">
-      <SplitHero contours={MEDIA.contours.newsHero} image={MEDIA.newsHero} alt="Bình rượu ngô Bản Phố bên mâm cơm vùng cao" caption="Rượu ngô Bản Phố · Bắc Hà">
+    <main className="sf-page sf-news-page">
+      <SplitHero
+        className="sf-news-hero"
+        image={MEDIA.newsHero}
+        focus="center top"
+        alt="Núi rừng Tây Bắc giữa biển mây và những thửa ruộng bậc thang vàng"
+      >
         <Eyebrow>Tin tức</Eyebrow>
         <h1 className="sf-script-display is-xl">
           Câu chuyện
@@ -45,17 +50,17 @@ export function NewsPage() {
         </p>
       </SplitHero>
 
-      <section className="sf-section sf-container">
-        <div className="sf-chips is-square" role="toolbar" aria-label="Chủ đề tin tức">
+      <section className="sf-section sf-container sf-deco is-sides">
+        <nav className="sf-chips is-square sf-topic-chips" aria-label="Chủ đề tin tức">
           {topics.map((item) => (
             <Link key={item} className="sf-chip" aria-current={(item === "Tất cả" ? !topic : topic === slugify(item)) ? "page" : undefined} to={item === "Tất cả" ? "/tin-tuc" : `/tin-tuc/chu-de/${slugify(item)}`}>
               {item}
             </Link>
           ))}
-        </div>
+        </nav>
         <div className="sf-news-grid">
           {visible.map((article) => (
-            <article key={article.slug} className="sf-news-card">
+            <article key={article.slug} className="sf-news-card" data-reveal="rise">
               <Link to={`/tin-tuc/${article.slug}`} className="sf-news-media" tabIndex={-1} aria-hidden="true">
                 <img src={article.image} alt="" loading="lazy" width={602} height={310} />
               </Link>

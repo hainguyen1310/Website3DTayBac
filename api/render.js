@@ -35,7 +35,7 @@ function nodeHandler(handler2) {
       const response = await handler2(request);
       res.statusCode = response.status;
       response.headers.forEach((v, k) => res.setHeader(k, v));
-      res.end(await response.text());
+      res.end(Buffer.from(await response.arrayBuffer()));
     } catch {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
@@ -197,13 +197,13 @@ function injectSeoIntoHtml(template, headHtml, rootHtml, htmlAttributes) {
   return output;
 }
 
-// src/content/blocks.ts
-var MAX_BLOCKS = 200;
-var MAX_TEXT = 4e3;
-var MAX_ITEMS = 30;
-function cleanText(value, max = MAX_TEXT) {
-  if (typeof value !== "string") return "";
-  return value.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max);
+// src/content/inline.ts
+var MAX_LINK_LABEL = 300;
+var MAX_HREF = 500;
+var LINK_PATTERN = new RegExp(`^\\[((?:\\\\.|[^\\]\\\\]){1,${MAX_LINK_LABEL}})\\]\\(([^()\\s]{1,${MAX_HREF}})\\)`);
+var ESCAPABLE = /* @__PURE__ */ new Set(["\\", "*", "_", "[", "]"]);
+function escapeHtml(value) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function isSafeHref(value) {
   const href = value.trim();
@@ -214,6 +214,150 @@ function isSafeHref(value) {
   if (/^mailto:[^\s]+@[^\s]+$/i.test(href)) return true;
   if (/^tel:\+?[0-9\s().-]{6,20}$/i.test(href)) return true;
   return false;
+}
+function hasUnescaped(text, marker, from) {
+  for (let i = from; i <= text.length - marker.length; i++) {
+    if (text[i] === "\\") {
+      i++;
+      continue;
+    }
+    if (text.startsWith(marker, i)) return true;
+  }
+  return false;
+}
+function runLength(text, index, char) {
+  let end = index;
+  while (text[end] === char) end++;
+  return end - index;
+}
+function pushText(segments, text, marks) {
+  if (!text) return;
+  const last = segments[segments.length - 1];
+  if (last && sameMarks(last, marks)) last.text += text;
+  else segments.push({ text, ...activeMarks(marks) });
+}
+function activeMarks(marks) {
+  const result = {};
+  if (marks.bold) result.bold = true;
+  if (marks.italic) result.italic = true;
+  if (marks.underline) result.underline = true;
+  if (marks.href) result.href = marks.href;
+  return result;
+}
+function sameMarks(a, b) {
+  return Boolean(a.bold) === Boolean(b.bold) && Boolean(a.italic) === Boolean(b.italic) && Boolean(a.underline) === Boolean(b.underline) && (a.href ?? "") === (b.href ?? "");
+}
+function applyAsterisks(text, index, count, marks, out) {
+  let left = count;
+  if (marks.italic && marks.bold && left >= 3) {
+    marks.italic = false;
+    marks.bold = false;
+    left -= 3;
+  }
+  if (marks.bold && left >= 2) {
+    marks.bold = false;
+    left -= 2;
+  }
+  if (marks.italic && left >= 1) {
+    marks.italic = false;
+    left -= 1;
+  }
+  const after = index + count;
+  if (left >= 2 && !marks.bold && hasUnescaped(text, "**", after)) {
+    marks.bold = true;
+    left -= 2;
+  }
+  if (left >= 1 && !marks.italic && hasUnescaped(text, "*", after)) {
+    marks.italic = true;
+    left -= 1;
+  }
+  out.literal = "*".repeat(left);
+}
+function applyUnderscores(text, index, count, marks, out) {
+  let left = count;
+  if (marks.underline && left >= 2) {
+    marks.underline = false;
+    left -= 2;
+  } else if (!marks.underline && left >= 2 && hasUnescaped(text, "__", index + count)) {
+    marks.underline = true;
+    left -= 2;
+  }
+  out.literal = "_".repeat(left);
+}
+function parseInline(text, base = {}) {
+  const segments = [];
+  const marks = { ...base };
+  let buffer = "";
+  const flush = () => {
+    pushText(segments, buffer, marks);
+    buffer = "";
+  };
+  let i = 0;
+  while (i < text.length) {
+    const char = text[i];
+    if (char === "\\" && ESCAPABLE.has(text[i + 1] ?? "")) {
+      buffer += text[i + 1];
+      i += 2;
+      continue;
+    }
+    if (char === "[" && !marks.href) {
+      const match = LINK_PATTERN.exec(text.slice(i));
+      if (match && isSafeHref(match[2])) {
+        flush();
+        for (const segment of parseInline(match[1], { ...marks, href: match[2] })) pushText(segments, segment.text, segment);
+        i += match[0].length;
+        continue;
+      }
+    }
+    if (char === "*" || char === "_") {
+      const count = runLength(text, i, char);
+      const out = { literal: "" };
+      flush();
+      if (char === "*") applyAsterisks(text, i, count, marks, out);
+      else applyUnderscores(text, i, count, marks, out);
+      buffer += out.literal;
+      i += count;
+      continue;
+    }
+    buffer += char;
+    i++;
+  }
+  flush();
+  return segments;
+}
+function segmentHtml(segment) {
+  let html = escapeHtml(segment.text);
+  if (segment.italic) html = `<em>${html}</em>`;
+  if (segment.underline) html = `<u>${html}</u>`;
+  if (segment.bold) html = `<strong>${html}</strong>`;
+  return html;
+}
+function renderInline(text) {
+  const segments = parseInline(text);
+  let output = "";
+  let index = 0;
+  while (index < segments.length) {
+    const href = segments[index].href;
+    if (!href) {
+      output += segmentHtml(segments[index++]);
+      continue;
+    }
+    let label = "";
+    while (index < segments.length && segments[index].href === href) label += segmentHtml(segments[index++]);
+    const rel = /^https:\/\//i.test(href) ? ' rel="noopener noreferrer" target="_blank"' : "";
+    output += `<a href="${escapeHtml(href)}"${rel}>${label}</a>`;
+  }
+  return output;
+}
+
+// src/content/blocks.ts
+var CALLOUT_VARIANTS = ["tip", "note", "info"];
+var MAX_BLOCKS = 200;
+var MAX_TEXT = 4e3;
+var MAX_ITEMS = 30;
+function cleanText(value, max = MAX_TEXT) {
+  if (typeof value !== "string") return "";
+  return value.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max);
 }
 function normalizeImageUrl(value) {
   const url = cleanText(value, 500);
@@ -244,6 +388,11 @@ function normalizeBlock(value) {
       const text = cleanText(block.text);
       return text ? { type: "quote", text } : null;
     }
+    case "callout": {
+      const text = cleanText(block.text);
+      const variant = CALLOUT_VARIANTS.includes(block.variant) ? block.variant : "tip";
+      return text ? { type: "callout", variant, text } : null;
+    }
     case "image": {
       const url = normalizeImageUrl(block.url);
       if (!url) return null;
@@ -251,7 +400,8 @@ function normalizeBlock(value) {
         type: "image",
         url,
         alt: cleanText(block.alt, 300),
-        caption: cleanText(block.caption, 300)
+        caption: cleanText(block.caption, 300),
+        ...block.size === "small" ? { size: "small" } : {}
       };
     }
     case "image-pair": {
@@ -263,6 +413,15 @@ function normalizeBlock(value) {
         { url: left.url, alt: left.alt, caption: left.caption },
         { url: right.url, alt: right.alt, caption: right.caption }
       ] };
+    }
+    case "gallery": {
+      if (!Array.isArray(block.images) || block.images.length < 3 || block.images.length > 4) return null;
+      const images = block.images.map((image2) => normalizeBlock({ ...image2, type: "image" }));
+      if (images.some((image2) => image2?.type !== "image")) return null;
+      return { type: "gallery", images: images.map((image2) => {
+        const { url, alt, caption } = image2;
+        return { url, alt, caption };
+      }) };
     }
     case "cta": {
       const label = cleanText(block.label, 120);
@@ -294,20 +453,6 @@ function toBlocks(body) {
   return body.map(
     (entry) => typeof entry === "string" ? { type: "paragraph", text: entry } : entry
   );
-}
-function escapeHtml(value) {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-function renderInline(text) {
-  let output = escapeHtml(text);
-  output = output.replace(/\[([^\]]{1,200})\]\(([^()\s]{1,500})\)/g, (match, label, href) => {
-    const decodedHref = href.replace(/&amp;/g, "&");
-    if (!isSafeHref(decodedHref)) return match;
-    const rel = /^https:\/\//i.test(decodedHref) ? ' rel="noopener noreferrer" target="_blank"' : "";
-    return `<a href="${escapeHtml(decodedHref)}"${rel}>${label}</a>`;
-  });
-  output = output.replace(/\*\*([^*]{1,300})\*\*/g, "<strong>$1</strong>");
-  return output;
 }
 
 // src/operations.ts
@@ -938,7 +1083,7 @@ function giftMeta(ctx) {
     ctx,
     route: { kind: "gift" },
     title: "T\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0 T\xE2y B\u1EAFc \u2014 A S\u1EC9n",
-    description: "C\xE1 nh\xE2n h\xF3a h\u1ED9p qu\xE0 A S\u1EC9n qua 4 b\u01B0\u1EDBc: ch\u1ECDn size v\u1EEBa ho\u1EB7c to, m\xE0u xanh ho\u1EB7c \u0111\u1ECF \u0111\xF4, s\u1EA3n ph\u1EA9m b\xEAn trong v\xE0 thi\u1EC7p l\u1EDDi ch\xFAc t\xF9y ch\u1ECDn.",
+    description: "T\u1EA1o h\u1ED9p qu\xE0 A S\u1EC9n qua 3 b\u01B0\u1EDBc: ch\u1ECDn h\u1ED9p, ch\u1ECDn m\xF3n v\xE0 vi\u1EBFt thi\u1EC7p. Sinh L\u1ED9c xanh l\xE1 300.000\u0111, Th\u1ECBnh \u0110\u1EC9nh \u0111\u1ECF 500.000\u0111, tr\u1ECDn gi\xE1 m\xF3n v\xE0 thi\u1EC7p.",
     canonicalPath: "/thiet-ke",
     jsonLd: [
       breadcrumbJsonLd(ctx, [
@@ -1105,10 +1250,14 @@ function blockToHtml(block) {
     }
     case "quote":
       return `<blockquote><p>${renderInline(block.text)}</p></blockquote>`;
+    case "callout":
+      return `<aside class="article-callout is-${h(block.variant)}">${block.text.split("\n").filter(Boolean).map((line) => `<p>${renderInline(line)}</p>`).join("")}</aside>`;
     case "image":
-      return `<figure><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
+      return `<figure${block.size === "small" ? ' class="is-small"' : ""}><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
     case "image-pair":
       return `<div class="sf-article-pair">${block.images.map((image2) => blockToHtml({ type: "image", ...image2 })).join("")}</div>`;
+    case "gallery":
+      return `<div class="article-gallery is-${block.images.length}">${block.images.map((image2) => blockToHtml({ type: "image", ...image2 })).join("")}</div>`;
     case "cta":
       return `<p class="asin-prerender-cta">${link(block.href, block.label)}</p>`;
     case "divider":

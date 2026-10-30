@@ -1,0 +1,894 @@
+/* Mục "Bài viết & tin tức": danh sách bài và trang soạn bài. */
+
+/* ------------------------------------------------------------------ */
+/* Danh sách bài                                                       */
+/* ------------------------------------------------------------------ */
+.admin-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.admin-list-toolbar .admin-search {
+  flex: 1 1 240px;
+}
+
+.admin-list-toolbar > .admin-ghost {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+}
+
+.admin-filter-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 18px;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 6%);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.admin-filters button.active .admin-filter-count {
+  background: rgb(255 255 255 / 22%);
+}
+
+.admin-article-list {
+  display: grid;
+  margin: 0 -20px -20px;
+  padding: 0;
+  border-top: 1px solid var(--a-border);
+  list-style: none;
+}
+
+.admin-article-list > li {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--a-border);
+  transition: background 0.12s;
+}
+
+.admin-article-list > li:last-child {
+  border-bottom: 0;
+}
+
+.admin-article-list > li:hover {
+  background: #fcfbf9;
+}
+
+.admin-article-thumb {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--a-surface-3);
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+.admin-article-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s var(--a-ease);
+}
+
+.admin-article-list > li:hover .admin-article-thumb img {
+  transform: scale(1.04);
+}
+
+.admin-article-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.admin-article-title {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-text);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.admin-article-title:hover {
+  color: var(--a-brand);
+}
+
+.admin-article-copy > p {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--a-text-2);
+  font-size: 13px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.admin-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  margin-top: 2px;
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Trang soạn bài                                                      */
+/* ------------------------------------------------------------------ */
+.ae-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px dashed var(--a-border-strong);
+  border-radius: var(--a-radius);
+  background: var(--a-surface-2);
+  color: var(--a-text-2);
+  font-size: 13px;
+}
+
+.ae-starters > span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 600;
+}
+
+.ae-starters .admin-ghost {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.admin-shell .ae-starters select {
+  width: auto;
+  min-width: 220px;
+  min-height: 34px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 13px;
+}
+
+.ae-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  border: 2px dashed var(--a-border-strong);
+  border-radius: var(--a-radius-lg);
+  background: var(--a-surface-2);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ae-cover.is-over {
+  border-color: var(--a-brand);
+  background: var(--a-brand-soft);
+}
+
+.ae-cover.has-image {
+  border: 0;
+}
+
+.ae-cover > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ae-cover-actions {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 16px;
+  color: var(--a-text-3);
+  text-align: center;
+}
+
+.ae-cover-actions b {
+  color: var(--a-text);
+  font-size: 15px;
+}
+
+.ae-cover-actions small {
+  font-size: 13px;
+}
+
+.ae-cover-actions small button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-brand);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.ae-cover.has-image .ae-cover-actions {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.ae-cover.has-image:hover .ae-cover-actions,
+.ae-cover.has-image:focus-within .ae-cover-actions {
+  opacity: 1;
+}
+
+.ae-cover.has-image .admin-ghost {
+  border-color: transparent;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: var(--a-shadow);
+}
+
+.ae-cover-busy {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 94%);
+  color: var(--a-text-2);
+}
+
+.ae-cover-error {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  margin: 0;
+}
+
+.ae-head {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-shell textarea.ae-title,
+.admin-shell textarea.ae-excerpt {
+  min-height: 0;
+  padding: 4px 2px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  resize: none;
+}
+
+.admin-shell textarea.ae-title {
+  color: var(--a-text);
+  font: 700 clamp(24px, 3vw, 32px) / 1.25 var(--sf-serif, Georgia, serif);
+}
+
+.admin-shell textarea.ae-excerpt {
+  color: var(--a-text-2);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.admin-shell textarea.ae-title:focus,
+.admin-shell textarea.ae-excerpt:focus {
+  box-shadow: none;
+  background: var(--a-surface-2);
+}
+
+.ae-paste-tip {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: var(--a-radius);
+  background: var(--a-info-soft);
+  color: #284f80;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ae-paste-tip svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.ae-stats {
+  margin-top: -6px;
+  color: var(--a-text-3);
+  font-size: 12px;
+  text-align: right;
+}
+
+.admin-draft-offer {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-draft-offer > div {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-draft-offer .admin-primary,
+.admin-draft-offer .admin-ghost {
+  min-height: 32px;
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.admin-error-list ul,
+.admin-confirm-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.admin-confirm-list li + li {
+  margin-top: 4px;
+}
+
+.admin-link-button {
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.admin-footer-note kbd {
+  margin-left: 10px;
+  padding: 1px 5px;
+  border: 1px solid var(--a-border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--a-surface);
+  font: 600 11px/1.4 var(--a-font);
+}
+
+/* Cột bên: đăng bài */
+.admin-choice-list {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-choice {
+  display: flex !important;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.admin-choice:hover {
+  border-color: var(--a-border-strong);
+}
+
+.admin-choice.is-active {
+  border-color: var(--a-brand);
+  background: var(--a-brand-soft);
+}
+
+.admin-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-choice:has(input:focus-visible) {
+  box-shadow: var(--a-ring);
+}
+
+.admin-choice > svg {
+  flex: none;
+  color: var(--a-text-3);
+}
+
+.admin-choice.is-active > svg {
+  color: var(--a-brand);
+}
+
+.admin-choice b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-choice small {
+  display: block;
+  color: var(--a-text-3);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Cột bên: checklist */
+.admin-progress-label {
+  margin-left: auto;
+  color: var(--a-text-3);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--a-surface-3);
+}
+
+.admin-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--a-gold), var(--a-success));
+  transition: width 0.3s var(--a-ease);
+}
+
+.admin-checklist {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.admin-checklist li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--a-text-2);
+}
+
+.admin-checklist li svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--a-border-strong);
+}
+
+.admin-checklist li.is-done {
+  color: var(--a-text-3);
+}
+
+.admin-checklist li.is-done svg {
+  color: var(--a-success);
+}
+
+.admin-checklist li.is-required svg {
+  color: var(--a-warning);
+}
+
+.admin-checklist small {
+  display: block;
+  color: var(--a-warning);
+  font-size: 11px;
+}
+
+/* Xem trước Google */
+.admin-serp {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-radius);
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.admin-serp-site {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-serp-favicon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #e3e3e3;
+  border-radius: 50%;
+  background: var(--a-brand);
+  color: #fff;
+  font: 600 13px/1 Georgia, serif;
+}
+
+.admin-serp-site b {
+  display: block;
+  color: #202124;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.admin-serp-site small {
+  display: block;
+  overflow: hidden;
+  max-width: 220px;
+  color: #4d5156;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-serp-title {
+  color: #1a0dab;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.admin-serp-desc {
+  color: #4d5156;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Xem trước khi chia sẻ */
+.admin-share-card {
+  overflow: hidden;
+  border: 1px solid #dadde1;
+  border-radius: var(--a-radius);
+  background: #f0f2f5;
+}
+
+.admin-share-image {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1200 / 630;
+  background: var(--a-surface-3);
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+.admin-share-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-share-copy {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  font-family: Arial, sans-serif;
+}
+
+.admin-share-copy small {
+  color: #65676b;
+  font-size: 11px;
+}
+
+.admin-share-copy b {
+  color: #050505;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.admin-share-copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #65676b !important;
+  font-size: 12px !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.admin-details {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-details > summary {
+  color: var(--a-brand);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.admin-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-details > summary::before {
+  display: inline-block;
+  margin-right: 6px;
+  content: "▸";
+  transition: transform 0.15s;
+}
+
+.admin-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.admin-details[open] {
+  gap: 12px;
+}
+
+.admin-details.is-flat > summary {
+  color: var(--a-text);
+  font-size: 14px;
+}
+
+.admin-counter {
+  float: right;
+  color: var(--a-text-3);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-counter.is-good { color: var(--a-success); }
+.admin-counter.is-short { color: var(--a-warning); }
+.admin-counter.is-over { color: var(--a-danger); }
+
+.admin-input-prefix {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--a-border-strong);
+  border-radius: 8px;
+  background: var(--a-surface);
+  overflow: hidden;
+}
+
+.admin-input-prefix:focus-within {
+  border-color: var(--a-brand);
+  box-shadow: var(--a-ring);
+}
+
+.admin-input-prefix span {
+  display: grid;
+  place-items: center;
+  padding: 0 4px 0 10px;
+  color: var(--a-text-3);
+  font-size: 13px;
+}
+
+.admin-shell .admin-input-prefix input {
+  min-width: 0;
+  padding-left: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Liên kết liên quan */
+.admin-related-picker {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-related-picker + .admin-related-picker {
+  margin-top: 8px;
+}
+
+.admin-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-chip-list li {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  max-width: 100%;
+  padding: 3px 4px 3px 10px;
+  border: 1px solid var(--a-border);
+  border-radius: 999px;
+  background: var(--a-surface-2);
+  font-size: 12px;
+}
+
+.admin-chip-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-chip-list li.is-missing {
+  border-color: #efdcb8;
+  background: var(--a-warning-soft);
+  color: var(--a-warning);
+}
+
+.admin-chip-list button {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--a-text-3);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.admin-chip-list button:hover {
+  background: var(--a-surface-3);
+  color: var(--a-danger);
+}
+
+.admin-revision-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-revision-list li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--a-border);
+  font-size: 13px;
+}
+
+.admin-revision-list li:last-child {
+  border-bottom: 0;
+}
+
+.admin-revision-list small {
+  display: block;
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+.admin-revision-list .admin-ghost {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* Xem trước bài */
+.admin-preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+.admin-article-preview {
+  padding: 18px;
+  border-radius: var(--a-radius);
+  background: var(--sf-cream, #fbf6ed);
+}
+
+.admin-preview-page {
+  max-width: 820px;
+  margin: 0 auto;
+  font-family: var(--sf-body, var(--a-font));
+}
+
+.admin-article-preview.is-mobile .admin-preview-page {
+  max-width: 390px;
+  padding: 16px;
+  border: 8px solid #231c19;
+  border-radius: 28px;
+  background: var(--sf-cream, #fbf6ed);
+}
+
+.admin-preview-tag {
+  color: var(--sf-gold, #c28c38);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-shell .admin-preview-page h1 {
+  margin: 8px 0 10px;
+  color: var(--sf-wine, #731019);
+  font: 600 clamp(24px, 3.2vw, 36px) / 1.2 var(--sf-serif, Georgia, serif);
+}
+
+.admin-preview-byline {
+  margin-bottom: 16px !important;
+  color: var(--sf-muted, #756d64);
+  font-size: 13px;
+}
+
+.admin-preview-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.admin-shell .admin-preview-page .sf-article-body h2 {
+  font-family: var(--sf-serif, Georgia, serif);
+}
+
+@media (max-width: 760px) {
+  .admin-article-list {
+    margin: 0;
+    border-top: 0;
+    gap: 10px;
+  }
+
+  .admin-article-list > li {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--a-border);
+    border-radius: var(--a-radius);
+  }
+
+  .admin-article-list > li:last-child {
+    border-bottom: 1px solid var(--a-border);
+  }
+
+  .admin-article-list .admin-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid var(--a-border);
+  }
+
+  .admin-article-copy > p {
+    display: none;
+  }
+
+  .ae-cover {
+    aspect-ratio: 16 / 9;
+  }
+
+  .ae-cover.has-image .ae-cover-actions {
+    opacity: 1;
+  }
+
+  .admin-shell .ae-starters select {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .admin-kbd-hint {
+    display: none;
+  }
+
+  .admin-article-preview {
+    padding: 8px;
+  }
+
+  .admin-article-preview.is-mobile .admin-preview-page {
+    border-width: 0;
+    border-radius: 0;
+  }
+}

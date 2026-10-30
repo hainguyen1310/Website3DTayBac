@@ -35,7 +35,7 @@ function nodeHandler(handler) {
       const response = await handler(request);
       res.statusCode = response.status;
       response.headers.forEach((v, k) => res.setHeader(k, v));
-      res.end(await response.text());
+      res.end(Buffer.from(await response.arrayBuffer()));
     } catch {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");

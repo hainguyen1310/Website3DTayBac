@@ -20,6 +20,7 @@ const entries = [
   "contact-reply",
   "mail-sync",
   "staff-invite",
+  "image-import",
   "render",
   "seo",
 ];

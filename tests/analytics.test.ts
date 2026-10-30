@@ -29,11 +29,11 @@ test("cart payload supports products and gift boxes without gift recipient/messa
   assert.equal(items.length, 2);
   assert.equal(items[0].quantity, 2);
   assert.equal(items[1].item_id, "gift-box");
-  assert.equal(items[1].price, 710000);
+  assert.equal(items[1].price, 300000);
   assert.doesNotMatch(JSON.stringify(items), /Private Recipient|private@example|recipient|message/);
-  assert.equal(ecommerceParams(items).value, 1070000);
-  const purchase = purchaseAnalyticsParams(items, 1100000, 30000)!;
-  assert.equal(purchase.value, 1070000);
+  assert.equal(ecommerceParams(items).value, 660000);
+  const purchase = purchaseAnalyticsParams(items, 690000, 30000)!;
+  assert.equal(purchase.value, 660000);
   assert.equal(purchase.shipping, 30000);
   assert.equal(purchaseAnalyticsParams(items, 800000, 30000), null);
 });

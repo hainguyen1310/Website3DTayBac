@@ -242,26 +242,6 @@ body {
   margin-top: 56px;
 }
 
-/* Decorative contours */
-.sf-contours {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
-.sf-hero-contours {
-  left: 0;
-  top: 0;
-  width: min(750px, 70%);
-  height: 100%;
-}
-.sf-bottom-contours {
-  left: calc(50% - 50vw);
-  bottom: 0;
-  width: min(600px, 60vw);
-  height: auto;
-}
-
 /* Media frames */
 .sf-media-frame {
   margin: 0;

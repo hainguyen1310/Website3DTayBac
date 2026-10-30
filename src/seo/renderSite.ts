@@ -111,10 +111,14 @@ function blockToHtml(block: ContentBlock): string {
     }
     case "quote":
       return `<blockquote><p>${renderInline(block.text)}</p></blockquote>`;
+    case "callout":
+      return `<aside class="article-callout is-${h(block.variant)}">${block.text.split("\n").filter(Boolean).map((line) => `<p>${renderInline(line)}</p>`).join("")}</aside>`;
     case "image":
-      return `<figure><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
+      return `<figure${block.size === "small" ? ' class="is-small"' : ""}><img src="${h(block.url)}" alt="${h(block.alt)}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${h(block.caption)}</figcaption>` : ""}</figure>`;
     case "image-pair":
       return `<div class="sf-article-pair">${block.images.map((image) => blockToHtml({ type: "image", ...image })).join("")}</div>`;
+    case "gallery":
+      return `<div class="article-gallery is-${block.images.length}">${block.images.map((image) => blockToHtml({ type: "image", ...image })).join("")}</div>`;
     case "cta":
       return `<p class="asin-prerender-cta">${link(block.href, block.label)}</p>`;
     case "divider":

@@ -1,0 +1,159 @@
+/* Form liên hệ và vài chi tiết footer cũ (tách ra từ admin-operations.css). */
+.asin-contact {
+  padding: 100px 0;
+  background: #f7f4eb;
+  color: #183b2b;
+}
+.asin-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 80px;
+  align-items: start;
+}
+.asin-contact h2 {
+  font: 400 46px/1.15 var(--serif);
+  margin: 18px 0 22px;
+}
+.asin-contact-copy > p {
+  font-size: 15px;
+  line-height: 1.8;
+  max-width: 400px;
+}
+.asin-contact-copy > small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.8;
+  max-width: 370px;
+  color: #6c7869;
+}
+.asin-contact-details {
+  margin: 32px 0;
+}
+.asin-contact-details p {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.asin-contact-details b {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.asin-contact-form,
+.asin-contact-success {
+  padding: 32px;
+  background: #fffdf8;
+  border: 1px solid #e0dfd3;
+  border-radius: 8px;
+  min-width: 0;
+}
+.asin-contact h3 {
+  font: 400 28px/1.25 var(--serif);
+  margin: 0 0 25px;
+}
+.asin-contact-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.asin-contact-fields label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.asin-contact-fields .full {
+  grid-column: 1/-1;
+}
+.asin-contact-fields input,
+.asin-contact-fields select,
+.asin-contact-fields textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #d5d9ca;
+  background: white;
+  border-radius: 4px;
+  padding: 12px;
+  font: 14px var(--sans);
+  color: #264530;
+}
+.asin-contact-fields textarea {
+  resize: vertical;
+  line-height: 1.65;
+}
+.asin-contact-consent {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 22px 0;
+}
+.asin-contact-consent input {
+  flex: 0 0 16px;
+  accent-color: #234c34;
+  margin-top: 3px;
+}
+.asin-contact-error {
+  color: #a04f35;
+  font-size: 13px;
+}
+.contact-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.moc-hero-subtitle,
+.moc-deal-copy > p,
+.moc-about-hero-copy > p {
+  white-space: pre-line;
+}
+@media (max-width: 1200px) {
+  .asin-contact-grid {
+    gap: 40px;
+  }
+}
+@media (max-width: 900px) {
+  .asin-contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .asin-contact-copy > p {
+    max-width: 650px;
+  }
+  .asin-contact {
+    padding: 70px 0;
+  }
+}
+@media (max-width: 580px) {
+  .asin-contact {
+    padding: 54px 0;
+  }
+  .asin-contact h2 {
+    font-size: 37px;
+  }
+  .asin-contact-grid {
+    gap: 30px;
+  }
+  .asin-contact-form {
+    padding: 22px 18px;
+  }
+  .asin-contact-fields {
+    grid-template-columns: 1fr;
+  }
+  .asin-contact h3 {
+    font-size: 26px;
+  }
+}
+@media (max-width: 380px) {
+  .moc-footer-brand-col {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .moc-footer-slogan {
+    max-width: 100%;
+    white-space: normal;
+  }
+}

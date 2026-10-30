@@ -35,7 +35,7 @@ function nodeHandler(handler2) {
       const response = await handler2(request);
       res.statusCode = response.status;
       response.headers.forEach((v, k) => res.setHeader(k, v));
-      res.end(await response.text());
+      res.end(Buffer.from(await response.arrayBuffer()));
     } catch {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
@@ -127,14 +127,10 @@ function escapeHtmlText(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// src/content/blocks.ts
-var MAX_BLOCKS = 200;
-var MAX_TEXT = 4e3;
-var MAX_ITEMS = 30;
-function cleanText(value, max = MAX_TEXT) {
-  if (typeof value !== "string") return "";
-  return value.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max);
-}
+// src/content/inline.ts
+var MAX_LINK_LABEL = 300;
+var MAX_HREF = 500;
+var LINK_PATTERN = new RegExp(`^\\[((?:\\\\.|[^\\]\\\\]){1,${MAX_LINK_LABEL}})\\]\\(([^()\\s]{1,${MAX_HREF}})\\)`);
 function isSafeHref(value) {
   const href = value.trim();
   if (!href) return false;
@@ -144,6 +140,16 @@ function isSafeHref(value) {
   if (/^mailto:[^\s]+@[^\s]+$/i.test(href)) return true;
   if (/^tel:\+?[0-9\s().-]{6,20}$/i.test(href)) return true;
   return false;
+}
+
+// src/content/blocks.ts
+var CALLOUT_VARIANTS = ["tip", "note", "info"];
+var MAX_BLOCKS = 200;
+var MAX_TEXT = 4e3;
+var MAX_ITEMS = 30;
+function cleanText(value, max = MAX_TEXT) {
+  if (typeof value !== "string") return "";
+  return value.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max);
 }
 function normalizeImageUrl(value) {
   const url = cleanText(value, 500);
@@ -174,6 +180,11 @@ function normalizeBlock(value) {
       const text = cleanText(block.text);
       return text ? { type: "quote", text } : null;
     }
+    case "callout": {
+      const text = cleanText(block.text);
+      const variant = CALLOUT_VARIANTS.includes(block.variant) ? block.variant : "tip";
+      return text ? { type: "callout", variant, text } : null;
+    }
     case "image": {
       const url = normalizeImageUrl(block.url);
       if (!url) return null;
@@ -181,7 +192,8 @@ function normalizeBlock(value) {
         type: "image",
         url,
         alt: cleanText(block.alt, 300),
-        caption: cleanText(block.caption, 300)
+        caption: cleanText(block.caption, 300),
+        ...block.size === "small" ? { size: "small" } : {}
       };
     }
     case "image-pair": {
@@ -193,6 +205,15 @@ function normalizeBlock(value) {
         { url: left.url, alt: left.alt, caption: left.caption },
         { url: right.url, alt: right.alt, caption: right.caption }
       ] };
+    }
+    case "gallery": {
+      if (!Array.isArray(block.images) || block.images.length < 3 || block.images.length > 4) return null;
+      const images = block.images.map((image) => normalizeBlock({ ...image, type: "image" }));
+      if (images.some((image) => image?.type !== "image")) return null;
+      return { type: "gallery", images: images.map((image) => {
+        const { url, alt, caption } = image;
+        return { url, alt, caption };
+      }) };
     }
     case "cta": {
       const label = cleanText(block.label, 120);

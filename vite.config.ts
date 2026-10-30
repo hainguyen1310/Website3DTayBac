@@ -4,6 +4,7 @@ import { nodeHandler } from "./server/http";
 import { contactReply } from "./server/email/reply";
 import { mailSync } from "./server/email/sync";
 import { staffInvite } from "./server/staff-invite";
+import { imageImport } from "./server/image-import";
 import { seoPlugin } from "./server/seo/dev";
 import { getSeoEnvironment } from "./src/seo/config";
 
@@ -28,6 +29,7 @@ export default defineConfig(({ mode }) => {
           );
           server.middlewares.use("/api/mail-sync", nodeHandler(mailSync));
           server.middlewares.use("/api/staff-invite", nodeHandler(staffInvite));
+          server.middlewares.use("/api/image-import", nodeHandler(imageImport));
         },
       },
     ],

@@ -5,6 +5,7 @@ import AdminPage from "./AdminPage";
 import AdminLogin from "./AdminLogin";
 import { AdminLoading } from "./ui";
 import { applySeoMeta } from "../seo/head";
+import "./admin.css";
 
 function LoginRoute() {
   const { session, loading } = useAuth();

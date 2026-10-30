@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import {
-  ArrowUpRight,
   BarChart3,
+  ChevronRight,
   ClipboardList,
+  ExternalLink,
   LayoutDashboard,
+  LayoutTemplate,
   LogOut,
   Mail,
   MessagesSquare,
-  Megaphone,
   Menu,
+  Newspaper,
   Package,
   Percent,
   Settings,
@@ -32,37 +34,72 @@ import { CatalogProvider } from "../CatalogContext";
 import WebsiteSection from "./WebsiteSection";
 import PasswordSetup from "./PasswordSetup";
 import { canAccess } from "../operations";
-import { AdminLoading } from "./ui";
+import { AdminLoading, useTableLabels } from "./ui";
 import type { AdminSection } from "./sections";
 
-const menu: {
-  id: AdminSection;
-  label: string;
-  icon: typeof LayoutDashboard;
-}[] = [
-  { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-  { id: "orders", label: "Đơn hàng", icon: ClipboardList },
-  { id: "products", label: "Sản phẩm", icon: Package },
-  { id: "customers", label: "Khách hàng", icon: Users },
-  { id: "promotions", label: "Khuyến mãi", icon: Percent },
-  { id: "content", label: "Nội dung", icon: Megaphone },
-  { id: "website", label: "Nội dung website", icon: LayoutDashboard },
-  { id: "messages", label: "Liên hệ", icon: Mail },
-  { id: "support", label: "Liên hệ & Chatbox", icon: MessagesSquare },
-  { id: "reports", label: "Báo cáo", icon: BarChart3 },
-  { id: "settings", label: "Cài đặt", icon: Settings },
+type MenuItem = { id: AdminSection; label: string; icon: typeof LayoutDashboard };
+
+const MENU_GROUPS: { title: string; items: MenuItem[] }[] = [
+  {
+    title: "Bán hàng",
+    items: [
+      { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+      { id: "orders", label: "Đơn hàng", icon: ClipboardList },
+      { id: "products", label: "Sản phẩm", icon: Package },
+      { id: "customers", label: "Khách hàng", icon: Users },
+      { id: "promotions", label: "Khuyến mãi", icon: Percent },
+    ],
+  },
+  {
+    title: "Nội dung",
+    items: [
+      { id: "content", label: "Bài viết & tin tức", icon: Newspaper },
+      { id: "website", label: "Nội dung website", icon: LayoutTemplate },
+    ],
+  },
+  {
+    title: "Chăm sóc khách",
+    items: [
+      { id: "messages", label: "Hộp thư liên hệ", icon: Mail },
+      { id: "support", label: "Chatbox & kênh liên hệ", icon: MessagesSquare },
+    ],
+  },
+  {
+    title: "Hệ thống",
+    items: [
+      { id: "reports", label: "Báo cáo", icon: BarChart3 },
+      { id: "settings", label: "Cài đặt", icon: Settings },
+    ],
+  },
 ];
+
+const ALL_ITEMS = MENU_GROUPS.flatMap((group) => group.items);
+
+const roleLabel = (role: string | undefined, scope: string | undefined) =>
+  role === "admin" ? "Quản trị viên" : scope === "marketing" ? "Marketing" : "Vận hành";
 
 export default function AdminPage() {
   const location = useLocation();
   const { session, loading, isStaff, profile, signOut } = useAuth();
   const [params, setParams] = useSearchParams();
-  const allowedMenu = menu.filter(item => canAccess(profile?.role, profile?.staffScope, item.id));
-  const requested = params.get("section") as AdminSection;
-  const section = allowedMenu.some(item => item.id === requested) ? requested : (allowedMenu[0]?.id ?? "dashboard");
-  const setSection = (next: AdminSection) => setParams({ section: next });
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const active = menu.find((item) => item.id === section)!;
+  const contentRef = useRef<HTMLDivElement>(null);
+  const allowed = ALL_ITEMS.filter((item) => canAccess(profile?.role, profile?.staffScope, item.id));
+  const requested = params.get("section") as AdminSection;
+  const section = allowed.some((item) => item.id === requested) ? requested : (allowed[0]?.id ?? "dashboard");
+  const active = ALL_ITEMS.find((item) => item.id === section)!;
+  useTableLabels(contentRef, `${section}:${loading}:${isStaff}`);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setSidebarOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [section]);
 
   if (loading) {
     return (
@@ -73,9 +110,14 @@ export default function AdminPage() {
       </main>
     );
   }
-  if (params.get("setup")==="password") return <PasswordSetup />;
+  if (params.get("setup") === "password") return <PasswordSetup />;
   if (!session) return <Navigate to={`/admin/dang-nhap${location.search}`} replace />;
   if (!isStaff) return <AdminNoAccess />;
+
+  const setSection = (next: AdminSection) => {
+    setParams({ section: next });
+    setSidebarOpen(false);
+  };
 
   const initials = (profile?.fullName || session.user.email || "A Sỉn")
     .split(/[\s@.]+/)
@@ -114,87 +156,74 @@ export default function AdminPage() {
 
   return (
     <main className="admin-shell">
-      {sidebarOpen && (
-        <button
-          className="admin-sidebar-scrim"
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Đóng menu quản trị"
-        />
-      )}
-      <aside
-        className={sidebarOpen ? "admin-sidebar is-open" : "admin-sidebar"}
-        aria-label="Điều hướng quản trị"
-      >
+      {sidebarOpen && <button className="admin-sidebar-scrim" onClick={() => setSidebarOpen(false)} aria-label="Đóng menu quản trị" />}
+      <aside className={sidebarOpen ? "admin-sidebar is-open" : "admin-sidebar"} aria-label="Điều hướng quản trị">
         <div className="admin-logo">
-          <span>A</span>
+          <span aria-hidden="true">A</span>
           <div>
-            <b>A Sỉn.</b>
+            <b>A Sỉn</b>
             <small>QUẢN TRỊ</small>
           </div>
-          <button
-            className="sidebar-close"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Đóng menu quản trị"
-          >
+          <button className="sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Đóng menu quản trị">
             <X size={18} />
           </button>
         </div>
         <nav>
-          {allowedMenu.map((item) => {
-            const Icon = item.icon;
+          {MENU_GROUPS.map((group) => {
+            const items = group.items.filter((item) => allowed.some((entry) => entry.id === item.id));
+            if (!items.length) return null;
             return (
-              <button
-                key={item.id}
-                className={section === item.id ? "active" : ""}
-                onClick={() => {
-                  setSection(item.id);
-                  setSidebarOpen(false);
-                }}
-              >
-                <Icon size={18} />
-                {item.label}
-              </button>
+              <div className="admin-nav-group" key={group.title}>
+                <h2>{group.title}</h2>
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      className={section === item.id ? "active" : ""}
+                      aria-current={section === item.id ? "page" : undefined}
+                      onClick={() => setSection(item.id)}
+                    >
+                      <Icon size={18} strokeWidth={1.8} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
         <div className="admin-sidebar-bottom">
-          <span>
-            Vai trò: <b>{profile?.role === "admin" ? "Quản trị viên" : profile?.staffScope === "marketing" ? "Marketing" : "Vận hành"}</b>
-          </span>
-          <Link to="/">
-            Xem cửa hàng <ArrowUpRight size={15} />
-          </Link>
+          <span>Vai trò: <b>{roleLabel(profile?.role, profile?.staffScope)}</b></span>
           <button onClick={() => void signOut()}>
-            <LogOut size={15} /> Đăng xuất
+            <LogOut size={16} /> Đăng xuất
           </button>
         </div>
       </aside>
       <section className="admin-main">
         <header className="admin-topbar">
-          <button
-            className="admin-menu-button"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Mở menu quản trị"
-            aria-expanded={sidebarOpen}
-          >
-            <Menu size={21} />
+          <button className="admin-menu-button" onClick={() => setSidebarOpen(true)} aria-label="Mở menu quản trị" aria-expanded={sidebarOpen}>
+            <Menu size={20} />
           </button>
           <div className="admin-breadcrumb">
             <span>Quản trị</span>
-            <ArrowUpRight size={14} />
+            <ChevronRight size={14} aria-hidden="true" />
             <b>{active.label}</b>
           </div>
-          <div>
-            <div className="admin-user">
-              <span>{initials}</span>
+          <div className="admin-topbar-actions">
+            <Link className="admin-view-site" to="/" target="_blank" rel="noopener noreferrer" aria-label="Xem website (mở tab mới)">
+              <ExternalLink size={15} /> <span>Xem website</span>
+            </Link>
+            <div className="admin-user" title={session.user.email}>
+              <span aria-hidden="true">{initials}</span>
               <div>
                 <b>{profile?.fullName || session.user.email}</b>
-                <small>{session.user.email}</small>
+                <small>{roleLabel(profile?.role, profile?.staffScope)}</small>
               </div>
             </div>
           </div>
         </header>
-        <div className="admin-content">{renderSection()}</div>
+        <div className="admin-content" ref={contentRef}>{renderSection()}</div>
       </section>
     </main>
   );

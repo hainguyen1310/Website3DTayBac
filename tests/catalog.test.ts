@@ -12,13 +12,12 @@ import {
   products,
 } from "../src/catalog.ts";
 
-const SMALL = boxSizes[0].price;
 const LARGE = boxSizes[1].price;
 
-test("gift price is the box price plus the card fee plus every chosen item, duplicates included", () => {
-  assert.equal(giftPrice(defaultDesign), SMALL + CARD_PRICE);
-  assert.equal(giftPrice({ ...defaultDesign, includeCard: false, productIds: ["spice"] }), SMALL + 95000);
-  assert.equal(giftPrice({ ...defaultDesign, productIds: ["tea", "tea"] }), SMALL + CARD_PRICE + 2 * 180000);
+test("gift prices are all-inclusive regardless of products, duplicates or card", () => {
+  assert.equal(giftPrice(defaultDesign), 300000);
+  assert.equal(giftPrice({ ...defaultDesign, includeCard: false, productIds: ["spice"] }), 300000);
+  assert.equal(giftPrice({ ...defaultDesign, productIds: ["tea", "tea"] }), 300000);
   assert.equal(giftPrice({ ...defaultDesign, size: "large", includeCard: false, productIds: [] }), LARGE);
 });
 
@@ -37,7 +36,7 @@ test("corrupt saved design is repaired without accepting unknown products or col
   assert.equal(design.recipient.length, 30);
 });
 
-test("slots only accept products made for that slot type and derive the chosen list in slot order", () => {
+test("slots accept any product type and derive the chosen list in slot order", () => {
   const catalog = [
     { ...products[0], id: "bag-item", giftSlot: "bag" as const },
     { ...products[1], id: "jar-item", giftSlot: "jar" as const },
@@ -46,14 +45,14 @@ test("slots only accept products made for that slot type and derive the chosen l
     { ...defaultDesign, slots: { bagA: "jar-item", bagB: "bag-item", jar: "jar-item", bottle: "bag-item" } },
     catalog,
   );
-  assert.deepEqual(design.slots, { bagB: "bag-item", jar: "jar-item" });
-  assert.deepEqual(design.productIds, ["bag-item", "jar-item"]);
+  assert.deepEqual(design.slots, { bagA: "jar-item", bagB: "bag-item", jar: "jar-item" });
+  assert.deepEqual(design.productIds, ["jar-item", "bag-item", "jar-item"]);
 });
 
 test("the same product may fill both bag slots", () => {
   const design = cleanDesign({ ...defaultDesign, slots: { bagA: "jerky", bagB: "jerky" } });
   assert.deepEqual(design.productIds, ["jerky", "jerky"]);
-  assert.equal(giftPrice(design), SMALL + CARD_PRICE + 2 * 320000);
+  assert.equal(giftPrice(design), 300000);
 });
 
 test("saved cart discards invalid products and empty custom gifts and caps quantities", () => {
@@ -82,14 +81,14 @@ test("cart round trip preserves exact personalization and pricing", () => {
     productIds: ["jerky", "jerky", "spice"],
     recipient: "Mẹ",
     message: "Một chút bình yên.",
-    color: "#315442",
+    color: "#681b22",
     pattern: "Triền núi",
   };
   const roundTrip = cleanCart(
     JSON.parse(JSON.stringify([{ key: "gift-test", design, quantity: 2 }])),
   );
   assert.deepEqual(roundTrip[0].design, design);
-  assert.equal(linePrice(roundTrip[0]) * roundTrip[0].quantity, 2 * (LARGE + CARD_PRICE + 2 * 320000 + 95000));
+  assert.equal(linePrice(roundTrip[0]) * roundTrip[0].quantity, 1000000);
 });
 
 test("opting out of a gift card clears its content and keeps box size after cart restore", () => {
@@ -103,7 +102,7 @@ test("opting out of a gift card clears its content and keeps box size after cart
 });
 
 test("legacy gifts retain their cards and invalid new options use safe defaults", () => {
-  const legacy = cleanDesign({ productIds: ["tea"], color: "#315442", message: "Chúc mừng", recipient: "Mẹ" });
+  const legacy = cleanDesign({ productIds: ["tea"], color: "#681b22", message: "Chúc mừng", recipient: "Mẹ" });
   assert.equal(legacy.includeCard, true);
   assert.equal(legacy.message, "Chúc mừng");
   assert.equal(legacy.size, "medium");
@@ -129,4 +128,13 @@ test("checkout carries box size, slots, included items and optional card text", 
   assert.equal(items[1].design?.message, "");
   assert.equal(items[1].design?.recipient, "");
   assert.deepEqual(items[2], { kind: "product", product_id: "tea", quantity: 1 });
+});
+
+test("box colors are fixed by size, including restored designs", () => {
+  assert.equal(cleanDesign({ ...defaultDesign, color: "#681b22" }).color, "#315442");
+  assert.equal(cleanDesign({ ...defaultDesign, size: "large", color: "#315442" }).color, "#681b22");
+  assert.equal(boxSizes[0].price, 300000);
+  assert.equal(boxSizes[1].price, 500000);
+  assert.equal(CARD_PRICE, 0);
+  assert.deepEqual(cleanDesign(defaultDesign).productIds, []);
 });

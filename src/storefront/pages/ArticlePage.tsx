@@ -3,13 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { CalendarDays, Check, Clock3, Facebook, Link2, Share2, UserRound } from "lucide-react";
 import { useDocumentSeo } from "../../hooks/useDocumentSeo";
 import { articleMeta, noindexMeta } from "../../seo/meta";
-import { MEDIA } from "../content";
 import { usePublishedArticle, usePublishedArticleFeed } from "../../hooks/usePublishedArticles";
 import { getPublishedArticlesBySlugs } from "../../services/storeApi";
 import type { PublishedArticle } from "../../content/article";
 import { ArticleBlocks } from "../../content/ArticleBlocks";
 import { trackEvent } from "../../analytics";
-import { Contours, Eyebrow, NewsletterBand, WhyBand } from "../ui";
+import { Eyebrow, NewsletterBand, WhyBand } from "../ui";
 
 export function ArticlePage() {
   const { storyId } = useParams();
@@ -43,8 +42,7 @@ function ArticleView({ article }: { article: PublishedArticle }) {
   const related = [...selected, ...recent].filter((item, index, all) => item.slug !== article.slug && all.findIndex((candidate) => candidate.slug === item.slug) === index).slice(0, 5);
   return (
     <main className="sf-page sf-article-page">
-      <section className="sf-article-head">
-        <Contours src={MEDIA.contours.pageHero} className="sf-article-contours" />
+      <section className="sf-article-head sf-deco is-hero-art">
         <div className="sf-container">
           <nav className="sf-breadcrumb" aria-label="Breadcrumb">
             <Link to="/">Trang chủ</Link> <span aria-hidden="true">›</span> <Link to="/tin-tuc">Tin tức</Link> <span aria-hidden="true">›</span> <span aria-current="page">{article.title}</span>

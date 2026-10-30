@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Resolver SEO theo route (B02): title, description, canonical, robots,
  * Open Graph, Twitter Card và JSON-LD. Cùng một resolver được dùng cho HTML
  * ban đầu (server) và điều hướng client để head không lệch nhau.
@@ -267,7 +267,7 @@ export function giftMeta(ctx: SeoContext): SeoMeta {
     route: { kind: "gift" },
     title: "Tự thiết kế hộp quà Tây Bắc — A Sỉn",
     description:
-      "Cá nhân hóa hộp quà A Sỉn qua 4 bước: chọn size vừa hoặc to, màu xanh hoặc đỏ đô, sản phẩm bên trong và thiệp lời chúc tùy chọn.",
+      "Tạo hộp quà A Sỉn qua 3 bước: chọn hộp, chọn món và viết thiệp. Sinh Lộc xanh lá 300.000đ, Thịnh Đỉnh đỏ 500.000đ, trọn giá món và thiệp.",
     canonicalPath: "/thiet-ke",
     jsonLd: [
       breadcrumbJsonLd(ctx, [

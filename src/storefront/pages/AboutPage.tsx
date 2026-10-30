@@ -1,13 +1,16 @@
 import { useDocumentSeo } from "../../hooks/useDocumentSeo";
+import { Leaf, Handshake, UsersRound, Gem } from "lucide-react";
 import { aboutMeta } from "../../seo/meta";
 import { JOURNEY, MEDIA, VALUES } from "../content";
-import { ButtonLink, Contours, Eyebrow, SplitHero } from "../ui";
+import { ButtonLink, Eyebrow, SplitHero } from "../ui";
+
+const VALUE_ICONS = [Leaf, Handshake, UsersRound, Gem];
 
 export default function AboutPage() {
   useDocumentSeo((ctx) => aboutMeta(ctx), []);
   return (
-    <main className="sf-page">
-      <SplitHero contours={MEDIA.contours.pageHero} image={MEDIA.aboutHero} alt="Bàn tay người phụ nữ Mông cầm bánh dày" caption="Phiên chợ vùng cao · Lào Cai">
+    <main className="sf-page sf-about-page">
+      <SplitHero className="sf-about-hero" image={MEDIA.aboutHero} focus="center 38%" alt="Người phụ nữ Mông đeo gùi nhìn về bản làng và núi rừng Tây Bắc lúc bình minh">
         <Eyebrow>Về chúng tôi</Eyebrow>
         <h1 className="sf-script-display is-xl">
           Câu chuyện
@@ -19,7 +22,7 @@ export default function AboutPage() {
         </p>
       </SplitHero>
 
-      <section className="sf-section sf-container sf-split is-text-first">
+      <section className="sf-section sf-container sf-split is-text-first sf-deco is-sides">
         <div>
           <Eyebrow>Ý nghĩa tên gọi</Eyebrow>
           <h2 className="sf-serif-title">Vì sao là A SỈN?</h2>
@@ -30,8 +33,8 @@ export default function AboutPage() {
             Chúng tôi không chọn XỈN để nói về một cơn say. Chúng tôi chọn SỈN để kể về một niềm say mê – say hương vị, say bản sắc và say cả một vùng Tây Bắc.
           </p>
         </div>
-        <figure className="sf-media-frame is-tall">
-          <img src={MEDIA.aboutCraft} alt="Người con Tây Bắc giới thiệu hộp quà A SỈN" loading="lazy" width={954} height={732} />
+        <figure className="sf-media-frame is-tall" data-reveal="photo">
+          <img src={MEDIA.aboutCraft} alt="Bàn tay người phụ nữ Mông cầm bánh dày" loading="lazy" width={954} height={732} />
         </figure>
       </section>
 
@@ -52,29 +55,33 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="sf-section sf-container">
+      <section className="sf-section sf-container sf-deco is-terraces">
         <Eyebrow>Về chúng tôi</Eyebrow>
         <h2 className="sf-script-title is-medium">Giá trị chúng tôi theo đuổi</h2>
         <ol className="sf-values">
-          {VALUES.map((value, index) => (
-            <li key={value.title}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
+          {VALUES.map((value, index) => {
+            const Icon = VALUE_ICONS[index];
+            return (
+            <li key={value.title} data-reveal="rise">
+              <span className="sf-value-number">{String(index + 1).padStart(2, "0")}</span>
+              <span className="sf-value-icon"><Icon aria-hidden="true" strokeWidth={1.5} /></span>
               <div>
                 <h3>{value.title}</h3>
                 <p>{value.text}</p>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </section>
 
-      <section className="sf-section sf-container sf-journey">
+      <section className="sf-section sf-container sf-journey sf-deco is-mountains">
         <div>
           <Eyebrow>Hành trình</Eyebrow>
           <h2 className="sf-script-title is-medium">Từ bản nhỏ tới thành phố</h2>
           <ol className="sf-timeline">
             {JOURNEY.map((step) => (
-              <li key={step.tag}>
+              <li key={step.tag} data-reveal="side">
                 <small>{step.tag}</small>
                 <h3>{step.title}</h3>
                 <p>{step.text}</p>
@@ -82,13 +89,9 @@ export default function AboutPage() {
             ))}
           </ol>
         </div>
-        <figure className="sf-media-frame is-portrait">
-          <img src={MEDIA.aboutJourney} alt="Thợ xưởng A SỈN bên gác bếp" loading="lazy" width={702} height={878} />
-        </figure>
       </section>
 
       <section className="sf-container sf-about-cta-wrap">
-        <Contours src={MEDIA.contours.bottom} className="sf-bottom-contours" />
         <div className="sf-about-cta">
           <div>
             <h2>Mang miền núi về nhà</h2>

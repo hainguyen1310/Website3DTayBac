@@ -4,7 +4,7 @@ import { Menu, Search, ShoppingBag, Gift, X } from "lucide-react";
 import { useShop } from "../ShopContext";
 import { useWebsite } from "../WebsiteContext";
 import { MEDIA } from "./content";
-import { Contours, NewsletterForm } from "./ui";
+import { NewsletterForm } from "./ui";
 
 export const NAV_ITEMS = [
   { to: "/", label: "Trang chủ" },
@@ -96,7 +96,6 @@ export function SiteFooter({ onPolicy }: { onPolicy: () => void }) {
   ];
   return (
     <footer className="sf-footer">
-      <Contours src={MEDIA.contours.footer} className="sf-footer-contours" />
       <div className="sf-container sf-footer-grid">
         <div className="sf-footer-brand">
           <img src={MEDIA.logoLight} alt="A SỈN — Đặc sản Tây Bắc" width={122} height={67} loading="lazy" />

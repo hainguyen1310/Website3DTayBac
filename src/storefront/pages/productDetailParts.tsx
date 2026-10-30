@@ -1,11 +1,10 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { createPortal } from "react-dom";
-import { ChevronLeft, ChevronRight, Leaf, Mountain, Beef, Wind, X, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, Leaf, Mountain, Beef, Wind, ZoomIn } from "lucide-react";
 import type { StorefrontProduct } from "../products";
 import { cookingVideoUrl } from "../productDetails";
 import type { Feature, ProductDetail } from "../productDetails";
-import { ProductCard, Testimonial } from "../ui";
+import { Lightbox, ProductCard, Testimonial } from "../ui";
 
 const ModelStage = lazy(() => import("../three/ModelStage"));
 
@@ -65,22 +64,6 @@ export function ProductGallery({ product, images }: { product: StorefrontProduct
   );
 }
 
-function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    dialog?.showModal();
-    return () => dialog?.close();
-  }, []);
-  return createPortal(
-    <dialog ref={ref} className="sf-lightbox" aria-label={alt} onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => event.target === event.currentTarget && onClose()}>
-      <img src={src} alt={alt} />
-      <button type="button" aria-label="Đóng" onClick={onClose}><X size={22} /></button>
-    </dialog>,
-    document.body,
-  );
-}
-
 const FEATURE_ICONS: Record<Feature["icon"], ReactNode> = {
   meat: <Beef size={22} strokeWidth={1.4} />,
   leaf: <Leaf size={22} strokeWidth={1.4} />,
@@ -103,7 +86,7 @@ export function ProductTabs({ product, detail, reviews, youtube }: { product: St
   useEffect(() => setActive("desc"), [product.id]);
 
   return (
-    <section className="sf-product-tabs" aria-label="Thông tin sản phẩm">
+    <section className="sf-product-tabs sf-deco is-terraces" aria-label="Thông tin sản phẩm">
       <div className="sf-container">
         <div className="sf-tablist" role="tablist">
           {tabs.map((tab) => (
@@ -183,7 +166,7 @@ export function RelatedCarousel({ products, title, link }: { products: Storefron
     element.scrollBy({ left: direction * element.clientWidth * 0.8, behavior: "smooth" });
   };
   return (
-    <section className="sf-related">
+    <section className="sf-related sf-deco is-pattern">
       <div className="sf-container">
         <div className="sf-section-head">
           {title}

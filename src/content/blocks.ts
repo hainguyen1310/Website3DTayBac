@@ -2,19 +2,30 @@
  * Model nội dung bài viết có cấu trúc (B08).
  *
  * - Bài cũ dạng `string[]` (mỗi phần tử là một đoạn văn) vẫn đọc được.
- * - Block mới: heading, paragraph, list, quote, image, cta, divider.
+ * - Block: heading, paragraph, list, quote, callout, image, image-pair, gallery, cta, divider.
  * - Parser được kiểm soát; renderer escape mọi text và chỉ chấp nhận link an toàn.
+ * - Định dạng inline (đậm/nghiêng/gạch chân/link) nằm ở inline.ts.
  */
 
+import { escapeHtml, inlineToPlainText, isSafeHref, renderInline } from "./inline.ts";
+
+export { escapeHtml, inlineToPlainText, isSafeHref, renderInline };
+
 export type ArticleImage = { url: string; alt: string; caption: string };
+export type CalloutVariant = "tip" | "note" | "info";
+export const CALLOUT_VARIANTS: CalloutVariant[] = ["tip", "note", "info"];
 
 export type ContentBlock =
   | { type: "paragraph"; text: string; style?: "lead" }
   | { type: "heading"; level: 2 | 3; text: string }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "quote"; text: string }
-  | { type: "image"; url: string; alt: string; caption: string }
+  /** Khung nổi bật có viền; mỗi dòng của text là một đoạn. */
+  | { type: "callout"; variant: CalloutVariant; text: string }
+  | { type: "image"; url: string; alt: string; caption: string; size?: "small" }
   | { type: "image-pair"; images: [ArticleImage, ArticleImage] }
+  /** Bộ ảnh 3–4 ảnh xếp hàng ngang. */
+  | { type: "gallery"; images: ArticleImage[] }
   | { type: "cta"; label: string; href: string; productId: string }
   | { type: "divider" };
 
@@ -31,18 +42,6 @@ export function cleanText(value: unknown, max = MAX_TEXT): string {
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "")
     .trim()
     .slice(0, max);
-}
-
-/** Chỉ cho phép link nội bộ, https hoặc mailto/tel; chặn javascript/data. */
-export function isSafeHref(value: string): boolean {
-  const href = value.trim();
-  if (!href) return false;
-  if (href.startsWith("//")) return false;
-  if (href.startsWith("/")) return !href.includes("\\") && !/^\/\s*\//.test(href);
-  if (/^https:\/\//i.test(href)) return true;
-  if (/^mailto:[^\s]+@[^\s]+$/i.test(href)) return true;
-  if (/^tel:\+?[0-9\s().-]{6,20}$/i.test(href)) return true;
-  return false;
 }
 
 function normalizeImageUrl(value: unknown): string {
@@ -77,6 +76,11 @@ export function normalizeBlock(value: unknown): ContentBlock | null {
       const text = cleanText(block.text);
       return text ? { type: "quote", text } : null;
     }
+    case "callout": {
+      const text = cleanText(block.text);
+      const variant = CALLOUT_VARIANTS.includes(block.variant as CalloutVariant) ? block.variant as CalloutVariant : "tip";
+      return text ? { type: "callout", variant, text } : null;
+    }
     case "image": {
       const url = normalizeImageUrl(block.url);
       if (!url) return null;
@@ -85,6 +89,7 @@ export function normalizeBlock(value: unknown): ContentBlock | null {
         url,
         alt: cleanText(block.alt, 300),
         caption: cleanText(block.caption, 300),
+        ...(block.size === "small" ? { size: "small" as const } : {}),
       };
     }
     case "image-pair": {
@@ -96,6 +101,15 @@ export function normalizeBlock(value: unknown): ContentBlock | null {
         { url: left.url, alt: left.alt, caption: left.caption },
         { url: right.url, alt: right.alt, caption: right.caption },
       ] };
+    }
+    case "gallery": {
+      if (!Array.isArray(block.images) || block.images.length < 3 || block.images.length > 4) return null;
+      const images = block.images.map((image) => normalizeBlock({ ...image, type: "image" }));
+      if (images.some((image) => image?.type !== "image")) return null;
+      return { type: "gallery", images: images.map((image) => {
+        const { url, alt, caption } = image as Extract<ContentBlock, { type: "image" }>;
+        return { url, alt, caption };
+      }) };
     }
     case "cta": {
       const label = cleanText(block.label, 120);
@@ -139,12 +153,14 @@ export function blocksToPlainText(body: ArticleBody): string {
         case "paragraph":
         case "heading":
         case "quote":
-          return block.text;
+        case "callout":
+          return inlineToPlainText(block.text);
         case "list":
-          return block.items.join(" ");
+          return block.items.map(inlineToPlainText).join(" ");
         case "image":
           return block.caption || block.alt;
         case "image-pair":
+        case "gallery":
           return block.images.map((image) => image.caption || image.alt).join(" ");
         case "cta":
           return block.label;
@@ -175,7 +191,7 @@ export function validateArticleBody(body: ArticleBody, options: { publishing: bo
   const words = text.split(/\s+/).filter(Boolean).length;
 
   for (const entry of body) {
-    if (typeof entry === "object" && (entry.type === "image" || entry.type === "image-pair") && !normalizeBlock(entry))
+    if (typeof entry === "object" && (entry.type === "image" || entry.type === "image-pair" || entry.type === "gallery") && !normalizeBlock(entry))
       errors.push("Hãy chọn đủ ảnh hợp lệ cho khối ảnh trước khi lưu.");
   }
   if (options.publishing && words < 30) errors.push("Bài xuất bản cần tối thiểu khoảng 30 từ nội dung thật.");
@@ -188,31 +204,3 @@ export function validateArticleBody(body: ArticleBody, options: { publishing: bo
   return { errors, warnings };
 }
 
-/* ------------------------------------------------------------------ */
-/* Inline: **đậm** và [nhãn](href) an toàn                              */
-/* ------------------------------------------------------------------ */
-
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-/**
- * Render inline an toàn: input luôn được escape trước, sau đó chỉ áp dụng
- * cặp `**đậm**` và link có href hợp lệ. Không nhận HTML thô.
- */
-export function renderInline(text: string): string {
-  let output = escapeHtml(text);
-  output = output.replace(/\[([^\]]{1,200})\]\(([^()\s]{1,500})\)/g, (match, label: string, href: string) => {
-    const decodedHref = href.replace(/&amp;/g, "&");
-    if (!isSafeHref(decodedHref)) return match;
-    const rel = /^https:\/\//i.test(decodedHref) ? ' rel="noopener noreferrer" target="_blank"' : "";
-    return `<a href="${escapeHtml(decodedHref)}"${rel}>${label}</a>`;
-  });
-  output = output.replace(/\*\*([^*]{1,300})\*\*/g, "<strong>$1</strong>");
-  return output;
-}

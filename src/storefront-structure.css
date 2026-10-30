@@ -105,7 +105,6 @@
 .preview-panel .gift-stage.is-size-medium .gift-box { width: 285px; height: 240px; }
 .preview-panel .gift-stage.is-size-large .gift-box { width: 325px; height: 275px; }
 .gift-option-grid button:focus-visible, .gift-rotation-control button:focus-visible { outline: 2px solid #681b22; outline-offset: 4px; }
-.admin-gift-message { white-space: pre-wrap; }
 @media (max-width: 600px) {
   .customizer-page .stepper { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .customizer-page .stepper button { flex-direction: row; align-items: center; text-align: left; font-size: 12px; padding-bottom: 12px; }

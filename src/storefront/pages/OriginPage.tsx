@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useDocumentSeo } from "../../hooks/useDocumentSeo";
 import { originMeta } from "../../seo/meta";
+import { ZoomIn } from "lucide-react";
 import { CERTIFICATES, MEDIA } from "../content";
-import { Contours, Eyebrow } from "../ui";
+import type { Certificate } from "../content";
+import { Eyebrow, Lightbox, SplitHero } from "../ui";
 
 const PRODUCERS = [
   {
@@ -26,30 +28,27 @@ const PRODUCERS = [
 export default function OriginPage() {
   useDocumentSeo((ctx) => originMeta(ctx), []);
   const [playing, setPlaying] = useState(false);
+  const [zoomed, setZoomed] = useState<Certificate | null>(null);
   return (
-    <main className="sf-page">
-      <section className="sf-hero sf-page-hero is-bleed">
-        <img className="sf-hero-bg" src={MEDIA.originHero} alt="" width={1800} height={1200} fetchPriority="high" />
-        <Contours src={MEDIA.contours.pageHero} className="sf-hero-contours" />
-        <div className="sf-container">
-          <Eyebrow>Nguồn gốc</Eyebrow>
-          <h1 className="sf-script-display is-xl">
-            Từ miền núi tới
-            <br />
-            hộp quà của bạn
-          </h1>
-          <p className="sf-lead">
-            Chúng tôi làm việc trực tiếp với các hộ đồng bào và xưởng sản xuất tại các bản vùng cao, không qua trung gian thu mua.
-          </p>
-        </div>
-      </section>
+    <main className="sf-page sf-origin-page">
+      <SplitHero className="sf-origin-hero" image={MEDIA.originHero} focus="center 37%" alt="Phụ nữ Mông thu hái trên đồi chè giữa núi rừng Tây Bắc trong sương sớm">
+        <Eyebrow>Nguồn gốc</Eyebrow>
+        <h1 className="sf-script-display is-xl">
+          Từ nương rẫy tới
+          <br />
+          hộp quà của bạn
+        </h1>
+        <p className="sf-lead">
+          Chúng tôi làm việc trực tiếp với các hộ đồng bào và xưởng sản xuất tại các bản vùng cao, không qua trung gian thu mua, để mang đến những đặc sản nguyên bản, chất lượng và bền vững.
+        </p>
+      </SplitHero>
 
-      <section className="sf-section sf-container">
+      <section className="sf-section sf-container sf-origin-producers sf-deco is-sides">
         <Eyebrow>Đơn vị sản xuất</Eyebrow>
         <h2 className="sf-garamond-title is-wine is-semibold">Các bên góp phần tạo nên A Sỉn</h2>
         <div className="sf-producers">
           {PRODUCERS.map((producer) => (
-            <article key={producer.name} className="sf-producer">
+            <article key={producer.name} className="sf-producer" data-reveal="rise">
               <figure className="sf-media-frame">
                 <img src={producer.image} alt={producer.alt} loading="lazy" width={954} height={492} />
               </figure>
@@ -64,24 +63,28 @@ export default function OriginPage() {
         </div>
       </section>
 
-      <section className="sf-section sf-container">
+      <section className="sf-section sf-container sf-deco is-terraces">
         <Eyebrow>Chứng nhận</Eyebrow>
         <h2 className="sf-garamond-title is-wine is-semibold is-large">Giấy chứng nhận và kiểm định</h2>
         <p className="sf-body is-muted">Bản gốc của các giấy tờ được lưu tại văn phòng A SỈN và gửi kèm khi khách yêu cầu.</p>
-        <ul className="sf-certificates">
-          {CERTIFICATES.map((item) => (
-            <li key={item.title}>
-              <span className="sf-cert-icon" aria-hidden="true">{item.icon}</span>
+        <ol className="sf-certificates">
+          {CERTIFICATES.map((item, index) => (
+            <li key={item.title} data-reveal="rise">
+              <button type="button" className="sf-cert-thumb" onClick={() => setZoomed(item)} aria-label={`Xem ảnh ${item.title}`}>
+                <img src={item.thumb} alt={item.title} loading="lazy" width={480} height={678} />
+                <ZoomIn size={18} aria-hidden="true" />
+              </button>
+              <span className="sf-cert-no" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
               <h3>{item.title}</h3>
+              <p className="sf-cert-issuer">{item.issuer}</p>
               <p>{item.text}</p>
-              <span className="sf-cert-seal" aria-hidden="true">✧</span>
             </li>
           ))}
-        </ul>
+        </ol>
+        {zoomed && <Lightbox src={zoomed.image} alt={zoomed.title} onClose={() => setZoomed(null)} />}
       </section>
 
       <section className="sf-origin-cta">
-        <Contours src={MEDIA.contours.bottom} className="sf-bottom-contours" />
         <div className="sf-container sf-split">
           <div>
             <Eyebrow>Hành trình trải nghiệm</Eyebrow>

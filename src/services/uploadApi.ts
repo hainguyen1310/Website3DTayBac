@@ -61,6 +61,9 @@ function mapError(message: string) {
   if (message.includes("mime type")) {
     return "Bucket không nhận định dạng ảnh này.";
   }
+  if (/database error|internal server error|fetch failed/i.test(message)) {
+    return "Kho ảnh đang gặp sự cố nên chưa tải được ảnh. Thử lại sau ít phút.";
+  }
   return message;
 }
 

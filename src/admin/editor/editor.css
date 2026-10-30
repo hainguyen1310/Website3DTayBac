@@ -1,0 +1,636 @@
+/*
+ * Trình soạn bài viết. Vùng soạn dùng chính class .sf-article-body của
+ * website nên chữ, tiêu đề, ảnh và khung nổi bật trông như bài đã đăng.
+ */
+
+.rte {
+  position: relative;
+  border: 1px solid var(--a-border-strong);
+  border-radius: var(--a-radius-lg);
+  background: var(--a-surface);
+}
+
+.rte:focus-within {
+  border-color: #c9a9ab;
+}
+
+/* Thanh công cụ dính khi cuộn, như Google Docs */
+.rte-toolbar-wrap {
+  position: sticky;
+  z-index: 12;
+  top: var(--a-topbar);
+  border-bottom: 1px solid var(--a-border);
+  border-radius: var(--a-radius-lg) var(--a-radius-lg) 0 0;
+  background: rgb(250 249 247 / 96%);
+  backdrop-filter: blur(8px);
+}
+
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 8px;
+}
+
+.rte-group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding-right: 6px;
+  margin-right: 2px;
+  border-right: 1px solid var(--a-border);
+}
+
+.rte-group:last-child {
+  border-right: 0;
+}
+
+.rte-tool {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--a-text-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rte-tool:hover:not(:disabled) {
+  background: var(--a-surface-3);
+  color: var(--a-text);
+}
+
+.rte-tool.is-active {
+  border-color: var(--a-brand-line);
+  background: var(--a-brand-soft);
+  color: var(--a-brand);
+}
+
+.rte-tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.admin-shell select.rte-style {
+  width: 150px;
+  min-height: 34px;
+  padding: 5px 30px 5px 10px;
+  border-color: var(--a-border);
+  background-color: var(--a-surface);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rte-menu {
+  position: relative;
+}
+
+.rte-menu-pop {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  display: grid;
+  gap: 2px;
+  width: 250px;
+  padding: 6px;
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-radius);
+  background: var(--a-surface);
+  box-shadow: var(--a-shadow-lg);
+  animation: admin-rise 0.14s var(--a-ease);
+}
+
+.rte-menu-pop > button {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--a-text);
+  font-size: 13px;
+  text-align: left;
+}
+
+.rte-menu-pop > button:hover,
+.rte-menu-pop > button.is-active {
+  background: var(--a-surface-3);
+}
+
+.rte-menu-pop > button svg {
+  flex: none;
+  color: var(--a-text-3);
+}
+
+.rte-menu-pop b {
+  display: block;
+  font-weight: 600;
+}
+
+.rte-menu-pop small {
+  display: block;
+  color: var(--a-text-3);
+  font-size: 12px;
+}
+
+.rte-swatch {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: 4px;
+}
+
+.rte-swatch.is-tip { border-color: var(--sf-gold, #c28c38); background: #fbf3e4; }
+.rte-swatch.is-note { border-color: var(--sf-wine, #731019); background: #f8ecea; }
+.rte-swatch.is-info { border-color: #3f6b5c; background: #edf3ef; }
+
+.rte-link-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-top: 1px solid var(--a-border);
+  color: var(--a-text-3);
+}
+
+.admin-shell .rte-link-panel input {
+  flex: 1 1 240px;
+  min-height: 34px;
+  padding: 6px 10px;
+}
+
+.rte-link-panel .admin-primary,
+.rte-link-panel .admin-ghost {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.rte-link-error {
+  flex-basis: 100%;
+  color: var(--a-danger);
+  font-size: 12px;
+}
+
+/* Vùng soạn thảo */
+.rte-surface {
+  padding: 28px clamp(18px, 4vw, 56px) 40px;
+}
+
+.rte-content {
+  min-height: 420px;
+  outline: none;
+  color: var(--sf-ink, #302b28);
+  font-family: var(--sf-body, var(--a-font));
+}
+
+.admin-shell .rte-content :is(h2, h3) {
+  font-family: var(--sf-serif, Georgia, serif);
+}
+
+.admin-shell .rte-content h2 {
+  margin: 28px 0 14px;
+}
+
+.admin-shell .rte-content h3 {
+  margin: 22px 0 10px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.admin-shell .rte-content > p,
+.admin-shell .rte-content li p,
+.admin-shell .rte-content .article-callout p {
+  margin: 0 0 14px;
+}
+
+.admin-shell .rte-content em {
+  font-family: inherit;
+}
+
+.rte-content > :first-child {
+  margin-top: 0 !important;
+}
+
+.rte-content :is(ul, ol) {
+  max-width: 72ch;
+  margin: 0 0 16px;
+  padding-left: 24px;
+}
+
+.rte-content li p {
+  margin: 0;
+  line-height: 1.75;
+}
+
+.rte-content blockquote {
+  max-width: 72ch;
+  margin: 24px 0;
+  padding: 18px 22px;
+  border-left: 4px solid var(--sf-gold, #c28c38);
+  border-radius: 8px;
+  background: var(--sf-sand, #f6ede0);
+}
+
+.rte-content blockquote p {
+  margin: 0;
+  color: var(--sf-wine, #731019);
+  font: italic 500 17px/1.6 var(--sf-serif, Georgia, serif);
+}
+
+.rte-content hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--sf-line, #e5d0af);
+}
+
+.rte-content hr.ProseMirror-selectednode {
+  border-top-color: var(--a-brand);
+  box-shadow: 0 0 0 3px rgb(122 21 32 / 15%);
+}
+
+.rte-content a {
+  cursor: text;
+}
+
+.rte-content p.is-editor-empty:first-child::before {
+  float: left;
+  height: 0;
+  color: #b0a79d;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.rte-content .article-callout {
+  position: relative;
+}
+
+.rte-content .article-callout::after {
+  position: absolute;
+  top: -9px;
+  right: 10px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--a-surface);
+  color: var(--a-text-3);
+  font: 600 10px/18px var(--a-font);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rte-content .article-callout.is-tip::after { content: "Mẹo hay"; }
+.rte-content .article-callout.is-note::after { content: "Lưu ý"; }
+.rte-content .article-callout.is-info::after { content: "Thông tin"; }
+
+.rte-content .ProseMirror-gapcursor::after {
+  border-top-color: var(--a-brand);
+}
+
+.rte-content ::selection {
+  background: rgb(176 124 44 / 25%);
+}
+
+/* Khối đặc biệt (ảnh, nút) */
+.rte-node {
+  margin: 22px 0;
+}
+
+.rte-block {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rte-block:hover {
+  border-color: var(--a-border);
+}
+
+.rte-block.is-selected,
+.ProseMirror-selectednode > .rte-block {
+  border-color: var(--a-brand-line);
+  box-shadow: 0 0 0 3px rgb(122 21 32 / 10%);
+}
+
+.rte-block-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-bottom: 1px solid transparent;
+  font-family: var(--a-font);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.rte-block:hover > .rte-block-bar,
+.rte-block.is-selected > .rte-block-bar,
+.rte-block:focus-within > .rte-block-bar {
+  opacity: 1;
+}
+
+.rte-drag {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--a-text-3);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: grab;
+}
+
+.rte-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.rte-block-actions > button,
+.rte-seg > button {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--a-border);
+  border-radius: 6px;
+  background: var(--a-surface);
+  color: var(--a-text-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rte-block-actions > button:hover {
+  border-color: var(--a-border-strong);
+  color: var(--a-text);
+}
+
+.rte-block-actions > button.danger:hover {
+  border-color: #f1c9c4;
+  background: var(--a-danger-soft);
+  color: var(--a-danger);
+}
+
+.rte-seg {
+  display: inline-flex;
+}
+
+.rte-seg > button {
+  border-radius: 0;
+}
+
+.rte-seg > button + button {
+  margin-left: -1px;
+}
+
+.rte-seg > button:first-child { border-radius: 6px 0 0 6px; }
+.rte-seg > button:last-child { border-radius: 0 6px 6px 0; }
+
+.rte-seg > button.is-active {
+  position: relative;
+  border-color: var(--a-brand);
+  background: var(--a-brand);
+  color: #fff;
+}
+
+.rte-node .article-photo,
+.rte-node .sf-article-pair,
+.rte-node .article-gallery {
+  margin: 0;
+  padding: 6px;
+}
+
+.rte-image-frame {
+  position: relative;
+}
+
+.rte-image-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.rte-image-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 82%);
+  color: var(--a-text-2);
+  font: 500 13px/1.4 var(--a-font);
+  text-align: center;
+}
+
+.rte-image-overlay.is-error {
+  background: rgb(253 236 234 / 92%);
+  color: var(--a-danger);
+}
+
+.admin-shell .rte-caption,
+.admin-shell .rte-alt {
+  min-height: 0;
+  margin-top: 6px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sf-muted, #756d64);
+  font-size: 13px;
+  text-align: center;
+}
+
+.admin-shell .rte-alt {
+  margin-top: 0;
+  color: var(--a-text-3);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.rte-block:hover .rte-alt,
+.rte-block:focus-within .rte-alt,
+.admin-shell .rte-alt:not(:placeholder-shown) {
+  opacity: 1;
+}
+
+.admin-shell .rte-caption:hover,
+.admin-shell .rte-alt:hover {
+  border-color: var(--a-border);
+}
+
+.admin-shell .rte-caption:focus,
+.admin-shell .rte-alt:focus {
+  border-color: var(--a-brand);
+  background: var(--a-surface);
+  opacity: 1;
+}
+
+.rte-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 6px;
+  padding: 18px;
+  border: 2px dashed var(--a-border-strong);
+  border-radius: 10px;
+  background: var(--a-surface-2);
+  color: var(--a-text-3);
+  font: 400 13px/1.4 var(--a-font);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rte-upload.is-compact {
+  min-height: 150px;
+  margin: 0;
+}
+
+.rte-upload.is-over {
+  border-color: var(--a-brand);
+  background: var(--a-brand-soft);
+}
+
+.rte-upload-error {
+  color: var(--a-danger);
+  font-size: 12px;
+}
+
+.rte-row-slot {
+  position: relative;
+  min-width: 0;
+}
+
+.rte-row-slot .article-photo {
+  padding: 0;
+}
+
+.rte-node .article-gallery img,
+.rte-node .sf-article-pair img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.rte-slot-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.rte-row-slot:hover .rte-slot-actions,
+.rte-row-slot:focus-within .rte-slot-actions {
+  opacity: 1;
+}
+
+.rte-slot-actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 92%);
+  color: var(--a-text);
+  box-shadow: var(--a-shadow-sm);
+}
+
+.rte-cta {
+  display: grid;
+  gap: 12px;
+  padding: 10px 12px 14px;
+}
+
+.rte-cta .article-cta span {
+  display: inline-flex;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--sf-wine, #731019);
+  color: #fff;
+  font: 600 14px/1.2 var(--a-font);
+}
+
+.rte-cta-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rte-cta-fields label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .rte-toolbar-wrap {
+    top: var(--a-topbar);
+  }
+
+  .rte-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .rte-group {
+    flex: none;
+  }
+
+  .rte-menu {
+    position: static;
+  }
+
+  .rte-menu-pop {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .rte-surface {
+    padding: 18px 14px 28px;
+  }
+
+  .rte-block-bar {
+    opacity: 1;
+  }
+
+  .rte-cta-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rte-slot-actions {
+    opacity: 1;
+  }
+}

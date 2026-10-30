@@ -8,6 +8,7 @@
     "api/contact-reply.js": { "maxDuration": 60 },
     "api/mail-sync.js": { "maxDuration": 60 },
     "api/staff-invite.js": { "maxDuration": 60 },
+    "api/image-import.js": { "maxDuration": 30 },
     "api/render.js": { "maxDuration": 60, "includeFiles": "dist/seo-shell.html" },
     "api/seo.js": { "maxDuration": 60 }
   },

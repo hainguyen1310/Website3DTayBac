@@ -1,3 +1,5 @@
+import { giftSlotProducts } from "./giftSelection.ts";
+
 export type Product = {
   id: string;
   name: string;
@@ -97,8 +99,9 @@ export const money = (n: number) =>
 
 /** Màu vỏ hộp: giá trị hex cũ được giữ để giỏ hàng đã lưu vẫn hợp lệ. */
 export const colors = [
+  { name: "Xanh dương", value: "#234e70" },
   { name: "Đỏ trầm", value: "#681b22" },
-  { name: "Xanh rêu", value: "#315442" },
+  { name: "Xanh lá", value: "#315442" },
   { name: "Đen than", value: "#2b2622" },
 ];
 
@@ -119,6 +122,7 @@ type BoxSize = {
   dimensions: string;
   description: string;
   price: number;
+  color: string;
   slots: readonly GiftSlot[];
 };
 
@@ -135,7 +139,8 @@ export const boxSizes = [
     name: "Sinh Lộc",
     dimensions: "22 × 22 × 10 cm",
     description: "Kích thước 22 × 22 × 10 cm, gọn gàng cho 3 món.",
-    price: 250000,
+    price: 300000,
+    color: "#315442",
     slots: BASE_SLOTS,
   },
   {
@@ -143,12 +148,13 @@ export const boxSizes = [
     name: "Thịnh Đỉnh",
     dimensions: "32 × 32 × 14 cm",
     description: "Kích thước 32 × 32 × 14 cm, dành cho hộp quà nhiều món.",
-    price: 420000,
+    price: 500000,
+    color: "#681b22",
     slots: [...BASE_SLOTS, { id: "bottle", type: "bottle", label: "Ngăn rượu", fixed: "ruou-ngo-ban-pho" }],
   },
 ] as const satisfies readonly BoxSize[];
 
-export const CARD_PRICE = 30000;
+export const CARD_PRICE = 0;
 export const GIFT_CAPACITY = 3;
 
 export const patterns = ["Thổ cẩm", "Triền núi", "Tối giản"];
@@ -170,7 +176,7 @@ export const defaultDesign: GiftDesign = {
   includeCard: true,
   productIds: [],
   slots: {},
-  color: colors[0].value,
+  color: boxSizes[0].color,
   pattern: patterns[0],
   message: "",
   recipient: "",
@@ -195,10 +201,8 @@ export const includedProductIds = (size: GiftSize): string[] =>
 export const findProduct = (list: Product[], id: string | undefined) =>
   list.find((product) => product.id === id);
 
-export const giftPrice = (design: GiftDesign, list: Product[] = products) =>
-  sizeOf(design.size).price +
-  (design.includeCard ? CARD_PRICE : 0) +
-  design.productIds.reduce((sum, id) => sum + (findProduct(list, id)?.price ?? 0), 0);
+export const giftPrice = (design: GiftDesign, _list: Product[] = products) =>
+  sizeOf(design.size).price;
 
 export function linePrice(line: CartLine, list: Product[] = products) {
   return line.design
@@ -211,8 +215,8 @@ function cleanSlots(raw: unknown, size: GiftSize, list: Product[]): Partial<Reco
   const source = raw as Record<string, unknown>;
   const slots: Partial<Record<GiftSlotId, string>> = {};
   for (const slot of choosableSlots(size)) {
-    const product = findProduct(list, typeof source[slot.id] === "string" ? source[slot.id] as string : undefined);
-    if (product && (!product.giftSlot || product.giftSlot === slot.type)) slots[slot.id] = product.id;
+    const product = findProduct(giftSlotProducts(list, slot.id), typeof source[slot.id] === "string" ? source[slot.id] as string : undefined);
+    if (product) slots[slot.id] = product.id;
   }
   return slots;
 }
@@ -243,9 +247,7 @@ export function cleanDesign(
     includeCard,
     productIds,
     slots,
-    color: colors.some((c) => c.value === d.color)
-      ? d.color!
-      : defaultDesign.color,
+    color: sizeOf(size).color,
     pattern: patterns.includes(d.pattern ?? "")
       ? d.pattern!
       : defaultDesign.pattern,

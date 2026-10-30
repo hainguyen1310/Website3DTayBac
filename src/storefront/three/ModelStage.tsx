@@ -14,6 +14,10 @@ export type StageItem = {
   scale?: number;
   /** Vỏ hộp: nhận màu từ `boxTint`. */
   isBox?: boolean;
+  /** Độ trễ (ms) trước khi vật thể bật lên khi `animateIn`. */
+  appearDelay?: number;
+  /** Độ cao (đơn vị cảnh) vật thể rơi xuống khi xuất hiện. */
+  appearLift?: number;
 };
 
 type Props = {
@@ -26,8 +30,20 @@ type Props = {
   autoRotate?: boolean;
   /** Hướng camera so với tâm vật thể. */
   viewDirection?: [number, number, number];
+  /** Vật thể mới bật lên (phóng to nhẹ, vượt đà) thay vì hiện tức thì. */
+  animateIn?: boolean;
+  /** Hệ số khoảng cách camera khi canh khung (lớn hơn = lùi xa hơn). */
+  fitPadding?: number;
   className?: string;
 };
+
+const APPEAR_MS = 720;
+/** easeOutBack: vượt đà nhẹ rồi về đúng kích thước. */
+const easeOutBack = (t: number) => {
+  const c = 1.55;
+  return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
+};
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const cache = new Map<string, Promise<GLTF>>();
@@ -40,7 +56,26 @@ const loadModel = (url: string) => {
   return cache.get(url)!;
 };
 
-type Entry = { item: StageItem; object: THREE.Object3D | null; token: number };
+type Appear = { start: number; target: number; lift: number };
+type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear };
+
+/** Cập nhật hiệu ứng xuất hiện; trả về true khi còn vật thể đang chuyển động. */
+function stepAppear(entries: Map<string, Entry>, now: number) {
+  for (const entry of entries.values()) {
+    const appear = entry.appear;
+    const object = entry.object;
+    if (!appear || !object) continue;
+    const progress = Math.min(1, (now - appear.start) / APPEAR_MS);
+    object.visible = progress > 0;
+    if (progress <= 0) continue;
+    object.scale.setScalar(appear.target * (0.3 + 0.7 * easeOutBack(progress)));
+    object.position.y = entry.item.position[1] + (1 - easeOutCubic(progress)) * appear.lift;
+    if (progress >= 1) {
+      entry.appear = undefined;
+      place(object, entry.item);
+    }
+  }
+}
 
 function applyTint(object: THREE.Object3D, tint: string | null | undefined) {
   object.traverse((child) => {
@@ -74,7 +109,7 @@ function instantiate(gltf: GLTF, isBox: boolean) {
   return object;
 }
 
-export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], className = "" }: Props) {
+export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], animateIn = false, fitPadding = 1.08, className = "" }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stage = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -89,6 +124,8 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   const [unsupported, setUnsupported] = useState(false);
   const tintRef = useRef(boxTint);
   tintRef.current = boxTint;
+  const animateRef = useRef(animateIn);
+  animateRef.current = animateIn;
 
   // Khởi tạo renderer một lần.
   useEffect(() => {
@@ -104,7 +141,8 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    // Ánh sáng dịu để vải bọc giữ đúng sắc và chữ vàng không bị cháy sáng.
+    renderer.toneMappingExposure = 0.82;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     host.appendChild(renderer.domElement);
@@ -113,9 +151,10 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     const pmrem = new THREE.PMREMGenerator(renderer);
     const environment = new RoomEnvironment();
     scene.environment = pmrem.fromScene(environment, 0.04).texture;
+    scene.environmentIntensity = 0.55;
     environment.dispose();
-    scene.add(new THREE.HemisphereLight(0xfff6ea, 0x4a3426, 0.6));
-    const sun = new THREE.DirectionalLight(0xfff1dc, 1.6);
+    scene.add(new THREE.HemisphereLight(0xfff6ea, 0x4a3426, 0.35));
+    const sun = new THREE.DirectionalLight(0xfff1dc, 1.05);
     sun.position.set(30, 80, 50);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
@@ -157,6 +196,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     const loop = () => {
       frame = requestAnimationFrame(loop);
       if (!visible) return;
+      if (stage.current) stepAppear(stage.current.entries, performance.now());
       controls.update();
       renderer.render(scene, camera);
     };
@@ -186,7 +226,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     if (!current) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     current.controls.autoRotate = autoRotate && !reduce;
-    current.controls.autoRotateSpeed = 0.9;
+    current.controls.autoRotateSpeed = 1.3;
   }, [autoRotate]);
 
   // Đồng bộ danh sách vật thể.
@@ -220,7 +260,13 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
           if (item.isBox) applyTint(object, tintRef.current);
           place(object, live.item);
           live.object = object;
+          const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (animateRef.current && !reduce) {
+            live.appear = { start: performance.now() + (live.item.appearDelay ?? 0), target: live.item.scale ?? 1, lift: live.item.appearLift ?? 0 };
+            stepAppear(new Map([[item.key, live]]), performance.now());
+          }
           stage.current?.root.add(object);
+          tryFit.current();
         })
         .catch(() => setFailed(true))
         .finally(() => setPending((count) => count - 1));
@@ -234,24 +280,36 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     for (const entry of current.entries.values()) if (entry.item.isBox && entry.object) applyTint(entry.object, boxTint);
   }, [boxTint]);
 
-  // Đặt lại góc nhìn khi đổi bố cục chính hoặc khi mô hình đầu tiên xuất hiện.
+  // Đặt lại góc nhìn khi đổi bố cục chính, ngay khi mọi mô hình của bố cục đã có mặt.
+  // Không dựa vào bộ đếm `pending`: với mô hình đã cache, +1 và −1 rơi vào cùng một lần render.
   const fitted = useRef("");
-  useEffect(() => {
+  const fitOptions = useRef({ fitKey, viewDirection, fitPadding });
+  fitOptions.current = { fitKey, viewDirection, fitPadding };
+  const tryFit = useRef(() => {});
+  tryFit.current = () => {
     const current = stage.current;
-    if (!current || pending > 0 || fitted.current === fitKey) return;
+    const options = fitOptions.current;
+    if (!current || fitted.current === options.fitKey) return;
+    const entries = [...current.entries.values()];
+    if (!entries.length || entries.some((entry) => !entry.object)) return;
+    // Đo theo kích thước cuối cùng, không theo khung hình đang bật lên dở dang.
+    for (const entry of entries) if (entry.object && entry.appear) place(entry.object, entry.item);
     const box = new THREE.Box3().setFromObject(current.root);
     if (box.isEmpty()) return;
-    fitted.current = fitKey;
+    fitted.current = options.fitKey;
     const center = box.getCenter(new THREE.Vector3());
     const radius = box.getSize(new THREE.Vector3()).length() / 2;
-    const distance = radius / Math.sin(THREE.MathUtils.degToRad(current.camera.fov / 2)) * 1.08;
-    const direction = new THREE.Vector3(...viewDirection).normalize();
+    const distance = radius / Math.sin(THREE.MathUtils.degToRad(current.camera.fov / 2)) * options.fitPadding;
+    const direction = new THREE.Vector3(...options.viewDirection).normalize();
     current.controls.target.copy(center);
     current.camera.position.copy(center).addScaledVector(direction, distance);
     current.controls.minDistance = distance * 0.45;
     current.controls.maxDistance = distance * 1.8;
     current.controls.update();
-  }, [fitKey, pending, viewDirection]);
+  };
+  useEffect(() => {
+    tryFit.current();
+  }, [fitKey, items, viewDirection, fitPadding]);
 
   return (
     <div className={`sf-stage ${className}`} role="img" aria-label={label}>

@@ -1,4 +1,5 @@
 import { useSearchParams } from "react-router-dom";
+import { Feather, Gem, Gift, Truck, UsersRound } from "lucide-react";
 import { useShop } from "../../ShopContext";
 import { useDocumentSeo } from "../../hooks/useDocumentSeo";
 import { productsMeta } from "../../seo/meta";
@@ -7,7 +8,15 @@ import { toSeoProductInput } from "../../seo/product";
 import { MEDIA, TESTIMONIALS_PRODUCTS } from "../content";
 import { PRODUCT_FILTERS } from "../products";
 import type { ProductFilter, StorefrontProduct } from "../products";
-import { ButtonLink, Contours, Eyebrow, ProductCard, SplitHero, Testimonial, WhyBand } from "../ui";
+import { ButtonLink, Eyebrow, ProductCard, SplitHero, WhyBand } from "../ui";
+import FeedbackSection from "../FeedbackSection";
+
+const HERO_FEATURES = [
+  { icon: Feather, label: "Nguyên liệu vùng cao" },
+  { icon: Gem, label: "Chất lượng tuyển chọn" },
+  { icon: Gift, label: "Phù hợp làm quà biếu" },
+  { icon: Truck, label: "Giao hàng toàn quốc" },
+];
 
 export default function ProductsPage() {
   const { products } = useShop();
@@ -31,21 +40,28 @@ export default function ProductsPage() {
   };
 
   return (
-    <main className="sf-page">
-      <SplitHero contours={MEDIA.contours.hero} image={MEDIA.productsHero} alt="Lạp xưởng gác bếp bày trên mẹt tre" caption="Lạp xưởng gác bếp · Bắc Hà">
-        <Eyebrow>Khám phá đặc sản</Eyebrow>
+    <main className="sf-page sf-products-page">
+      <SplitHero className="sf-products-hero" scene="painted" image={MEDIA.productsHero} focus="center" alt="Bộ đặc sản A SỈN trên bàn gỗ trước ruộng bậc thang và núi rừng Tây Bắc">
+        <Eyebrow>Sản phẩm</Eyebrow>
         <h1 className="sf-script-display is-xl">
           Đặc sản được chọn lọc
           <br />
           từ núi rừng Tây Bắc
         </h1>
         <p className="sf-lead">
-          Tinh hoa ẩm thực vùng cao được A SỈN tuyển chọn kỹ lưỡng từ những bản làng Tây Bắc, mang đến hương vị nguyên bản.
+          Tinh hoa ẩm thực vùng cao, được A SỈN tuyển chọn kỹ lưỡng từ những bản làng Tây Bắc, mang đến hương vị nguyên bản và chất lượng cao nhất.
         </p>
-        <a href="#danh-sach" className="sf-button is-primary">Khám phá sản phẩm <span aria-hidden="true">→</span></a>
+        <ul className="sf-hero-features">
+          {HERO_FEATURES.map(({ icon: Icon, label }) => (
+            <li key={label}>
+              <Icon aria-hidden="true" strokeWidth={1.3} />
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
       </SplitHero>
 
-      <section className="sf-section sf-container" id="danh-sach">
+      <section className="sf-section sf-container sf-deco is-sides" id="danh-sach">
         <Eyebrow>Danh sách sản phẩm</Eyebrow>
         <div className="sf-chips" role="toolbar" aria-label="Lọc sản phẩm">
           {PRODUCT_FILTERS.map((item) => (
@@ -61,8 +77,8 @@ export default function ProductsPage() {
         {!visible.length && <p className="sf-empty">Chưa có sản phẩm trong mục này. Hãy thử mục khác nhé.</p>}
       </section>
 
-      <section className="sf-gift-highlight">
-        <div className="sf-container sf-split">
+      <section className="sf-gift-highlight sf-deco is-pattern">
+        <div className="sf-container sf-gift-highlight-grid">
           <div>
             <Eyebrow>Hộp quà đặc biệt</Eyebrow>
             <h2 className="sf-garamond-title is-wine">
@@ -73,24 +89,20 @@ export default function ProductsPage() {
             <p className="sf-body">
               Kết tinh những đặc sản trứ danh, hộp quà A SỈN là món quà ý nghĩa dành tặng người thân, đối tác. Chỉn chu trong từng chi tiết, đậm đà hương vị núi rừng.
             </p>
-            <ButtonLink to="/thiet-ke">Khám phá hộp quà</ButtonLink>
+            <ButtonLink to="/thiet-ke" className="is-gold">Khám phá hộp quà</ButtonLink>
           </div>
-          <figure className="sf-media-frame is-poster">
-            <img src={MEDIA.giftPoster} alt="Hộp quà đặc sản Tây Bắc Sinh Lộc" loading="lazy" width={860} height={504} />
+          <figure className="sf-gift-highlight-media" data-reveal="photo">
+            <img src={MEDIA.giftOpen} alt="Hộp quà A SỈN mở với thịt gác bếp, chẩm chéo và lạp xưởng" loading="lazy" width={800} height={800} />
           </figure>
+          <ul className="sf-gift-benefits">
+            {[{ icon: Gift, text: "Thiết kế sang trọng, đậm bản sắc Tây Bắc" }, { icon: Feather, text: "Sản phẩm tuyển chọn, chất lượng cao" }, { icon: UsersRound, text: "Phù hợp làm quà tặng cho nhiều dịp" }, { icon: Truck, text: "Giao hàng toàn quốc, đóng gói cẩn thận" }].map(({ icon: Icon, text }) => <li key={text}><Icon aria-hidden="true" strokeWidth={1.3} /><span>{text}</span></li>)}
+          </ul>
         </div>
       </section>
 
       <WhyBand />
 
-      <section className="sf-section sf-container sf-products-testimonials">
-        <Contours src={MEDIA.contours.productsBottom} className="sf-bottom-contours" />
-        <Eyebrow>Khách hàng nói về A SỈN</Eyebrow>
-        <h2 className="sf-garamond-title is-wine">Những trải nghiệm thật từ khách hàng</h2>
-        <div className="sf-testimonials">
-          {TESTIMONIALS_PRODUCTS.map((item) => <Testimonial key={item.name} {...item} compact />)}
-        </div>
-      </section>
+      <FeedbackSection reviews={TESTIMONIALS_PRODUCTS} compact />
     </main>
   );
 }

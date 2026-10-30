@@ -3,29 +3,21 @@
 export const MEDIA = {
   logo: "/media/brand/logo.png",
   logoLight: "/media/brand/logo-light.png",
-  contours: {
-    hero: "/media/brand/contours-hero.svg",
-    pageHero: "/media/brand/contours-page-hero.svg",
-    giftHero: "/media/brand/contours-gift-hero.svg",
-    newsHero: "/media/brand/contours-news-hero.svg",
-    homeBottom: "/media/brand/contours-home-bottom.svg",
-    productsBottom: "/media/brand/contours-products-bottom.svg",
-    bottom: "/media/brand/contours-bottom.svg",
-    footer: "/media/brand/contours-footer.svg",
-  },
-  homeHero: "/media/banner/img-7430.webp",
-  homeStory: "/media/banner/img-2131.webp",
+  // Nền hero tạo theo mẫu; chữ và điều khiển được dựng riêng bằng HTML.
+  homeHero: "/media/hero/home.webp",
+  productsHero: "/media/hero/products.webp",
+  newsHero: "/media/hero/news.webp",
+  homeStory: "/media/backgrounds/story-valley.webp",
+  giftOpen: "/media/backgrounds/gift-open.webp",
   giftPoster: "/media/gift/ra-mat-hop-qua-dac-san-tay-bac.webp",
-  aboutHero: "/media/home/img-2118.webp",
-  aboutCraft: "/media/banner/img-7430.webp",
+  aboutHero: "/media/hero/about.webp",
+  aboutCraft: "/media/home/img-2118.webp",
   aboutJourney: "/media/workshop/img-1460.webp",
-  originHero: "/media/workshop/img-1596.webp",
+  originHero: "/media/hero/origin.webp",
   originRuou: "/media/origin/img-2099.webp",
   originXuong: "/media/workshop/img-1421.webp",
   originVideoPoster: "/media/products/ruou/img-2153.webp",
   originVideo: "/media/video/ruou-ngo-ban-pho.mp4",
-  newsHero: "/media/products/ruou/f8196800.webp",
-  productsHero: "/media/products/lap-xuong/f11140992.webp",
 };
 
 export const STATS = [
@@ -34,30 +26,39 @@ export const STATS = [
   { value: "25.000+", label: "hộp quà đã trao" },
 ];
 
-export const REASONS_HOME = [
-  { icon: "⌁", title: "Nguồn gốc rõ ràng", text: "Truy xuất dễ dàng bằng mã QR, thông tin minh bạch và niềm tin." },
-  { icon: "♧", title: "Vị bản địa nguyên gốc", text: "Chế biến theo cách bà con vẫn làm, giữ đúng hương vị." },
-  { icon: "♙", title: "Đóng gói như một món quà", text: "Hộp quà chỉn chu, phù hợp nhiều dịp tặng." },
-  { icon: "♡", title: "Đồng hành cùng bà con", text: "Mỗi sản phẩm là sự sẻ chia với người sản xuất vùng cao." },
+export type ReasonIcon = "mountain" | "leaf" | "gift" | "heart" | "flame" | "shield";
+
+export const REASONS_HOME: { icon: ReasonIcon; title: string; text: string }[] = [
+  { icon: "mountain", title: "Nguồn gốc rõ ràng", text: "Truy xuất dễ dàng bằng mã QR, thông tin minh bạch và niềm tin." },
+  { icon: "leaf", title: "Vị bản địa nguyên gốc", text: "Chế biến theo cách bà con vẫn làm, giữ đúng hương vị." },
+  { icon: "gift", title: "Đóng gói như một món quà", text: "Hộp quà chỉn chu, phù hợp nhiều dịp tặng." },
+  { icon: "heart", title: "Đồng hành cùng bà con", text: "Mỗi sản phẩm là sự sẻ chia với người sản xuất vùng cao." },
 ];
 
-export const REASONS_PRODUCTS = [
-  { icon: "♧", title: "Nguồn gốc rõ ràng", text: "Nguyên liệu từ các bản làng Tây Bắc, được tuyển chọn kỹ lưỡng." },
-  { icon: "♧", title: "Chế biến thủ công", text: "Giữ trọn hương vị truyền thống của người dân bản địa." },
-  { icon: "◇", title: "Chất lượng đảm bảo", text: "Sản phẩm an toàn, không chất bảo quản độc hại." },
-  { icon: "♡", title: "Đồng hành cùng bà con", text: "Mỗi sản phẩm là sự sẻ chia, góp phần phát triển sinh kế." },
+export const REASONS_PRODUCTS: { icon: ReasonIcon; title: string; text: string }[] = [
+  { icon: "mountain", title: "Nguồn gốc rõ ràng", text: "Nguyên liệu từ các bản làng Tây Bắc, được tuyển chọn kỹ lưỡng." },
+  { icon: "flame", title: "Chế biến thủ công", text: "Giữ trọn hương vị truyền thống của người dân bản địa." },
+  { icon: "shield", title: "Chất lượng đảm bảo", text: "Sản phẩm an toàn, không chất bảo quản độc hại." },
+  { icon: "heart", title: "Đồng hành cùng bà con", text: "Mỗi sản phẩm là sự sẻ chia, góp phần phát triển sinh kế." },
 ];
 
 export const TESTIMONIALS_HOME = [
-  { quote: "Sản phẩm thơm, đậm vị, đóng gói rất chỉn chu. Mình mua làm quà cho đối tác và họ rất thích.", name: "Chị Ngọc Anh" },
-  { quote: "Thịt dai ngọt, chuẩn vị Tây Bắc. Mình đặc biệt ấn tượng với tem truy xuất nguồn gốc rõ ràng.", name: "Anh Đức Thịnh" },
-  { quote: "Hộp quà đẹp, sang trọng, thích hợp biếu tặng. Người nhận rất hài lòng.", name: "Chị Thu Hà" },
+  { quote: "Sản phẩm thơm, đậm vị, đóng gói rất chỉn chu. Mình mua làm quà cho đối tác và họ rất thích.", name: "Chị Ngọc Anh", location: "Hà Nội" },
+  { quote: "Thịt dai ngọt, chuẩn vị Tây Bắc. Mình đặc biệt ấn tượng với tem truy xuất nguồn gốc rõ ràng.", name: "Anh Đức Thịnh", location: "Hải Phòng" },
+  { quote: "Hộp quà đẹp, sang trọng, thích hợp biếu tặng. Người nhận rất hài lòng.", name: "Chị Thu Hà", location: "Đà Nẵng" },
+  { quote: "Mình thích cách chọn từng món cho hộp quà. Có thể phối đúng những đặc sản mà cả nhà yêu thích.", name: "Chị Bích Ngọc", location: "TP. Hồ Chí Minh" },
+  { quote: "Lạp xưởng thơm, vị đậm đà. Bày thêm đĩa rau và chén chẩm chéo là có một bữa cơm rất vui.", name: "Anh Quang Huy", location: "Hà Nội" },
+  { quote: "Hộp quà có thiệp chúc riêng nên cảm giác rất gần gũi. Mình chọn làm món quà gửi người thân.", name: "Chị Thanh Hạnh", location: "Bắc Ninh" },
+  { quote: "Thông tin từng món trình bày rõ ràng, dễ chọn. Gói quà đẹp và có nét riêng của vùng cao.", name: "Anh Tuấn Anh", location: "Hải Dương" },
+  { quote: "Mình thích vị thơm của mắc khén và cách đóng từng gói nhỏ. Rất tiện khi mang về làm quà.", name: "Chị Mai Linh", location: "Cần Thơ" },
+  { quote: "Một hộp quà mộc mạc mà chỉn chu. Cả nhà có thêm dịp quây quần, cùng thưởng thức hương vị Tây Bắc.", name: "Anh Minh Tâm", location: "Đà Nẵng" },
 ];
 
 export const TESTIMONIALS_PRODUCTS = [
-  { quote: "Thịt trâu gác bếp rất ngon, đúng vị Tây Bắc.", name: "Anh Minh Tuấn" },
-  { quote: "Hộp quà rất sang trọng, thích hợp biếu tặng.", name: "Chị Thu Hà" },
-  { quote: "Chẩm chéo thơm, cay vừa phải, chất lượng ổn định.", name: "Anh Hoàng Nam" },
+  { quote: "Thịt trâu gác bếp rất ngon, đúng vị Tây Bắc. Đóng gói đẹp, phù hợp làm quà.", name: "Anh Minh Tuấn", location: "Hà Nội" },
+  { quote: "Hộp quà rất sang trọng, thích hợp biếu tặng. Người nhận rất hài lòng.", name: "Chị Thu Hà", location: "Đà Nẵng" },
+  { quote: "Chẩm chéo thơm, cay vừa phải, dùng cùng các món gác bếp rất hợp.", name: "Anh Hoàng Nam", location: "Hải Phòng" },
+  ...TESTIMONIALS_HOME.slice(3),
 ];
 
 export const NEWS_TOPICS = ["Tất cả", "Câu chuyện A SỈN", "Văn hoá – Ẩm thực", "Nguồn nguyên liệu", "Hoạt động cộng đồng", "Kinh nghiệm – Mẹo hay"] as const;
@@ -253,11 +254,16 @@ export const ARTICLES: StaticArticle[] = [
 
 export const HOME_ARTICLE_SLUGS = ["phien-cho-vung-cao", "thit-gac-bep-huong-khoi-nui-rung", "cham-cheo-linh-hon-am-thuc"];
 
-export const CERTIFICATES = [
-  { icon: "♧", title: "Chứng nhận OCOP 3 sao", text: "Chứng nhận sản phẩm đặc sản vùng cao." },
-  { icon: "◇", title: "HACCP Codex 2022", text: "Hệ thống quản lý an toàn thực phẩm." },
-  { icon: "♙", title: "Hồ sơ công bố sản phẩm", text: "Minh bạch thông tin, kiểm nghiệm." },
-  { icon: "⌕", title: "Truy xuất nguồn gốc", text: "Mã QR theo dõi nhà sản xuất." },
+export type Certificate = { title: string; issuer: string; text: string; image: string; thumb: string };
+
+const certImage = (name: string) => ({ image: `/media/certificates/${name}.webp`, thumb: `/media/certificates/${name}-thumb.webp` });
+
+/** Ảnh gốc ở assets-src/giay-to (không deploy), đã cắt viền và nén sang webp. */
+export const CERTIFICATES: Certificate[] = [
+  { title: "Chứng nhận OCOP 3 sao – Rượu Bản Phố", issuer: "UBND tỉnh Lào Cai", text: "Sản phẩm Rượu Bản Phố – Bắc Hà của Hợp tác xã Duy Phong đạt chứng nhận OCOP 3 sao năm 2022.", ...certImage("ocop-ruou-ban-pho") },
+  { title: "Chứng nhận An toàn thực phẩm – Rượu Bản Phố", issuer: "Sở Công Thương tỉnh Lào Cai", text: "Chứng nhận cơ sở sản xuất rượu của Hợp tác xã Duy Phong đáp ứng điều kiện an toàn thực phẩm theo quy định.", ...certImage("attp-ruou-ban-pho") },
+  { title: "Chứng nhận OCOP 3 sao – Thịt lợn gác bếp", issuer: "UBND huyện Bát Xát, tỉnh Lào Cai", text: "Sản phẩm thịt lợn gác bếp Lèo Thúy đạt chứng nhận OCOP 3 sao năm 2024.", ...certImage("ocop-thit-gac-bep") },
+  { title: "Chứng nhận An toàn thực phẩm – Thịt gác bếp", issuer: "Phòng Nông nghiệp và PTNT huyện Bát Xát", text: "Chứng nhận cơ sở Lèo Thị Thúy đủ điều kiện an toàn thực phẩm trong sản xuất, sơ chế và chế biến các sản phẩm từ thịt.", ...certImage("attp-thit-gac-bep") },
 ];
 
 export const VALUES = [

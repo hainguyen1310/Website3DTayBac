@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -29,6 +30,8 @@ type Auth = {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
+
+const PROFILE_RETRY_MS = 400;
 
 const AuthContext = createContext<Auth | null>(null);
 export const useAuth = () => useContext(AuthContext)!;
@@ -57,18 +60,34 @@ async function loadProfile(userId: string): Promise<Profile | null> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(true);
+  // Profile đã đọc xong cho user nào; khác user hiện tại nghĩa là đang tải.
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
+  const requestSeq = useRef(0);
 
   const refreshProfile = useCallback(async (userId: string | null) => {
+    const seq = ++requestSeq.current;
     if (!userId) {
       setProfile(null);
+      setProfileUserId(null);
       return;
     }
+    let next: Profile | null = null;
     try {
-      setProfile(await loadProfile(userId));
+      next = await loadProfile(userId);
+      // Ngay sau đăng nhập, request đầu có thể chạy trước khi token gắn vào
+      // client nên RLS trả rỗng; thử lại một lần trước khi kết luận.
+      if (!next) {
+        await new Promise((resolve) => window.setTimeout(resolve, PROFILE_RETRY_MS));
+        next = await loadProfile(userId);
+      }
     } catch {
-      setProfile(null);
+      next = null;
     }
+    // Chỉ kết quả của lần gọi mới nhất được áp dụng, tránh request cũ ghi đè.
+    if (seq !== requestSeq.current) return;
+    setProfile(next);
+    setProfileUserId(userId);
   }, []);
 
   useEffect(() => {
@@ -77,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       setSession(data.session);
       void refreshProfile(data.session?.user.id ?? null).finally(() => {
-        if (active) setLoading(false);
+        if (active) setInitializing(false);
       });
     });
 
@@ -117,6 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setProfile(null);
   }, []);
+
+  const loading = initializing || Boolean(session && profileUserId !== session.user.id);
 
   const value = useMemo<Auth>(
     () => ({

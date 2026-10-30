@@ -10,10 +10,10 @@ import { noindexMeta, productMeta } from "../../seo/meta";
 import { toSeoProductInput } from "../../seo/product";
 import { trackEvent } from "../../analytics";
 import { ecommerceParams, productAnalyticsItem } from "../../analyticsItems";
-import { MEDIA, TESTIMONIALS_HOME, TESTIMONIALS_PRODUCTS } from "../content";
+import { TESTIMONIALS_HOME, TESTIMONIALS_PRODUCTS } from "../content";
 import { productDetail } from "../productDetails";
 import type { StorefrontProduct } from "../products";
-import { ButtonLink, Contours, Stars, WhyBand } from "../ui";
+import { ButtonLink, Stars, WhyBand } from "../ui";
 import { ProductGallery, ProductTabs, RelatedCarousel } from "./productDetailParts";
 
 const REVIEWS = [...TESTIMONIALS_PRODUCTS, ...TESTIMONIALS_HOME];
@@ -67,8 +67,7 @@ export default function ProductDetailPage() {
 
   return (
     <main className="sf-page sf-product-page">
-      <section className="sf-product-hero">
-        <Contours src={MEDIA.contours.pageHero} className="sf-product-hero-contours" />
+      <section className="sf-product-hero sf-deco is-hero-art">
         <div className="sf-container">
           <nav className="sf-breadcrumb" aria-label="Breadcrumb">
             <Link to="/">Trang chủ</Link> <span aria-hidden="true">›</span> <Link to="/san-pham">Sản phẩm</Link> <span aria-hidden="true">›</span> <span aria-current="page">{product.name}</span>

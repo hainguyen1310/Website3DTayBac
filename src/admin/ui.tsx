@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import { AlertCircle, ArrowLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { invalidateCache } from "../services/cache";
 import { ORDER_STATUS_LABELS } from "../services/adminApi";
@@ -9,10 +9,12 @@ import { csvCell, localDateTime } from "../operations";
 export function SectionHeader({
   eyebrow,
   title,
+  description,
   action,
 }: {
   eyebrow: string;
   title: string;
+  description?: ReactNode;
   action?: ReactNode;
 }) {
   return (
@@ -20,10 +22,45 @@ export function SectionHeader({
       <div>
         <span>{eyebrow}</span>
         <h1>{title}</h1>
+        {description && <p>{description}</p>}
       </div>
       {action}
     </div>
   );
+}
+
+export type BadgeTone = "success" | "warning" | "danger" | "info" | "violet" | "brand" | "muted";
+
+/** Nhãn trạng thái có chấm màu, dùng chung cho mọi danh sách. */
+export function AdminBadge({ tone = "muted", children }: { tone?: BadgeTone; children: ReactNode }) {
+  return <span className={`admin-badge is-${tone}`}>{children}</span>;
+}
+
+/**
+ * Gắn data-label (lấy từ tiêu đề cột) cho từng ô bảng để trên điện thoại
+ * bảng hiển thị thành thẻ "nhãn: giá trị" mà không phải sửa từng bảng.
+ */
+export function useTableLabels(root: RefObject<HTMLElement | null>, key: unknown) {
+  useEffect(() => {
+    const element = root.current;
+    if (!element) return;
+    const label = () => {
+      for (const table of element.querySelectorAll<HTMLTableElement>("table.admin-table")) {
+        const headers = [...table.querySelectorAll("thead th")].map((th) => th.textContent?.trim() ?? "");
+        for (const row of table.querySelectorAll("tbody tr")) {
+          [...row.children].forEach((cell, index) => {
+            const text = headers[index] ?? "";
+            if (cell.getAttribute("data-label") !== text) cell.setAttribute("data-label", text);
+          });
+        }
+      }
+    };
+    label();
+    const observer = new MutationObserver(label);
+    observer.observe(element, { childList: true, subtree: true });
+    return () => observer.disconnect();
+    // key đổi khi vùng nội dung được gắn lại (hết loading, đổi mục).
+  }, [root, key]);
 }
 
 export function OrderStatusPill({ status }: { status: OrderStatus }) {
@@ -289,4 +326,37 @@ export function downloadCsv(filename: string, rows: Array<Array<string | number>
   link.download = filename;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+type ConfirmOptions = {
+  title: string;
+  description: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  tone?: "danger" | "primary";
+};
+
+/**
+ * Hộp thoại xác nhận dạng Promise thay cho window.confirm:
+ * `if (!(await confirm({...}))) return;`
+ */
+export function useConfirm(): [ReactNode, (options: ConfirmOptions) => Promise<boolean>] {
+  const [pending, setPending] = useState<(ConfirmOptions & { resolve: (value: boolean) => void }) | null>(null);
+  const confirm = useCallback((options: ConfirmOptions) => new Promise<boolean>((resolve) => setPending({ ...options, resolve })), []);
+  const close = (value: boolean) => {
+    pending?.resolve(value);
+    setPending(null);
+  };
+  const dialog = pending ? (
+    <AdminModal title={pending.title} onClose={() => close(false)}>
+      <div className="admin-confirm-copy">{pending.description}</div>
+      <div className="admin-modal-actions">
+        <button className={pending.tone === "danger" ? "admin-danger" : "admin-primary"} onClick={() => close(true)} autoFocus>
+          {pending.confirmLabel ?? "Đồng ý"}
+        </button>
+        <button className="admin-ghost" onClick={() => close(false)}>{pending.cancelLabel ?? "Hủy"}</button>
+      </div>
+    </AdminModal>
+  ) : null;
+  return [dialog, confirm];
 }
