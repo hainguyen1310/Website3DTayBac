@@ -1,0 +1,84 @@
+/* Three green chapters echo the forest-toned hero without changing its rhythm. */
+body #main .sc-home .lh-journey {
+  --lh-line:#46634a30;
+  background:#edf1e9;
+  color:#17392c;
+  border-color:#46634a30;
+}
+body #main .sc-home .lh-journey h2,
+body #main .sc-home .lh-journey .lh-step.is-active h3,
+body #main .sc-home .lh-motion-still .lh-journey .lh-step h3 {
+  color:#17392c;
+}
+body #main .sc-home .lh-journey h2 em { color:#856534; }
+body #main .sc-home .lh-journey :is(p,.lh-heading-aside) { color:#506050; }
+body #main .sc-home .lh-journey .lh-kicker,
+body #main .sc-home .lh-journey .lh-kicker>i { color:#53694d; }
+body #main .sc-home .lh-journey .lh-kicker>i { border-color:#53694d55; }
+body #main .sc-home .lh-journey .lh-step h3 { color:#5e7062; }
+body #main .sc-home .lh-journey .lh-step-meta { color:#5e7062; }
+body #main .sc-home .lh-journey .lh-step.is-active .lh-step-meta { color:#856534; }
+body #main .sc-home .lh-journey :is(.lh-journey-photo figcaption,.lh-step-photo figcaption,.lh-journey-hint) {
+  color:#53694d;
+}
+body #main .sc-home .lh-journey .lh-journey-image { background:#d7dfd0; }
+body #main .sc-home .lh-journey .text-link { border-color:#85653470; }
+
+body #main .sc-home .lh-values {
+  --lh-line:#d6bc9138;
+  background:#17392c;
+  color:#fcfaf5;
+}
+body #main .sc-home .lh-values :is(h2,h3),
+body #main .sc-home .lh-values .lh-quote blockquote { color:#fcfaf5; }
+body #main .sc-home .lh-values h2 em { color:#d6bc91; }
+body #main .sc-home .lh-values p { color:#d1dbce; }
+body #main .sc-home .lh-values .lh-kicker,
+body #main .sc-home .lh-values .lh-kicker>i,
+body #main .sc-home .lh-values .lh-value>span,
+body #main .sc-home .lh-values .lh-value>svg { color:#d6bc91; }
+body #main .sc-home .lh-values .lh-kicker>i { border-color:#d6bc9160; }
+body #main .sc-home .lh-values .text-link {
+  color:#e4cda7;
+  border-color:#d6bc9170;
+}
+body #main .sc-home .lh-values .text-link:hover,
+body #main .sc-home .lh-values .lh-value:hover h3 { color:#e4cda7; }
+body #main .sc-home .lh-values .lh-value { color:#fcfaf5;border-color:#d6bc9138; }
+body #main .sc-home .lh-values .lh-quote { border-color:#d6bc9138; }
+body #main .sc-home .lh-values .lh-quote>div { color:#d6bc91; }
+body #main .sc-home .lh-values .lh-quote>div>span+span { color:#bacbbd; }
+body #main .sc-home .lh-values :is(a,button):focus-visible {
+  outline-color:#e4cda7;
+}
+
+body #main .sc-home .lh-closing {
+  background:#e8eee5;
+  color:#17392c;
+  border-color:#46634a30;
+}
+body #main .sc-home .lh-closing h2 { color:#17392c; }
+body #main .sc-home .lh-closing h2 em { color:#856534; }
+body #main .sc-home .lh-closing .lh-kicker { color:#53694d; }
+body #main .sc-home .lh-closing .lh-closing-actions>p { color:#4b6050; }
+body #main .sc-home .lh-closing .lh-closing-actions>.btn {
+  background:#244936;
+  border-color:#244936;
+  color:#fffdf8;
+}
+body #main .sc-home .lh-closing .lh-closing-actions>.btn:hover {
+  background:#17392c;
+  border-color:#17392c;
+}
+body #main .sc-home .lh-closing .lh-closing-actions>.text-link {
+  color:#244936;
+  border-color:#46634a70;
+}
+body #main .sc-home .lh-closing :is(a,button):focus-visible {
+  outline-color:#244936;
+}
+
+/* Mobile and reduced-motion chapter copies retain the same readable palette. */
+@media(max-width:960px) {
+  body #main .sc-home .lh-journey .lh-step h3 { color:#17392c; }
+}

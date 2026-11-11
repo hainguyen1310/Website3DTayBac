@@ -2686,3 +2686,9 @@ input[type="checkbox"].admin-switch:checked::after {
   margin-bottom: 8px;
   font-weight: 500;
 }
+
+/* Mảnh ghép: ghi chú phụ trong ô bảng và danh sách mã vừa cấp. */
+.admin-cell-note { display: block; margin-top: 3px; color: var(--a-muted, #6b7280); font-size: 12px; }
+.admin-campaign-issued { display: grid; gap: 6px; margin: 12px 0; padding: 0; list-style: none; }
+.admin-campaign-issued code { display: inline-block; padding: 6px 10px; border-radius: 8px; background: #f6f1ea; font-size: 15px; letter-spacing: .06em; }
+.admin-table td > code { white-space: nowrap; }

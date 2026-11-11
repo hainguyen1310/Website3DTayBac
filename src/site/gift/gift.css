@@ -1,0 +1,15 @@
+/*
+ * Khung 3D three.js (mô hình hộp của cửa hàng) đặt trong .gift-scene thay cho hộp dựng CSS.
+ * Kích thước, nền và vị trí .gift-scene vẫn do CSS gốc quyết định.
+ */
+.gift-scene.gift-scene-model {
+  display: block;
+  cursor: auto;
+}
+.gift-scene.gift-scene-model .gift-model-stage {
+  position: absolute;
+  inset: 0;
+}
+.gift-scene.gift-scene-model > .sf-stage-status {
+  z-index: 2;
+}

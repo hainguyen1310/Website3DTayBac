@@ -1,0 +1,97 @@
+/* Homepage only: three section planes, with consistent foreground and action roles. */
+body:not(.inner-page){
+  --home-ivory:#fcfaf5;--home-forest:#17392c;--home-wine:#6b1724;
+  --cream:var(--home-ivory);--paper:var(--home-ivory);--sand:var(--home-ivory);
+  --ink:var(--home-forest);--brand:var(--home-wine);--brand-deep:var(--home-wine);
+  background:var(--home-ivory);
+}
+body:not(.inner-page) #main .sc-home,
+body:not(.inner-page) #main .sc-home .lh-sections{
+  --home-fg:var(--home-forest);--home-muted:#455d50;--home-accent:var(--home-wine);
+  --home-line:#17392c30;--lh-line:var(--home-line);
+  background:var(--home-ivory);color:var(--home-fg);
+}
+body:not(.inner-page) #main .sc-home :is(.lh-shop,.lh-taste,.lh-journey,.hf-faq){
+  background:var(--home-ivory);color:var(--home-fg);border-color:var(--home-line);
+}
+body:not(.inner-page) #main .sc-home :is(.sc-hero.sc-hero-cinematic,.lh-values,.ub-story,.lh-closing){
+  --home-fg:var(--home-ivory);--home-muted:#fcfaf5cf;--home-accent:var(--home-ivory);
+  --home-line:#fcfaf533;--lh-line:var(--home-line);
+  color:var(--home-fg);border-color:var(--home-line);
+}
+body:not(.inner-page) #main .sc-home :is(.sc-hero.sc-hero-cinematic,.lh-values){background:var(--home-forest)}
+body:not(.inner-page) #main .sc-home :is(.ub-story,.ub-stage,.lh-closing){background:var(--home-wine)}
+body:not(.inner-page) #main .sc-home::before,
+body:not(.inner-page) #main .sc-home::after,
+body:not(.inner-page) #main .sc-home .ub-contours{content:none;display:none}
+body:not(.inner-page) #main .sc-home :is(h1,h2,h3){color:var(--home-fg)}
+body:not(.inner-page) #main .sc-home :is(h1,h2,h3) em{color:var(--home-accent)}
+body:not(.inner-page) #main .sc-home :is(p,.lh-heading-aside,.hf-choice-context,.hf-product-use,.product-meta,
+  .lh-kicker,.lh-kicker>i,.lh-step-meta,.lh-taste-caption>span,.sc-hero-footnote>span){color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home :is(.lh-kicker>i,.hf-choice,.hf-next,.lh-value,.hf-proof-links,.hf-faq-list,.hf-faq-list details){border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .lh-journey .lh-step h3{color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .lh-journey .lh-step.is-active h3,
+body:not(.inner-page) #main .sc-home .lh-motion-still .lh-journey .lh-step h3{color:var(--home-fg)}
+body:not(.inner-page) #main .sc-home .lh-journey :is(.lh-journey-hint,.lh-step-meta,.lh-journey-photo figcaption,.lh-step-photo figcaption){color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .lh-values :is(.lh-value>span,.lh-value>svg,.hf-proof-link>svg){color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .lh-values .hf-proof-link:hover h3{color:var(--home-fg)}
+body:not(.inner-page) #main .sc-home .lh-values .hf-next>p{color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .hf-proof-link+.hf-proof-link{border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .hf-faq-list :is(summary,summary>svg){color:var(--home-fg)}
+body:not(.inner-page) #main .sc-home .hf-faq-list details>p{color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home :is(.lh-journey-image,.lh-shop .product-visual,.lh-compare){background:var(--home-forest)}
+body:not(.inner-page) #main .sc-home .lh-shop :is(.product-tag,.product-explore){background:var(--home-ivory);color:var(--home-forest)}
+body:not(.inner-page) #main .sc-home .hf-product-card .product-bottom{color:var(--home-wine)}
+body:not(.inner-page) #main .sc-home .hf-intents>button{color:var(--home-forest);border-color:#17392c66;background:transparent}
+body:not(.inner-page) #main .sc-home .hf-intents>button:hover{background:#17392c0d}
+body:not(.inner-page) #main .sc-home .hf-intents>button[aria-pressed=true],
+body:not(.inner-page) #main .sc-home .hf-product-card .hf-product-reason{background:var(--home-forest);color:var(--home-ivory);border-color:var(--home-forest)}
+body:not(.inner-page) #main .sc-home .hf-product-cell.is-recommended{outline-color:var(--home-forest)}
+body:not(.inner-page) #main .sc-home :is(.text-link,.hf-choice-jump){color:var(--home-fg);border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .btn{background:var(--home-wine);border-color:var(--home-wine);color:var(--home-ivory);box-shadow:none}
+body:not(.inner-page) #main .sc-home :is(.sc-hero,.lh-values,.ub-story,.lh-closing) .btn{
+  background:var(--home-ivory);border-color:var(--home-ivory);color:var(--home-wine);box-shadow:none;
+}
+body:not(.inner-page) #main .sc-home :is(.sc-hero-actions,.lh-closing-actions)>.text-link{color:var(--home-fg);border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .btn:hover{filter:brightness(.96)}
+body:not(.inner-page) #main .sc-home :is(a,button,summary,input):focus-visible{outline-color:var(--home-accent)}
+/* The real banner photograph is retained; its edge fades into the same forest plane. */
+body:not(.inner-page) #main .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner::after{
+  background:linear-gradient(90deg,#17392c 0%,#17392c80 9%,transparent 23%),linear-gradient(180deg,#17392c12,transparent 25%,transparent 85%,#17392c26);
+}
+body:not(.inner-page) #main .sc-home .sc-hero-footnote{border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .sc-hero-footnote :is(a,.motion-toggle){color:var(--home-muted);border-color:var(--home-line)}
+/* Unboxing keeps its physical materials and scroll mechanics on one quiet wine surface. */
+body:not(.inner-page) #main .sc-home :is(.ub-topline,.ub-kicker,.ub-number,.ub-number>span,.ub-skip,.ub-callout){color:var(--home-muted);border-color:var(--home-line)}
+body:not(.inner-page) #main .sc-home .ub-kicker i{border-color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .ub-beat :is(h3,p){color:var(--home-fg)}
+body:not(.inner-page) #main .sc-home .ub-dock{background:var(--home-wine);border-color:var(--home-line);box-shadow:none}
+body:not(.inner-page) #main .sc-home .ub-dock button{color:var(--home-muted)}
+body:not(.inner-page) #main .sc-home .ub-dock button>span{color:inherit}
+body:not(.inner-page) #main .sc-home .ub-dock button[aria-pressed=true]{background:#fcfaf524;color:var(--home-ivory)}
+body:not(.inner-page) #main .sc-home .ub-progress{background:#fcfaf533}
+body:not(.inner-page) #main .sc-home .ub-progress i{background:var(--home-ivory)}
+/* Shared chrome changes only while viewing the homepage. */
+body:not(.inner-page) .announcement{background:var(--home-wine);color:var(--home-ivory)}
+body:not(.inner-page) .site-header{background:var(--home-ivory);backdrop-filter:none;border-color:#17392c26}
+body:not(.inner-page) .site-header::after{background:var(--home-wine)}
+body:not(.inner-page) :is(.nav a,.header-tools){color:var(--home-forest)}
+body:not(.inner-page) .nav a.active{color:var(--home-wine)}
+body:not(.inner-page) #site-footer .site-newsletter{background:var(--home-ivory);color:var(--home-forest);border-color:#17392c30}
+body:not(.inner-page) #site-footer .sc-newsletter :is(h2,.eyebrow){color:var(--home-forest)}
+body:not(.inner-page) #site-footer .sc-newsletter p{color:#455d50}
+body:not(.inner-page) #site-footer .site-newsletter .btn{background:transparent;color:var(--home-wine);border-color:#6b172480}
+body:not(.inner-page) #site-footer .site-footer{background:var(--home-forest);color:var(--home-ivory);border-color:#fcfaf533}
+body:not(.inner-page) #site-footer .site-footer :is(.footer-title,.footer-links a,.footer-social a,.motion-toggle){color:var(--home-ivory);border-color:#fcfaf533}
+body:not(.inner-page) #site-footer .site-footer :is(.footer-brand p,.footer-bottom){color:#fcfaf5cf;border-color:#fcfaf533}
+@media(max-width:960px){
+  body:not(.inner-page) #main .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner::after{background:linear-gradient(180deg,transparent 78%,#17392c66)}
+}
+@media(max-width:800px){body:not(.inner-page) .nav{background:var(--home-ivory)}}
+
+/* Explicit interaction states retain the same contrast as their chapter. */
+body:not(.inner-page) #main .sc-home .lh-closing .lh-closing-actions>.btn:hover{
+  background:var(--home-ivory);border-color:var(--home-ivory);color:var(--home-wine);
+}
+body:not(.inner-page) #main .sc-home .lh-values .text-link:hover,
+body:not(.inner-page) #main .sc-home .lh-values .lh-value:hover h3{color:var(--home-ivory)}

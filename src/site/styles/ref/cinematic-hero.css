@@ -1,0 +1,106 @@
+/* The real gift photograph leads; type sits on its own quiet dark surface. */
+.sc-home .sc-hero.sc-hero-cinematic {
+  position:relative;isolation:isolate;overflow:clip;height:auto;min-height:0;padding:0;
+  color:#f6f0e6;background:#101914;border-bottom:1px solid #a88a583d;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner {
+  position:absolute;inset:0 0 0 auto;width:65%;overflow:hidden;z-index:0;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner-image {
+  display:block;width:100%;height:100%;object-fit:cover;object-position:47% 50%;
+  transform:translate3d(0,var(--ch-photo-shift,0px),0) scale(calc(1 + var(--ch-photo-depth,0)*.018));filter:none;opacity:1;
+  transform-origin:50% 50%;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner::after {
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,#101914 0%,#10191480 9%,transparent 23%),linear-gradient(180deg,#10191412,transparent 25%,transparent 85%,#10191426);
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-stage {
+  position:relative;inset:auto;z-index:1;display:flex;align-items:center;justify-content:flex-start;
+  gap:0;height:auto;min-height:clamp(570px,43vw,790px);max-height:none;
+  padding-block:56px 42px;overflow:visible;perspective:none;pointer-events:none;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-copy {
+  width:39%;max-width:530px;min-width:0;padding:0;margin:0;text-align:left;pointer-events:auto;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-copy>.eyebrow {
+  color:#c9b89d;font-size:9px;line-height:1.8;letter-spacing:.16em;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-title {
+  position:static;inset:auto;display:block;margin:24px 0;
+  color:#f6f0e6;font-size:clamp(43px,4vw,65px);font-weight:400;line-height:1.18;
+  letter-spacing:-.035em;text-shadow:none;white-space:normal;transform:none;opacity:1;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-title>span,
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-title>em {
+  display:block;white-space:nowrap;transform:none;opacity:1;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-title>em {
+  color:#d5bea0;font-size:.96em;font-style:italic;font-weight:400;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-intro {
+  margin:0;max-width:38ch;color:#cdcfc7;font-size:13px;line-height:1.9;text-wrap:pretty;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-intro br { display:none; }
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions {
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:15px 22px;margin-top:27px;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions>.btn {
+  min-height:49px;padding:14px 20px;background:#efe4d2;border-color:#d8c3a5;
+  color:#55131c;font-size:11px;box-shadow:none;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions>.btn:hover {
+  background:#fff8ec;transform:translateY(-1px);
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions>.text-link {
+  min-height:44px;font-size:11px;color:#f0e6d7;border-color:#b6a08380;gap:12px;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote {
+  display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:13px 19px;
+  max-width:390px;margin:31px 0 0;padding-top:20px;border-top:1px solid #b6a0833d;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote>span {
+  flex-basis:100%;color:#b2b5a9;font-size:7.5px;letter-spacing:.14em;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote>a { color:#d6c4aa;font-size:10px;gap:10px; }
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote svg { width:14px;height:14px; }
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote .motion-toggle {
+  display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:6px 9px;
+  border:1px solid #b6a0834d;background:transparent;color:#d6c9b7;font-size:9px;
+}
+.sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote .motion-toggle svg { width:12px;height:12px; }
+.sc-home .sc-hero.sc-hero-cinematic a:focus-visible,
+.sc-home .sc-hero.sc-hero-cinematic button:focus-visible { outline-color:#ead4b4; }
+@media (min-width:961px) and (max-width:1100px) {
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-stage { min-height:550px;padding-block:44px 35px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-title { font-size:clamp(35px,4vw,44px); }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-copy { width:41%; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner { width:62%; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-intro { font-size:12px; }
+}
+@media (max-width:960px) {
+  .sc-home .sc-hero.sc-hero-cinematic { display:flex;flex-direction:column; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner { position:relative;inset:auto;width:100%;aspect-ratio:3/2;flex-shrink:0; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner-image { object-position:50% 50%; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner::after { background:linear-gradient(180deg,transparent 78%,#10191466); }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-stage { display:block;min-height:0;padding-block:30px 32px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-copy { width:100%;max-width:610px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-copy>.eyebrow { font-size:8px;letter-spacing:.14em; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-title { font-size:clamp(35px,9.4vw,52px);line-height:1.2;margin-block:17px 19px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-intro { font-size:12px;line-height:1.9;max-width:43ch; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions { gap:14px 19px;margin-top:22px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions>.btn { min-height:47px;font-size:10px;padding-inline:17px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-actions>.text-link { font-size:10px; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote { margin-top:24px;padding-top:18px;gap:12px 17px;max-width:none; }
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-footnote>span { font-size:7px; }
+}
+@media (max-width:370px) {
+  .sc-home .sc-hero.sc-hero-cinematic .sc-hero-title { font-size:33px; }
+}
+
+/* No idle loops: compositor layers are only active while the hero is visible. */
+.sc-home .sc-hero.sc-hero-cinematic.ch-hero-playing .sc-hero-banner-image { will-change:transform; }
+@media (prefers-reduced-motion:reduce) {
+ .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner-image { transform:none!important;will-change:auto!important; }
+}
+body.motion-paused .sc-home .sc-hero.sc-hero-cinematic .sc-hero-banner-image { transform:none!important;will-change:auto!important; }

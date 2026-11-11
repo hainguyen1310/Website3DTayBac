@@ -10,6 +10,9 @@ export type SiteRoute =
   | { kind: "product"; slug: string }
   | { kind: "category"; slug: string }
   | { kind: "gift" }
+  | { kind: "campaign" }
+  | { kind: "cart" }
+  | { kind: "checkout" }
   | { kind: "about" }
   | { kind: "origin" }
   | { kind: "news"; page: number; topic?: string }
@@ -69,6 +72,9 @@ export function matchSiteRoute(pathname: string, search: URLSearchParams): SiteR
   }
 
   if (first === "thiet-ke" && segments.length === 1) return { kind: "gift" };
+  if (first === "chuong-trinh" && segments.length === 1) return { kind: "campaign" };
+  if (first === "gio-hang" && segments.length === 1) return { kind: "cart" };
+  if (first === "thanh-toan" && segments.length === 1) return { kind: "checkout" };
   if (first === "gioi-thieu" && segments.length === 1) return { kind: "about" };
   if (first === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first === "lien-he" && segments.length === 1) return { kind: "contact" };
@@ -162,6 +168,12 @@ export function routePath(route: SiteRoute): string {
       return `/danh-muc/${route.slug}`;
     case "gift":
       return "/thiet-ke";
+    case "campaign":
+      return "/chuong-trinh";
+    case "cart":
+      return "/gio-hang";
+    case "checkout":
+      return "/thanh-toan";
     case "about":
       return "/gioi-thieu";
     case "origin":

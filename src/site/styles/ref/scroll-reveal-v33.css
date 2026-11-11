@@ -1,0 +1,36 @@
+/* Progressive entrances: individual translate/scale preserve authored 3D and angled artwork. */
+.gs-home .gs-reveal{--gs-delay:0ms}
+.gs-home.gs-motion-ready .gs-reveal{transition:opacity var(--heritage-reveal-duration) var(--heritage-ease),translate var(--heritage-reveal-duration) var(--heritage-ease),scale var(--heritage-reveal-duration) var(--heritage-ease),clip-path var(--heritage-reveal-duration) var(--heritage-ease);transition-delay:var(--gs-delay);}
+.gs-home.gs-motion-ready .gs-reveal:not(.gs-in-view){opacity:0;translate:0 22px}
+.gs-home.gs-motion-ready .gs-reveal[data-gs-kind=card]:not(.gs-in-view){translate:0 28px;scale:.985}
+.gs-home.gs-motion-ready .gs-reveal[data-gs-kind=image]:not(.gs-in-view){translate:0 30px;scale:.985;clip-path:inset(5% 3% 6% 0 round 12px)}
+.gs-home.gs-motion-ready .gs-reveal.gs-in-view{opacity:1;translate:0 0;scale:1;clip-path:none}
+.gs-home.gs-motion-ready .gs-reveal[data-gs-kind=image].gs-in-view{clip-path:inset(0 round 0)}
+.gs-home.gs-motion-ready .gs-reveal[data-gs-kind=image].gs-reveal-settled{clip-path:none}
+.gs-home .gs-reveal.gs-reveal-instant{transition:none!important;transition-delay:0ms!important;opacity:1!important;translate:0 0!important;scale:1!important;clip-path:none!important}
+.gs-home .gs-image-frame{overflow:clip}
+.gs-home .gs-image-frame>img{translate:0 var(--gs-image-shift,0px);scale:1.035;transition:translate .25s linear;transform-origin:center}
+.gs-home.gs-reduced-motion .gs-reveal,body.motion-paused .gs-home .gs-reveal{opacity:1!important;translate:0 0!important;scale:1!important;clip-path:none!important;transition:none!important}
+.gs-home.gs-reduced-motion .gs-image-frame>img,body.motion-paused .gs-home .gs-image-frame>img{translate:0 0;scale:1;transition:none}
+.gs-home.gs-reduced-motion .gs-glass-panel,body.motion-paused .gs-home .gs-glass-panel{--glass-rx:0deg!important;--glass-ry:0deg!important}
+@media(max-width:700px){
+ .gs-home.gs-motion-ready .gs-reveal{transition-duration:.56s}
+ .gs-home.gs-motion-ready .gs-reveal:not(.gs-in-view){translate:0 17px}
+ .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=card]:not(.gs-in-view){translate:0 21px}
+ .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=image]:not(.gs-in-view){translate:0 22px}
+}
+@media(prefers-reduced-motion:reduce){
+ .gs-home.gs-motion-ready .gs-reveal{opacity:1!important;translate:0 0!important;scale:1!important;clip-path:none!important;transition:none!important}
+ .gs-home .gs-image-frame>img{translate:0 0;scale:1;transition:none}
+ .gs-home .gs-glass-panel{--glass-rx:0deg!important;--glass-ry:0deg!important}
+}
+/* Interactive controls retain a stable hit area while their studio fades in. */
+.gs-home.gs-motion-ready .gs-reveal[data-gs-kind=interactive]:not(.gs-in-view){translate:0 0;scale:1}
+
+/* The numbered strip steps in, while journal articles stay on their baseline. */
+@media (prefers-reduced-motion: no-preference) {
+  .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=value] { transition-duration: 420ms; }
+  .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=value]:not(.gs-in-view) { translate: 0 9px; }
+  .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=journal] { transition-duration: 340ms; }
+  .gs-home.gs-motion-ready .gs-reveal[data-gs-kind=journal]:not(.gs-in-view) { translate: 0 4px; }
+}

@@ -1,0 +1,105 @@
+/* Laptop art direction: reserve reading space inside each scene before sizing the art. */
+@media (min-width:1024px) and (max-width:1600px){
+ .sc-home .sc-hero-stage,.sc-home .sc-journey-stage,.sc-home .sc-taste-stage{min-height:0}
+ .sc-home .sc-hero-top{top:20px}
+ .sc-home .sc-hero-title{top:46px;font-size:clamp(156px,min(15.2vw,25.5svh),232px);line-height:1.12;gap:2.3vw}
+ .sc-home .sc-hero-picture{top:calc(clamp(184px,25.8svh,235px)*(1 - var(--hero)));bottom:calc(12px*(1 - var(--hero)))}
+ .sc-home .sc-hero-seal{width:86px;height:86px;right:28px;top:26px;font-size:7px}
+ .sc-home .sc-hero-seal span{font-size:28px}
+ .sc-home .sc-hero-bottom{bottom:88px;padding-inline:24px;gap:48px}
+ .sc-home .sc-hero-bottom h2{font-size:clamp(40px,min(4.05vw,6.4svh),60px);line-height:1.22;margin-top:14px;text-wrap:balance}
+ .sc-home .sc-hero-bottom h2 em{white-space:nowrap}
+ .sc-home .sc-hero-action{min-width:270px;max-width:320px;padding-bottom:6px}
+ .sc-home .sc-hero-action p{font-size:13px;line-height:1.8;margin-bottom:18px;text-wrap:pretty}
+ .sc-home .sc-hero-action .btn{min-height:48px;font-size:12px;padding:13px 22px}
+ .sc-home .sc-hero-scroll{bottom:22px;padding-inline:24px;gap:20px}
+ .sc-home .sc-hero-scroll>a{min-height:36px;font-size:9px;letter-spacing:.1em}
+ .sc-home .sc-hero-scroll .motion-toggle{min-height:36px;font-size:10px;padding-inline:12px}
+
+ .sc-home .sc-manifesto{padding-block:42px 48px}
+ .sc-home .sc-manifesto-grid{grid-template-columns:.94fr 1.06fr;gap:5%;min-height:clamp(520px,68svh,610px)}
+ .sc-home .sc-manifesto-copy{padding-bottom:6px}
+ .sc-home .sc-read{font-size:clamp(60px,min(6.7vw,10.7svh),100px);line-height:1.2;margin-bottom:24px}
+ .sc-home .sc-read>span{white-space:nowrap}
+ .sc-home .sc-manifesto-copy>p{font-size:14px;line-height:1.8;max-width:39ch;margin-bottom:18px;text-wrap:pretty}
+ .sc-home .sc-manifesto-copy>.text-link{font-size:12px}
+ .sc-home .sc-memory-collage{height:clamp(485px,66svh,590px)}
+ .sc-home .sc-collage-landscape{top:16px;right:5%;width:82%;height:clamp(240px,31svh,290px);transform:translateY(calc(var(--collage,0)*-45px)) rotate(calc(-5deg + var(--collage,0)*-7deg))}
+ .sc-home .sc-collage-smoke{top:clamp(190px,26svh,230px);right:5%;width:70%;height:clamp(255px,35svh,315px);transform:translateX(calc(var(--collage,0)*30px)) rotate(calc(5deg + var(--collage,0)*7deg))}
+ .sc-home .sc-collage-hands{left:3%;top:clamp(245px,33svh,295px);width:40%;height:clamp(175px,25svh,220px);transform:translateY(calc(var(--collage,0)*55px)) rotate(calc(-7deg + var(--collage,0)*-6deg))}
+ .sc-home .sc-collage-stamp{left:2%;top:clamp(140px,20svh,175px);width:clamp(108px,9.1vw,124px);height:clamp(108px,9.1vw,124px)}
+ .sc-home .sc-memory-collage figcaption{font-size:8px;letter-spacing:.08em}
+ .sc-home .sc-collage-hands figcaption{font-size:18px}
+
+ .sc-home .sc-chapter-grid{gap:5%;grid-template-columns:.84fr 1.16fr;padding-block:28px 96px}
+ .sc-home .sc-chapter-copy{min-width:0;padding-bottom:12px}
+ .sc-home .sc-chapter h2{font-size:clamp(46px,min(4.7vw,8.8svh),72px);line-height:1.17;margin-block:23px 20px}
+ .sc-home .sc-chapter h2>span{white-space:nowrap}
+ .sc-home .sc-chapter p{font-size:14px;line-height:1.8;max-width:42ch;margin-bottom:20px;text-wrap:pretty}
+ .sc-home .sc-chapter .text-link{font-size:12px}
+ .sc-home .sc-chapter figure{margin-inline:18px 24px;padding-right:0}
+ .sc-home .sc-chapter-image{height:clamp(300px,51svh,475px);min-height:0;border-width:7px}
+ .sc-home .sc-chapter figcaption{font-size:8px;line-height:1.7;letter-spacing:.07em;gap:12px;margin:14px 0 0}
+ .sc-home .sc-photo-caption{right:-8px;bottom:42px;font-size:16px}
+ .sc-home .sc-chapter-word{font-size:128px;bottom:-105px}
+ .sc-home .sc-journey-dock{bottom:18px;padding:9px 16px;gap:8px}
+ .sc-home .sc-journey-dock button{min-height:38px;font-size:15px;padding:7px 13px}
+ .sc-home .sc-journey-dock button span{font-size:10px}
+
+ .sc-home .sc-taste-content{padding-top:36px;padding-bottom:124px;min-height:0}
+ .sc-home .sc-taste-content>.eyebrow{font-size:10px;max-width:calc(100% - 130px);line-height:1.8}
+ .sc-home .sc-taste h2{font-size:clamp(76px,min(8.1vw,12.5svh),128px);line-height:1.15;margin-block:auto;padding-block:12px;max-width:100%}
+ .sc-home .sc-taste h2>span,.sc-home .sc-taste h2>em{white-space:nowrap}
+ .sc-home .sc-taste h2>em{font-size:.8em;line-height:1.3;margin-left:7%}
+ .sc-home .sc-taste-bottom{gap:32px}
+ .sc-home .sc-taste-bottom p{font-size:14px;line-height:1.75;max-width:40ch;margin:0}
+ .sc-home .sc-taste-bottom .btn{font-size:12px;min-height:48px;padding:13px 22px}
+ .sc-home .sc-taste-phase-count{top:32px;font-size:27px;padding-top:8px}
+ .sc-home .sc-taste-scrub{bottom:22px;gap:32px}
+ .sc-home .sc-taste-meter{font-size:9px;gap:16px}
+ .sc-home .sc-taste-phase-links button{min-height:44px;font-size:11px;padding:11px 14px}
+
+ .sc-home .sc-products .section-head,.sc-home .sc-journal .section-head{margin-bottom:38px}
+ .sc-home .section-head h2{font-size:clamp(46px,4.4vw,64px);line-height:1.16;text-wrap:balance}
+ .sc-home .sc-head-aside p{font-size:14px;line-height:1.75}
+ .sc-home .sc-products .product-grid{gap:30px;margin-bottom:44px}
+ .sc-home .sc-products .product-card h3{font-size:clamp(28px,2.45vw,35px);line-height:1.25;text-wrap:balance}
+ .sc-home .sc-products .product-meta{padding-top:28px;font-size:10px}
+ .sc-home .sc-products .product-bottom{font-size:14px;margin-top:14px}
+ .sc-home .sc-gift-banner{gap:clamp(28px,4vw,60px);padding-block:28px}
+ .sc-home .sc-gift-banner>img{height:240px}
+ .sc-home .sc-gift-banner h3{font-size:clamp(36px,3.15vw,46px);line-height:1.2;margin-block:16px 19px;text-wrap:balance}
+ .sc-home .sc-gift-banner .text-link{font-size:12px}
+
+ .sc-home .sc-reasons-grid{gap:7%;grid-template-columns:.95fr 1.05fr;margin-top:28px}
+ .sc-home .sc-reasons-heading{top:108px}
+ .sc-home .sc-reasons-heading h2{font-size:clamp(48px,4.3vw,65px);line-height:1.18;text-wrap:balance}
+ .sc-home .sc-reasons-photo{height:230px;margin-block:26px 22px}
+ .sc-home .sc-reason{padding-block:22px;gap:22px}
+ .sc-home .sc-reason h3{font-size:26px;line-height:1.28;margin-bottom:11px;text-wrap:balance}
+ .sc-home .sc-reason p{font-size:14px;line-height:1.75;max-width:43ch;text-wrap:pretty}
+ .sc-home .sc-reasons-heading>.text-link{font-size:12px}
+ .sc-home .sc-review-body{gap:28px;grid-template-columns:48px 1.3fr .9fr}
+ .sc-home .sc-review-body blockquote>p{font-size:clamp(28px,2.55vw,39px);line-height:1.5;text-wrap:pretty}
+ .sc-home .sc-review-body blockquote footer{font-size:12px;line-height:1.7}
+ .sc-home .sc-review-art{height:clamp(255px,33svh,310px)}
+ .sc-home .sc-journal .journal-grid{gap:30px}
+ .sc-home .sc-journal .journal-card h3{font-size:clamp(23px,1.85vw,27px);line-height:1.4;text-wrap:balance}
+ .sc-home .sc-journal .journal-card .eyebrow{font-size:10px;letter-spacing:.08em}
+ .sc-home .sc-journal .journal-card .text-link{font-size:12px}
+ .sc-home .sc-closing{min-height:clamp(560px,72svh,660px);padding-block:68px 54px}
+ .sc-home .sc-closing:after{height:64px}
+ .sc-home .sc-closing h2{font-size:clamp(68px,min(7.6vw,11.4svh),118px);line-height:1.17;margin:30px 0 36px;text-wrap:balance}
+ .sc-home .sc-closing h2 em{display:inline-block;white-space:nowrap}
+ .sc-home .sc-closing-bottom{gap:28px}
+ .sc-home .sc-closing-bottom p{font-size:14px;line-height:1.75;max-width:29ch;text-wrap:pretty}
+ .sc-home .sc-closing-bottom .btn,.sc-home .sc-closing-bottom .text-link{font-size:12px}
+}
+
+/* These dimensions describe the visible pin, independently of the scroll runway. */
+@media (min-width:1024px) and (max-width:1600px) and (min-height:741px) and (prefers-reduced-motion:no-preference){
+ body:not(.motion-paused) .sc-home .sc-hero-stage,
+ body:not(.motion-paused) .sc-home .sc-journey-stage,
+ body:not(.motion-paused) .sc-home .sc-taste-stage{height:calc(100svh - 82px);min-height:0}
+ body:not(.motion-paused) .sc-home .sc-chapter-grid{height:100%}
+}

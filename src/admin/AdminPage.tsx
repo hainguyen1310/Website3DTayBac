@@ -14,6 +14,7 @@ import {
   Newspaper,
   Package,
   Percent,
+  Puzzle,
   Settings,
   Users,
   X,
@@ -27,6 +28,7 @@ import MessagesSection from "./MessagesSection";
 import OrdersSection from "./OrdersSection";
 import ProductsSection from "./ProductsSection";
 import PromotionsSection from "./PromotionsSection";
+import CampaignSection from "./CampaignSection";
 import ReportsSection from "./ReportsSection";
 import SettingsSection from "./SettingsSection";
 import SupportSection from "./SupportSection";
@@ -48,6 +50,7 @@ const MENU_GROUPS: { title: string; items: MenuItem[] }[] = [
       { id: "products", label: "Sản phẩm", icon: Package },
       { id: "customers", label: "Khách hàng", icon: Users },
       { id: "promotions", label: "Khuyến mãi", icon: Percent },
+      { id: "campaign", label: "Mảnh ghép", icon: Puzzle },
     ],
   },
   {
@@ -137,6 +140,8 @@ export default function AdminPage() {
         return <CustomersSection />;
       case "promotions":
         return <PromotionsSection />;
+      case "campaign":
+        return <CampaignSection />;
       case "content":
         return <ContentSection />;
       case "messages":

@@ -472,6 +472,7 @@ function formatVietnameseDate(value) {
     timeZone: "Asia/Ho_Chi_Minh"
   }).format(date).replaceAll("/", ".");
 }
+var NEWS_PAGE_SIZE = 3;
 var ARTICLE_PUBLIC_COLUMNS = "id, slug, tag, tag_slug, title, excerpt, image_url, read_time_minutes, body, published, published_at, first_published_at, scheduled_at, content_modified_at, author_name, source_name, source_url, seo_title, seo_description, social_image_url, social_title, social_description, canonical_path, related_product_slugs, related_article_slugs";
 var stringArray = (value) => Array.isArray(value) ? value.filter((item) => typeof item === "string") : [];
 function articleFromRow(row) {
@@ -762,6 +763,9 @@ function matchSiteRoute(pathname, search) {
     return { kind: "notFound" };
   }
   if (first2 === "thiet-ke" && segments.length === 1) return { kind: "gift" };
+  if (first2 === "chuong-trinh" && segments.length === 1) return { kind: "campaign" };
+  if (first2 === "gio-hang" && segments.length === 1) return { kind: "cart" };
+  if (first2 === "thanh-toan" && segments.length === 1) return { kind: "checkout" };
   if (first2 === "gioi-thieu" && segments.length === 1) return { kind: "about" };
   if (first2 === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first2 === "lien-he" && segments.length === 1) return { kind: "contact" };
@@ -815,6 +819,12 @@ function routePath(route) {
       return `/danh-muc/${route.slug}`;
     case "gift":
       return "/thiet-ke";
+    case "campaign":
+      return "/chuong-trinh";
+    case "cart":
+      return "/gio-hang";
+    case "checkout":
+      return "/thanh-toan";
     case "about":
       return "/gioi-thieu";
     case "origin":
@@ -1188,6 +1198,32 @@ function contactMeta(ctx) {
     ]
   });
 }
+function campaignMeta(ctx) {
+  return meta({
+    ctx,
+    route: { kind: "campaign" },
+    title: "Gh\xE9p V\u1ECB M\u1EDF Mi\u1EC1n \xB7 24 m\u1EA3nh gh\xE9p T\xE2y B\u1EAFc \u2014 A S\u1EC9n",
+    description: "Gh\xE9p 24 m\u1EA3nh \u0111\u1EC3 kh\xE1m ph\xE1 h\u01B0\u01A1ng v\u1ECB v\xE0 chuy\u1EC7n b\u1EA3n l\xE0ng T\xE2y B\u1EAFc c\xF9ng A S\u1EC9n: m\u1ED7i \u0111\u01A1n h\xE0ng \u0111\u1EE7 \u0111i\u1EC1u ki\u1EC7n nh\u1EADn m\xE3, m\u1EDF t\u1EEBng m\u1EA3nh v\xE0 theo d\xF5i ti\u1EBFn \u0111\u1ED9 c\u1EE7a b\u1EA1n.",
+    canonicalPath: "/chuong-trinh",
+    jsonLd: [
+      breadcrumbJsonLd(ctx, [
+        { name: "Trang ch\u1EE7", path: "/" },
+        { name: "Ch\u01B0\u01A1ng tr\xECnh", path: "/chuong-trinh" }
+      ])
+    ]
+  });
+}
+function privatePageMeta(ctx, kind) {
+  return meta({
+    ctx,
+    route: { kind },
+    title: kind === "cart" ? "Gi\u1ECF h\xE0ng \u2014 A S\u1EC9n" : "\u0110\u1EB7t h\xE0ng \u2014 A S\u1EC9n",
+    description: "Xem l\u1EA1i c\xE1c \u0111\u1EB7c s\u1EA3n v\xE0 h\u1ED9p qu\xE0 b\u1EA1n \u0111\xE3 ch\u1ECDn t\u1EA1i A S\u1EC9n.",
+    canonicalPath: kind === "cart" ? "/gio-hang" : "/thanh-toan",
+    robots: noindexRobots(),
+    jsonLd: []
+  });
+}
 function noindexMeta(ctx, title = "Kh\xF4ng t\xECm th\u1EA5y trang \u2014 A S\u1EC9n") {
   return meta({
     ctx,
@@ -1503,7 +1539,7 @@ async function renderCategory(ctx, client, slug) {
   };
 }
 async function renderNews(ctx, client, route, search) {
-  const pageSize = 9;
+  const pageSize = NEWS_PAGE_SIZE;
   let page;
   try {
     page = await loadArticleList(client, { limit: pageSize, offset: (route.page - 1) * pageSize, topicSlug: route.topic });
@@ -1605,7 +1641,7 @@ function staticPage(ctx, route, title, intro) {
       ${navHtml()}
     </main>
     ${footerHtml({ content: {}, support: { contact: ctx.contact } })}`);
-  const seo = route.kind === "gift" ? giftMeta(ctx) : route.kind === "about" ? aboutMeta(ctx) : route.kind === "origin" ? originMeta(ctx) : route.kind === "contact" ? contactMeta(ctx) : homeMeta(ctx);
+  const seo = route.kind === "gift" ? giftMeta(ctx) : route.kind === "about" ? aboutMeta(ctx) : route.kind === "origin" ? originMeta(ctx) : route.kind === "contact" ? contactMeta(ctx) : route.kind === "campaign" ? campaignMeta(ctx) : homeMeta(ctx);
   return { status: 200, seo, bodyHtml: body, cacheControl: PUBLIC_CONTENT_CACHE };
 }
 async function renderSitePage(input) {
@@ -1641,6 +1677,9 @@ async function renderSitePage(input) {
       };
     }
     if (route.kind === "notFound") return notFoundPage(ctx, pathname);
+  }
+  if (route.kind === "cart" || route.kind === "checkout") {
+    return { status: 200, seo: privatePageMeta(ctx, route.kind), bodyHtml: "", cacheControl: "no-store" };
   }
   if (route.kind === "admin" || route.kind === "unsubscribe") {
     return {
@@ -1681,8 +1720,10 @@ async function renderSitePage(input) {
         ctx,
         route,
         "T\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0 T\xE2y B\u1EAFc",
-        "Ch\u1ECDn size h\u1ED9p v\u1EEBa ho\u1EB7c to, m\xE0u xanh ho\u1EB7c \u0111\u1ECF \u0111\xF4, s\u1EA3n ph\u1EA9m b\xEAn trong r\u1ED3i ch\u1ECDn vi\u1EBFt thi\u1EC7p ho\u1EB7c kh\xF4ng. N\u1EBFu vi\u1EBFt thi\u1EC7p, nh\u1EADp l\u1EDDi ch\xFAc v\xE0o ph\u1EA7n ghi ch\xFA."
+        "Ch\u1ECDn c\u1EE1 h\u1ED9p Sinh L\u1ED9c ho\u1EB7c Th\u1ECBnh \u0110\u1EC9nh, ph\u1ED1i hai t\xFAi \u0111\u1EB7c s\u1EA3n v\xE0 m\u1ED9t h\u0169 th\u1ECBt x\xE9, r\u1ED3i vi\u1EBFt l\u1EDDi nh\u1EAFn cho ng\u01B0\u1EDDi nh\u1EADn. Ch\u1EA9m ch\xE9o \u0111\u01B0\u1EE3c g\xF3i s\u1EB5n, h\u1ED9p Th\u1ECBnh \u0110\u1EC9nh k\xE8m r\u01B0\u1EE3u ng\xF4 B\u1EA3n Ph\u1ED1."
       );
+    case "campaign":
+      return staticPage(ctx, route, "Gh\xE9p V\u1ECB M\u1EDF Mi\u1EC1n \xB7 24 m\u1EA3nh gh\xE9p T\xE2y B\u1EAFc", "Gh\xE9p 24 m\u1EA3nh \u0111\u1EC3 kh\xE1m ph\xE1 h\u01B0\u01A1ng v\u1ECB v\xE0 chuy\u1EC7n b\u1EA3n l\xE0ng T\xE2y B\u1EAFc. M\u1ED7i \u0111\u01A1n h\xE0ng \u0111\u1EE7 \u0111i\u1EC1u ki\u1EC7n nh\u1EADn m\xE3, m\u1EDF t\u1EEBng m\u1EA3nh gh\xE9p v\xE0 theo d\xF5i ti\u1EBFn \u0111\u1ED9 c\u1EE7a b\u1EA1n.");
     case "origin":
       return staticPage(ctx, route, "Ngu\u1ED3n g\u1ED1c s\u1EA3n v\u1EADt A S\u1EC9n", "Kh\xE1m ph\xE1 v\xF9ng nguy\xEAn li\u1EC7u T\xE2y B\u1EAFc, nh\u1EEFng ng\u01B0\u1EDDi s\u1EA3n xu\u1EA5t b\u1EA3n \u0111\u1ECBa v\xE0 c\xE1ch ch\u1EBF bi\u1EBFn truy\u1EC1n th\u1ED1ng ph\xEDa sau t\u1EEBng s\u1EA3n v\u1EADt. Xem th\xF4ng tin xu\u1EA5t x\u1EE9 c\u1EE5 th\u1EC3 tr\xEAn trang s\u1EA3n ph\u1EA9m ho\u1EB7c li\xEAn h\u1EC7 A S\u1EC9n \u0111\u1EC3 t\xECm hi\u1EC3u th\xEAm.");
     case "about":

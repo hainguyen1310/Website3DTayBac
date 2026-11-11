@@ -1,0 +1,259 @@
+/* A SỈN — warm paper, restrained champagne light, uninterrupted inner pages.
+   Surface-only refinement: photography, type, spacing and scroll geometry stay intact. */
+body.inner-page #main {
+  --premium-base: #fcfaf5;
+  --premium-paper: #fffdf8;
+  --premium-champagne: #b68d58;
+  --premium-line: #b68d5833;
+  --premium-grain: none;
+  --premium-surface: linear-gradient(#fffdf8bd, #fffdf8bd), var(--premium-grain), #fffdf8;
+  --ip-shadow: 0 18px 42px #3d1d1610, 0 3px 12px #3d1d1608;
+  --ip-deep-shadow: 0 26px 58px #2c0d172b;
+  background:
+    radial-gradient(ellipse at 91% 4%, #b68d580b, transparent 50%),
+    linear-gradient(#fcfaf599, #fcfaf599),
+    var(--premium-grain),
+    var(--premium-base);
+}
+
+/* Light chapters share one paper plane instead of separate landscape panels. */
+body.inner-page #main .catalog-intro,
+body.inner-page #main .pg-catalog-section,
+body.inner-page #main .detail-section,
+body.inner-page #main .pg-news-intro,
+body.inner-page #main .pg-news-list,
+body.inner-page #main .pg-article,
+body.inner-page #main .pg-related-articles,
+body.inner-page #main .pg-about-intro,
+body.inner-page #main .pg-about-beliefs,
+body.inner-page #main .gift-page,
+body.inner-page #main .commerce-page,
+body.inner-page #main .order-success,
+body.inner-page #main .pg-guide,
+body.inner-page #main .sc-contact,
+body.inner-page #main .story-page,
+body.inner-page #main .st-hero,
+body.inner-page #main .st-opening,
+body.inner-page #main .st-ingredients,
+body.inner-page #main .st-trace,
+body.inner-page #main .st-about-letter,
+body.inner-page #main .st-collage,
+body.inner-page #main .st-values,
+body.inner-page #main .st-end {
+  background: transparent;
+}
+
+/* Remove bitmap maps and ridges from ambient layers; keep their existing motion. */
+body.inner-page #main .ip-atmosphere .ip-map,
+body.inner-page #main .ip-atmosphere .ip-ridge,
+body.inner-page #main .st-hero::before,
+body.inner-page #main .st-letter-kicker,
+body.inner-page #main .pg-origin-intro > .eyebrow,
+body.inner-page #main .pg-about-copy > .eyebrow {
+  background: none;
+}
+body.inner-page #main .ip-atmosphere .ip-orbit {
+  border-color: #b68d5826;
+}
+body.inner-page #main .ip-atmosphere .ip-orbit::before {
+  border-color: #b68d581a;
+}
+body.inner-page #main .ip-atmosphere .ip-orbit::after {
+  background: var(--premium-base);
+  color: #b68d58;
+}
+body.inner-page #main .ip-atmosphere .ip-weave {
+  background: linear-gradient(90deg, transparent, #b68d581c);
+}
+body.inner-page #main .ip-atmosphere .ip-mist {
+  background:
+    radial-gradient(ellipse at 15% 40%, #fffdf880, transparent 48%),
+    radial-gradient(ellipse at 80% 55%, #b68d580d, transparent 52%);
+}
+body.inner-page #main .ic-flow-contours {
+  opacity: calc(var(--ic-flow-alpha, .18) * .32);
+}
+body.inner-page #main .ic-flow-light {
+  background: radial-gradient(ellipse at var(--ic-glow-x, 40%) 35%, #b68d580b, transparent 62%);
+}
+body.inner-page #main .ic-flow-bridge {
+  stroke: #b68d58;
+  opacity: .09;
+}
+body.inner-page #main .st-hero::after,
+body.inner-page #main .st-end::after {
+  border-color: #b68d5826;
+  box-shadow: none;
+}
+
+/* Quietly raised paper for the functional and editorial reading surfaces. */
+body.inner-page #main .detail-description {
+  background: var(--premium-surface);
+}
+body.inner-page #main .detail-info {
+  background: transparent;
+}
+body.inner-page #main .detail-tab-panel,
+body.inner-page #main .pg-trace-form,
+body.inner-page #main .pg-belief-list article,
+body.inner-page #main .pg-type-samples,
+body.inner-page #main .pg-storyboard article,
+body.inner-page #main .pg-guide-disclosure,
+body.inner-page #main .checkout-form,
+body.inner-page #main .sc-contact-form,
+body.inner-page #main .st-ingredient-board,
+body.inner-page #main .st-ingredient-reading,
+body.inner-page #main .st-trace-form,
+body.inner-page #main .st-letter-copy,
+body.inner-page #main .st-value,
+body.inner-page #main .st-value:first-child {
+  background: var(--premium-surface);
+  border-color: var(--premium-line);
+  box-shadow: var(--ip-shadow);
+}
+body.inner-page #main .detail-tab-nav,
+body.inner-page #main .pg-article-body,
+body.inner-page #main .pg-about-lead > p,
+body.inner-page #main .st-section-heading > p,
+body.inner-page #main .st-side-note {
+  background: #fffdf8b3;
+  border-color: var(--premium-line);
+  box-shadow: none;
+}
+body.inner-page #main .pg-about-end {
+  background: var(--premium-surface);
+  border-color: var(--premium-line);
+  box-shadow: var(--ip-shadow);
+}
+body.inner-page #main .pg-article-image > span,
+body.inner-page #main .catalog-grid .product-tag {
+  background: var(--premium-paper);
+}
+body.inner-page #main .catalog-grid .product-visual,
+body.inner-page #main .detail-main-image,
+body.inner-page #main .pg-article-image {
+  background: #f7f2e9;
+  border-color: var(--premium-paper);
+}
+body.inner-page #main .catalog-photo,
+body.inner-page #main .pg-article-cover,
+body.inner-page #main .pg-about-intro figure,
+body.inner-page #main .st-hero-image,
+body.inner-page #main .st-process-film > figure,
+body.inner-page #main .st-gift-orbit {
+  border-color: var(--premium-paper);
+}
+
+/* The gift sits on a clean studio surface; the physical box is unchanged. */
+body.inner-page #main .gift-preview {
+  background:
+    radial-gradient(ellipse at 54% 37%, #ffffffad 0, #ffffff00 66%),
+    var(--premium-surface);
+  border-color: var(--premium-paper);
+  box-shadow: 0 24px 60px #4c21150f, 0 2px 10px #4c211508;
+}
+body.inner-page #main .gift-scene {
+  background: radial-gradient(ellipse at 50% 82%, #6d293b0c, transparent 64%);
+}
+body.inner-page #main .gift-preview > .gift-preview-summary,
+body.inner-page #main .gift-card-preview,
+body.inner-page #main .cart-page-aside,
+body.inner-page #main .checkout-summary {
+  background: var(--premium-surface);
+  border-color: var(--premium-line);
+  box-shadow: var(--ip-shadow);
+}
+body.inner-page #main .gift-size,
+body.inner-page #main .gift-product-option {
+  background: #fffdf8bf;
+  border-color: var(--premium-line);
+  box-shadow: 0 6px 20px #3d1d1606;
+}
+body.inner-page #main .gift-size.selected,
+body.inner-page #main .gift-product-option.selected,
+body.inner-page #main .gift-slot-tabs > button.active {
+  background: #f7efe3;
+  border-color: #731019;
+}
+body.inner-page #main .gift-opening-modes {
+  background: #fffdf8cc;
+  border-color: var(--premium-line);
+}
+body.inner-page #main .gift-step-actions,
+body.inner-page #main .detail-mobile-buy {
+  background: #fffdf8f2;
+}
+body.inner-page #main .form-field input,
+body.inner-page #main .form-field textarea,
+body.inner-page #main .form-field select,
+body.inner-page #main .sc-contact-form input,
+body.inner-page #main .sc-contact-form textarea,
+body.inner-page #main .sc-contact-form select,
+body.inner-page #main .pg-trace-form input,
+body.inner-page #main .st-trace-input input {
+  background: #fffdf8e6;
+  border-color: #b68d584d;
+}
+body.inner-page #main .order-demo-notice {
+  background: #fffdf8;
+  border-color: var(--premium-line);
+}
+
+/* Wine chapters retain their photographic story and gain a simpler atmosphere. */
+body.inner-page #main .pg-gift-banner,
+body.inner-page #main .st-gift-story,
+body.inner-page #main .st-gift-story-stage {
+  background: #580a11;
+}
+body.inner-page #main .pg-process-section,
+body.inner-page #main .st-process-stage {
+  background:
+    linear-gradient(110deg, #580a11ed, #580a11c4),
+    url('/assets/original/images__asin__story-smoked-meat.webp') center / cover,
+    #580a11;
+}
+body.inner-page #main .pg-process-section::before,
+body.inner-page #main .st-process-stage::before,
+body.inner-page #main .st-gift-story-stage::after,
+body.inner-page #main .pg-process-grid article::after {
+  background: none;
+}
+body.inner-page #main .pg-gift-banner::after,
+body.inner-page #main .pg-process-section::after {
+  background: linear-gradient(90deg, #38070f33, transparent);
+}
+body.inner-page #main .pg-process-grid article,
+body.inner-page #main .pg-process-grid article + article,
+body.inner-page #main .st-process-step {
+  background: #5e121bb3;
+  border-color: #b68d583b;
+  box-shadow: 0 14px 30px #23040a1a;
+}
+body.inner-page #main .st-process-step.is-current {
+  background: #79222bb3;
+  border-color: #d2b18180;
+}
+body.inner-page #main .ic-scene-dark .ic-flow-contours {
+  opacity: .035;
+}
+body.inner-page #main .ic-scene-dark .ic-flow-light {
+  background: radial-gradient(ellipse at var(--ic-glow-x, 40%) 35%, #b68d5810, transparent 65%);
+}
+body.inner-page #main .ic-scene-dark .ic-flow-bridge {
+  stroke: #d2b181;
+  opacity: .09;
+}
+body.inner-page #main .ic-photo > .ic-photo-veil {
+  background: linear-gradient(115deg, #fffdf8 35%, #eee1cc 100%);
+}
+body.inner-page #main .ic-scene-dark .ic-photo > .ic-photo-veil {
+  background: linear-gradient(115deg, #580a11 35%, #731019 100%);
+}
+
+@media (min-width: 801px) {
+  body.inner-page #main .pg-catalog-section .catalog-toolbar {
+    background: #fffdf8f0;
+    border-color: var(--premium-line);
+    box-shadow: 0 8px 24px #3d1d1607;
+  }
+}

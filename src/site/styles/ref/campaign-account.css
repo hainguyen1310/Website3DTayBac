@@ -1,0 +1,15 @@
+/* Account and demo progress remain visibly separate. */
+body.inner-page #main .cp-page [hidden]{display:none!important}
+body.inner-page #main .cp-page .cp-account-card{padding:28px;border:1px solid #bca47b66;background:#fffdf8;scroll-margin-top:120px}
+body.inner-page #main .cp-page .cp-account-card h3{margin:14px 0 12px;color:#731019;font-family:var(--serif);font-weight:400;font-size:clamp(27px,2.3vw,36px);line-height:1.12;letter-spacing:-.025em;overflow-wrap:anywhere;text-wrap:balance}
+body.inner-page #main .cp-page .cp-account-card p{font-size:13px;line-height:1.75;color:#71645a;margin:0 0 18px;max-width:none}
+body.inner-page #main .cp-page .cp-account-card .cp-account-email{margin-top:-4px;font-size:11px;overflow-wrap:anywhere;color:#947a54}
+body.inner-page #main .cp-page .cp-account-actions{display:flex;flex-direction:column;align-items:stretch;gap:15px}
+body.inner-page #main .cp-page .cp-account-actions .btn{min-height:48px;padding:14px 16px;justify-content:space-between;font-size:12px;gap:12px}
+body.inner-page #main .cp-page .cp-account-actions .text-link{align-self:flex-start;font-size:12px;line-height:1.6;text-align:left;white-space:normal;gap:12px}
+body.inner-page #main .cp-page .cp-account-actions .cp-account-admin{padding-top:15px;border-top:1px solid #bca47b55;align-self:stretch;justify-content:space-between}
+body.inner-page #main .cp-page button:disabled{cursor:wait}
+body.inner-page #main .cp-page [data-cp-board][aria-busy=true]{opacity:.65;pointer-events:none}
+@media(max-width:600px){body.inner-page #main .cp-page .cp-account-card{padding:24px}body.inner-page #main .cp-page .cp-account-card h3{font-size:30px}}
+
+body.inner-page #main .cp-page .cp-account-actions button.text-link{background:transparent;border:0;border-bottom:1px solid #bca47b66;padding:0 0 7px;box-shadow:none;color:#731019;font-family:inherit;cursor:pointer}

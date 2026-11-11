@@ -1,0 +1,312 @@
+/* A SỈN gift collection, interactive preview and atelier. */
+body.unified-site #main .ph-home.gs-home {
+  .ph-refined-gifts {
+    background: var(--heritage-cream);
+
+    .ph-gift-section-title {
+      display: grid;
+      gap: 12px;
+      margin-bottom: clamp(25px, 4.5vw, 55px);
+      text-align: start;
+
+      h2 { margin: 0; color: var(--heritage-wine); font-size: clamp(34px, 4.35vw, 66px); line-height: 1.08; text-wrap: balance; }
+      h2 em { color: var(--heritage-ink); }
+    }
+
+    .ph-collection-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--home-grid-gap, 24px);
+    }
+    .ph-gift-card {
+      grid-column: span 5;
+      grid-template: auto 1fr / minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0;
+      min-height: 0;
+      padding: 0;
+      border-radius: 4px;
+      color: var(--heritage-paper);
+      overflow: hidden;
+      isolation: isolate;
+      &::before { content: none; }
+    }
+    .ph-gift-card.ph-gift-green {
+      grid-column: span 7;
+      background: #303d2f;
+    }
+    .ph-gift-card.ph-gift-wine { background: var(--heritage-wine); }
+
+    .ph-gift-card .ph-gift-card-art {
+      display: grid;
+      place-items: center;
+      align-self: start;
+      width: 100%;
+      height: clamp(230px, 31vw, 420px);
+      min-height: 0;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 0;
+      mask-image: none;
+      aspect-ratio: auto;
+      background: radial-gradient(ellipse at 49% 48%, var(--heritage-forest), #303d2f 78%);
+    }
+    .ph-gift-card .ph-gift-card-art img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      margin: 0;
+      object-fit: contain;
+    }
+    .ph-gift-green .ph-gift-card-art img {
+      inset: 50% auto auto 50%;
+      width: 122%;
+      height: 122%;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 16px 13px #10160f80);
+    }
+    .ph-gift-wine .ph-gift-card-art img { object-fit: cover; object-position: center 48%; }
+
+    .ph-gift-card-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      min-height: 0;
+      padding: clamp(20px, 3vw, 36px);
+      border-top: 1px solid #ead7ae3d;
+    }
+    .ph-gift-card-copy :is(h3, p) { color: var(--heritage-paper); }
+    .ph-gift-card-copy h3 { margin: 6px 0 8px; font-size: clamp(35px, 3.4vw, 53px); line-height: 1.05; }
+    .ph-gift-card-copy .ph-gift-description { max-width: 43ch; margin: 0 0 17px; font-size: 15px; line-height: 1.62; }
+    .ph-gift-card-copy .ph-gift-spec {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+      margin: 0;
+      color: #ecd8b2;
+      font-size: 12px;
+      letter-spacing: .05em;
+    }
+    .ph-gift-spec span + span { border-inline-start: 1px solid #ead7ae65; padding-inline-start: 14px; }
+    .ph-gift-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-top: auto; }
+    .ph-gift-actions .ph-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-color: #f3d2a285;
+      border-radius: 3px;
+      color: var(--heritage-paper);
+      background: transparent;
+      &:hover { background: #fff8e623; }
+    }
+    .ph-gift-showroom-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 44px;
+      color: var(--heritage-paper);
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: #e5cfa36f;
+    }
+    .ph-gift-showroom-link svg { width: 16px; height: 16px; }
+    .ph-gift-actions a:focus-visible { outline: 2px solid #fff6e7; outline-offset: 3px; }
+  }
+
+  .ph-refined-gift-experience {
+    background: #ebe4da;
+    border-block: 1px solid #e3d7c8;
+    .ph-preview-layout {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--home-grid-gap, 24px);
+      align-items: center;
+      height: auto;
+    }
+    .ph-preview-copy { grid-column: span 4; padding-inline-end: clamp(8px, 3vw, 45px); }
+    .ph-preview-copy .ph-eyebrow { margin-bottom: 15px; }
+    .ph-preview-copy h2 { max-width: 10ch; font-size: clamp(36px, 4.45vw, 64px); line-height: 1.04; text-wrap: balance; }
+    .ph-preview-copy h2 > span { white-space: nowrap; }
+    .ph-preview-copy > p { max-width: 37ch; margin-top: 13px !important; font-size: 15px !important; line-height: 1.65; }
+    .ph-preview-copy .ph-preview-guide { border-block-start: 1px solid #b4a08a6b; padding-block-start: 13px; }
+    .ph-preview-layout .pgp-module {
+      display: block;
+      grid-column: span 8;
+      min-width: 0;
+      max-width: none;
+      justify-self: stretch;
+      border: 1px solid #bcae9b;
+      border-radius: 5px;
+      background: #fcf8f0;
+      box-shadow: 0 20px 52px #49312612;
+    }
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body.unified-site:not(.motion-paused) #main .ph-home.gs-home .ph-refined-gifts .ph-gift-card {
+    .ph-gift-card-art img { transition: scale 420ms var(--heritage-ease, ease-out); }
+    &:is(:hover, :focus-within) .ph-gift-card-art img { scale: 1.035; }
+  }
+}
+
+/* The archived large 3D asset has a green finish. The red card represents the product collection. */
+body.unified-site #main .pgp-module[data-size="large"] { --pgp-box: #254834; --pgp-box-side: #193426; }
+body.unified-site #main .ph-refined-gift-experience .pgp-module {
+  --pgp-w: clamp(284px, 32vw, 375px);
+  --pgp-d: clamp(191px, 21vw, 250px);
+  --pgp-h: 59px;
+  overflow: clip;
+
+  &[data-size="large"] { --pgp-w: clamp(300px, 34vw, 400px); --pgp-d: clamp(198px, 22vw, 266px); --pgp-h: 65px; }
+  &[data-open="true"] .pgp-model { top: 70%; }
+  .pgp-stage {
+    height: clamp(350px, 39vw, 510px);
+    background: radial-gradient(ellipse at 50% 52%, #faf5ea 8%, #e9e1d4 72%, #ded4c6 100%);
+  }
+  .pgp-mesh { position: absolute; inset: 14px 0 31px; display: block; width: 100%; height: calc(100% - 45px); visibility: hidden; pointer-events: none; }
+  &[data-view="mesh"] .pgp-mesh-ready {
+    .pgp-mesh { visibility: visible; }
+    .pgp-model { visibility: hidden; }
+    .gift-art-status { display: none; }
+  }
+  .pgp-toolbar { padding: 9px clamp(10px, 2vw, 20px); }
+  .pgp-toolbar button {
+    min-height: 44px; color: var(--heritage-ink); font-size: 14px;
+    border-radius: 3px;
+  }
+  .pgp-toolbar [data-pgp-size="large"][aria-pressed="true"] { color: var(--heritage-wine); border-color: var(--heritage-wine); background: #681e280d; }
+  .pgp-toolbar [data-pgp-size="small"][aria-pressed="true"] { color: var(--heritage-ink); border-color: var(--heritage-forest); background: #56614c17; }
+  .pgp-stage-label, .pgp-stage-footnote { color: var(--heritage-ink); z-index: 1; pointer-events: none; }
+  .pgp-stage-label { font-size: 10px; }
+  .pgp-stage-footnote { bottom: 11px; font-size: 12px; }
+  .pgp-inner-grid > div { padding: 0; overflow: hidden; border: 2px solid #b7935c; }
+  .pgp-inner-grid > div img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  &[data-size="large"] .pgp-inner-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pgp-controls { align-items: end; gap: 12px 20px; padding: 12px clamp(12px, 2vw, 22px); }
+  .pgp-rotation > span { margin-bottom: 0; font-size: 13px; }
+  .pgp-rotation input { height: 44px; margin: 0; }
+  .pgp-stage-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pgp-stage-actions button {
+    min-height: 44px;
+    border: 1px solid #a78c676f;
+    border-radius: 3px;
+    padding: 7px 10px;
+    font: 500 12px/1.35 var(--sans, sans-serif);
+    background: transparent;
+    color: var(--heritage-ink);
+    cursor: pointer;
+  }
+  .pgp-stage-actions button:hover { background: var(--heritage-cream); }
+  .pgp-stage-actions .pgp-open { margin: 0; background: var(--heritage-wine); color: var(--heritage-paper); border-color: var(--heritage-wine); }
+  .pgp-stage-actions .pgp-open:hover { background: #552029; }
+  .pgp-stage-actions .pgp-open svg { width: 17px; height: 17px; }
+  .pgp-model-note { font-size: 12px !important; color: var(--heritage-ink) !important; }
+  .pgp-personalize summary { min-height: 44px; padding-block: 10px; font-size: 14px; }
+  .pgp-form :is(input, textarea) { min-height: 44px; border-radius: 3px; font-size: 16px; }
+  .pgp-build { min-height: 48px; font-size: 14px; }
+}
+
+body.unified-site #main :is(.pgp-lid-face, .gift-lid-face) .gift-design-art {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 1; stroke: none; pointer-events: none;
+}
+.pgp-face-art { position: absolute; inset: 0; }
+.gift-art-status { display: none; position: absolute; z-index: 2; top: 12px; right: 12px; max-width: 60%; padding: 5px 8px; border-radius: 4px; color: #fff3dc; background: #493329; font: 500 11px/1.4 var(--sans); pointer-events: none; }
+.gift-art-loading .gift-art-status, .gift-art-unavailable .gift-art-status { display: block; }
+.gift-art-loading .gift-art-status::before { content: "Đang tải bề mặt 3D…"; }
+.gift-art-unavailable .gift-art-status::before { content: "Chưa tải được bề mặt 3D"; }
+
+body.unified-site.inner-page #main .gift-page.gift-atelier {
+  padding-bottom: clamp(28px, 6vw, 80px);
+
+  .gift-atelier-header {
+    display: block; min-height: 0; margin: 0; padding: clamp(19px, 4vw, 47px) 0;
+    background: var(--heritage-paper); border-bottom: 1px solid var(--heritage-line); border-radius: 0;
+    &::before, &::after { display: none; }
+    .gift-hero-inner { display: flex; align-items: end; justify-content: space-between; gap: 16px; width: min(var(--heritage-width), calc(100% - 2 * var(--heritage-gutter))); }
+    :is(.eyebrow, .display, p) { margin: 0; }
+    .display { margin-block: 7px 8px; max-width: none; font-size: clamp(32px, 5.5vw, 65px); line-height: 1.06; text-wrap: balance; }
+    .display em { color: var(--heritage-forest); }
+    p { color: var(--heritage-ink); font-size: 14px; line-height: 1.5; }
+    .gift-hero-cta { flex: none; }
+  }
+  .gift-builder { width: min(var(--heritage-width), calc(100% - 2 * var(--heritage-gutter))); gap: clamp(21px, 4vw, 57px); padding-top: clamp(20px, 3vw, 43px); }
+  .gift-preview { grid-column: 2; grid-row: 1; position: relative; top: auto; padding: clamp(11px, 2vw, 22px); transform: none; }
+  .gift-config { grid-column: 1; grid-row: 1; min-width: 0; scroll-margin-top: 90px; }
+  .gift-preview-top > .eyebrow { color: var(--heritage-ink); font-size: 11px; }
+  .gift-preview :is(.gift-view-toggle, .gift-open-button, .gift-opening-modes button, .gift-opening-scrub input, .gift-box-controls .icon-button) { min-height: 44px; }
+  .gift-preview .gift-box-controls .icon-button { min-width: 44px; }
+  .gift-preview .gift-drag-hint { color: var(--heritage-ink); font-size: 11px; }
+  .gift-preview-summary { padding: 12px 0 0; }
+  .gift-preview-caption[hidden] { display: none; }
+  .gift-preview-contents { margin-top: 8px; }
+  .gift-preview-contents summary { min-height: 44px; padding: 12px 4px; font-size: 13px; cursor: pointer; }
+  .gift-price-total { margin-top: 10px; padding-top: 10px; }
+  .gift-size[data-gift-size="small"].selected { border-color: var(--heritage-forest); background: #2548340d; }
+  .gift-size[data-gift-size="small"].selected .size-radio { background: var(--heritage-forest); }
+  .gift-scene.gift-large { --box-color: var(--heritage-forest); --box-edge: #152f23; }
+  .gift-scene .gift-3d { --box-color: #254834 !important; }
+  .gift-scene .box-fixed { overflow: hidden; }
+  .gift-scene .box-fixed img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .gift-scene .box-slot > svg { color: #eed6ad; }
+  .gift-scene:not(.gift-flat) { height: clamp(280px, 42vw, 355px); }
+  .gift-config :is(.gift-steps button, .gift-step-actions > button, .gift-slot-tabs > button) { min-height: 44px; }
+  .gift-config :is(input, textarea) { font-size: 16px; }
+  .gift-size .size-content > small { font-size: 11px; }
+  .gift-size .size-price { white-space: nowrap; }
+}
+
+@media (min-width: 1060px) and (min-height: 890px) {
+  body.unified-site.inner-page #main .gift-page.gift-atelier .gift-preview { position: sticky; top: 90px; }
+}
+@media (max-width: 800px) {
+  body.unified-site #main .ph-home.gs-home {
+    .ph-refined-gifts .ph-gift-card:is(.ph-gift-green, .ph-gift-wine) { grid-column: span 6; }
+    .ph-refined-gift-experience .ph-preview-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 22px;
+      > :is(.ph-preview-copy, .pgp-module) { grid-column: 1; }
+      .ph-preview-copy { padding-inline-end: 0; }
+      .ph-preview-copy h2 { max-width: none; }
+    }
+  }
+  body.unified-site.inner-page #main .gift-page.gift-atelier {
+    .gift-atelier-header .gift-hero-inner { display: grid; align-items: start; gap: 12px; }
+    .gift-builder { grid-template-columns: minmax(0, 1fr); }
+    .gift-preview, .gift-config { grid-column: 1; grid-row: auto; }
+    .gift-config { width: min(100%, 620px); margin-inline: auto; }
+    .gift-scene { --gift-scale: .76; }
+  }
+}
+@media (max-width: 640px) {
+  body.unified-site #main .ph-home.gs-home .ph-refined-gifts {
+    .ph-collection-grid { grid-template-columns: minmax(0, 1fr); }
+    .ph-gift-card:is(.ph-gift-green, .ph-gift-wine) { grid-column: 1; }
+    .ph-gift-card .ph-gift-card-art { height: clamp(215px, 69vw, 335px); }
+  }
+  body.unified-site #main .ph-refined-gift-experience .pgp-module {
+    .pgp-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  }
+}
+@media (max-width: 480px) {
+  body.unified-site #main .ph-refined-gift-experience .pgp-module {
+    --pgp-w: clamp(204px, 63vw, 300px);
+    --pgp-d: clamp(137px, 42vw, 204px);
+    --pgp-h: 47px;
+    &[data-size="large"] { --pgp-w: clamp(218px, 66vw, 320px); --pgp-d: clamp(145px, 44vw, 214px); --pgp-h: 52px; }
+    &[data-open="true"] .pgp-model { top: 72%; }
+    .pgp-stage { height: clamp(300px, 80vw, 380px); }
+    .pgp-stage-label { top: 11px; }
+  }
+  body.unified-site.inner-page #main .gift-page.gift-atelier {
+    .gift-scene { --gift-scale: .71; }
+    .gift-scene:not(.gift-flat) { height: 266px; }
+    .gift-size { gap: 8px; }
+    .gift-size .size-price { font-size: clamp(16px, 5vw, 23px); }
+  }
+}
+@media (max-width: 365px) {
+  body.unified-site.inner-page #main .gift-page.gift-atelier .gift-scene { --gift-scale: .66; }
+}

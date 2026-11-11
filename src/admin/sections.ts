@@ -4,6 +4,7 @@ export type AdminSection =
   | "products"
   | "customers"
   | "promotions"
+  | "campaign"
   | "content"
   | "messages"
   | "reports"

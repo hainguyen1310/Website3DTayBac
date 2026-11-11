@@ -1,0 +1,68 @@
+/* Mountains overlap the chapter edge; terrace lines continue onto its surface. */
+.rh-boundary {
+  --rh-drift: 0px;
+  --rh-ground: var(--heritage-cream);
+  --rh-height: clamp(36px, 4.2vw, 66px);
+  position: relative;
+  z-index: 3;
+  height: 0;
+  pointer-events: none;
+}
+
+.rh-boundary[data-tone="paper"] { --rh-ground: var(--heritage-paper); }
+.rh-boundary--terrace { --rh-height: clamp(27px, 3vw, 48px); }
+
+.rh-boundary svg,
+.rh-boundary .rh-mist {
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: var(--rh-height);
+  display: block;
+  overflow: hidden;
+}
+
+.rh-boundary .rh-ground { fill: var(--rh-ground); }
+.rh-boundary .rh-ridge-far { fill: #a29778; opacity: .17; translate: 0 calc(var(--rh-drift) * -.55); }
+.rh-boundary .rh-ridge-near { fill: var(--heritage-forest); opacity: .2; translate: 0 calc(var(--rh-drift) * .68); }
+
+.rh-boundary .rh-mist {
+  opacity: .55;
+  background: radial-gradient(ellipse 31% 30% at 30% 66%, #fff9ecb0, transparent),
+    radial-gradient(ellipse 35% 27% at 76% 51%, #fff9ec9e, transparent);
+  translate: 0 var(--rh-drift);
+}
+
+.rh-boundary .rh-contours path {
+  fill: none;
+  stroke: var(--heritage-gold);
+  stroke-width: .85;
+  vector-effect: non-scaling-stroke;
+  opacity: .63;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.rh-boundary .rh-contours path:nth-child(2) { opacity: .43; }
+.rh-boundary .rh-contours path:nth-child(3) { opacity: .29; }
+.rh-boundary .rh-contours path:nth-child(4) { opacity: .18; }
+
+body.unified-site #main [data-heritage-lead] { border-bottom-width: 0; }
+body.unified-site #main [data-heritage-chapter] { border-top-width: 0; }
+body.unified-site #main .ph-home.gs-home > :is(.ph-products, .ph-preview, .ph-story, .ph-news)::before { content: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.motion-paused) .rh-boundary.is-visible .rh-contours path {
+    animation: rh-trace 660ms var(--heritage-ease) backwards;
+    animation-delay: calc(var(--rh-line-order) * 45ms);
+  }
+}
+
+@keyframes rh-trace {
+  from { stroke-dashoffset: .92; opacity: 0; }
+}
+
+body.motion-paused .rh-boundary :is(.rh-ridge-far, .rh-ridge-near, .rh-mist) { translate: none; }
+@media (prefers-reduced-motion: reduce) {
+  .rh-boundary :is(.rh-ridge-far, .rh-ridge-near, .rh-mist) { translate: none; }
+}

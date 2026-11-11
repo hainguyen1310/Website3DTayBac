@@ -1,0 +1,86 @@
+/* One paper field, framed chapters, and the same engraved mountain vocabulary. */
+body:not(.inner-page) #main .sc-home .lh-sections{
+  position:relative;isolation:isolate;background:var(--home-ivory) none repeat;
+}
+body:not(.inner-page) #main .sc-home .lh-sections::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:none left -170px top 190px/660px 460px repeat-y,
+    none right -210px top 580px/720px 560px repeat-y;
+  opacity:.5;mask-image:linear-gradient(90deg,#000,transparent 16%,transparent 84%,#000);
+}
+body:not(.inner-page) #main .sc-home .lh-sections>section{position:relative;z-index:1}
+body:not(.inner-page) #main .sc-home .lh-sections>:is(.lh-shop,.lh-taste,.lh-values,.lh-journey,.hf-faq){background:transparent}
+/* Information belongs to the same light chapter as the products and tasting. */
+body:not(.inner-page) #main .sc-home .lh-sections>.lh-values{
+  --home-fg:var(--home-forest);--home-muted:#455d50;--home-accent:var(--home-wine);
+  --home-line:#17392c30;--lh-line:var(--home-line);color:var(--home-fg);
+  border-top:1px solid var(--home-line);
+}
+body:not(.inner-page) #main .sc-home .lh-values .text-link:hover,
+body:not(.inner-page) #main .sc-home .lh-values .lh-value:hover h3{color:var(--home-wine)}
+body:not(.inner-page) #main .sc-home .lh-values .lh-values-heading::after{
+  content:'';display:block;pointer-events:none;width:min(100%,350px);height:150px;margin-top:24px;
+  background:none center/contain no-repeat;opacity:.8;
+}
+/* Narrow woven marks distinguish chapters without filling the reading surface. */
+body:not(.inner-page) #main .sc-home :is(.lh-shop,.lh-taste,.lh-values,.lh-journey,.hf-faq)::after{
+  content:'';position:absolute;right:var(--gutter,54px);top:13px;width:154px;height:21px;
+  background:none center/21px 21px repeat-x;
+  opacity:.85;pointer-events:none;
+}
+body:not(.inner-page) #main .sc-home .lh-shop::after{top:auto;bottom:12px}
+body:not(.inner-page) #main .sc-home .lh-kicker>i{
+  position:relative;display:inline-grid;place-items:center;flex:0 0 29px;width:29px;height:29px;
+  padding:0;border:0;font-size:9px;letter-spacing:0;color:var(--home-accent);
+}
+body:not(.inner-page) #main .sc-home .lh-kicker>i::before{
+  content:'';position:absolute;inset:4px;border:1px solid currentColor;rotate:45deg;opacity:.45;pointer-events:none;
+}
+body:not(.inner-page) #main .sc-home :is(.lh-shop .product-visual,.lh-compare,.lh-journey-image){
+  outline:1px solid #a18a6459;outline-offset:6px;box-shadow:0 14px 30px #17392c0c;
+}
+/* The sticky stage keeps its exact size. Only its painted backdrop becomes inset. */
+body:not(.inner-page) #main .sc-home :is(.ub-story,.ub-stage,.lh-closing){background:transparent}
+body:not(.inner-page) #main .sc-home :is(.ub-stage,.lh-closing){isolation:isolate}
+body:not(.inner-page) #main .sc-home :is(.ub-stage,.lh-closing)::before{
+  content:'';display:block;position:absolute;inset:8px clamp(16px,2vw,32px);z-index:-1;pointer-events:none;
+  background:var(--home-wine);border:1px solid #a18a6470;box-shadow:0 14px 35px #17392c12;
+}
+body:not(.inner-page) #main .sc-home :is(.ub-stage,.lh-closing)::after{
+  content:'';position:absolute;inset:24px clamp(32px,3.3vw,52px);z-index:0;pointer-events:none;
+  border-block:1px solid #a18a644d;
+  background:none right bottom/680px 305px no-repeat;
+  opacity:.3;
+}
+body:not(.inner-page) #main .sc-home .ub-inner,
+body:not(.inner-page) #main .sc-home .lh-closing>.wrap{position:relative;z-index:1}
+body:not(.inner-page) #main .sc-home .ub-topline{border-color:transparent}
+body:not(.inner-page) #main .sc-home .ub-dock{box-shadow:0 0 0 6px var(--home-wine)}
+/* The forest opening and closing repeat the same fine engraving. */
+body:not(.inner-page) #main .sc-home .sc-hero-stage::before{
+  content:'';position:absolute;z-index:-1;left:-110px;bottom:-34px;width:540px;height:180px;
+  background:none center/contain no-repeat;opacity:.23;pointer-events:none;
+}
+body:not(.inner-page) #site-footer .site-footer{position:relative;isolation:isolate}
+body:not(.inner-page) #site-footer .site-footer::before{
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:none right -100px bottom -40px/760px 340px no-repeat;opacity:.27;
+}
+body:not(.inner-page) #site-footer .site-newsletter{
+  background:var(--home-ivory) none right 24px center/28px 28px repeat-y;
+}
+@media(max-width:960px){
+  body:not(.inner-page) #main .sc-home .lh-values .lh-values-heading::after{display:none}
+  body:not(.inner-page) #main .sc-home .lh-sections::before{opacity:.35;mask-image:linear-gradient(90deg,#000,transparent 10%,transparent 90%,#000)}
+  body:not(.inner-page) #main .sc-home :is(.lh-shop .product-visual,.lh-compare,.lh-journey-image){outline-offset:4px}
+  body:not(.inner-page) #main .sc-home :is(.lh-shop,.lh-taste,.lh-values,.lh-journey,.hf-faq)::after{width:112px;height:16px;background-size:16px 16px;top:8px}
+  body:not(.inner-page) #main .sc-home .lh-shop::after{top:auto;bottom:8px}
+}
+@media(max-width:800px){
+  body:not(.inner-page) #main .sc-home :is(.ub-stage,.lh-closing)::before{inset:6px 8px}
+  body:not(.inner-page) #main .sc-home :is(.ub-stage,.lh-closing)::after{inset:17px 18px;background-size:440px 220px}
+  body:not(.inner-page) #main .sc-home .sc-hero-stage::before{left:-70px;width:390px;height:150px;opacity:.17}
+  body:not(.inner-page) #site-footer .site-newsletter{background-position:right 8px center;background-size:14px 14px}
+}
+
+body:not(.inner-page) #main .sc-home .lh-values .hf-proof-link:focus-visible{outline-color:var(--home-wine)}

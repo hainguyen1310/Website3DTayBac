@@ -1,0 +1,203 @@
+/* One premium palette, with the builder and purchase controls kept steady. */
+body.inner-page #main :is(.gift-page,.detail-section,.detail-description,.commerce-page,.order-success){--brand:#6C202B;--ink:#493329;--cream:#F4EBDD;--muted:#756351;--line:#C6A16455;--ember:#C6A164;color:#493329}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success){background:#F4EBDD none repeat}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) :is(h1,h2,h3){color:#6C202B;letter-spacing:-.025em;text-wrap:balance}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) p{text-wrap:pretty;color:#756351}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) .btn{min-height:44px;border-radius:6px;padding:11px 19px;font-size:12px;line-height:1.6;gap:16px}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) .btn.dark{background:#6C202B;color:#F4EBDD;border:1px solid #6C202B;box-shadow:0 5px 16px #4933290D}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) .btn.outline{background:transparent;color:#6C202B;border:1px solid #C6A16499;box-shadow:none}
+body.inner-page #main :is(.gift-page,.detail-section,.commerce-page,.order-success) :is(button,a,input,textarea,select):focus-visible{outline:2px solid #C6A164;outline-offset:4px}
+body.inner-page #main .gift-page{padding:0 0 70px;overflow:clip}
+body.inner-page #main .gift-page::before{display:none}
+/* The photograph fills the opening scene. Frost stays beside the words only. */
+body.inner-page #main .gift-page .gift-page-header{position:relative;display:flex;align-items:center;justify-content:flex-start;isolation:isolate;min-height:clamp(460px,44vw,710px);padding:36px 0 48px;gap:0;overflow:hidden;background:#F4EBDD}
+body.inner-page #main .gift-page .gift-hero-image{position:absolute;inset:0 0 0 auto;z-index:-2;width:64%;height:100%;max-width:none;object-fit:cover;object-position:center 78%;mask-image:linear-gradient(90deg,transparent,#000 24%);filter:none}
+body.inner-page #main .gift-page .gift-page-header::before{content:"";position:absolute;inset:-18px;z-index:-3;background:linear-gradient(90deg,#F4EBDD 0%,#F4EBDDEF 28%,#F4EBDDAB 47%,transparent 72%),url("/assets/original/asin-sinh-loc-poster-v38.webp") center 75%/cover no-repeat;filter:blur(15px);pointer-events:none}
+body.inner-page #main .gift-page .gift-page-header::after{content:"";position:absolute;inset:auto 0 -1px;z-index:2;height:42px;background:#F4EBDD;clip-path:polygon(0 62%,11% 80%,24% 72%,39% 88%,52% 64%,68% 80%,83% 61%,100% 76%,100% 100%,0 100%);pointer-events:none}
+body.inner-page #main .gift-page .gift-hero-inner{width:min(1320px,calc(100% - 100px));position:relative;z-index:1}
+body.inner-page #main .gift-page .gift-page-header .uh-hero-copy{position:relative;width:min(48%,590px);padding:26px 0;isolation:isolate}
+body.inner-page #main .gift-page .gift-page-header .uh-hero-copy::before{content:"";position:absolute;inset:-35px -40px -35px -100px;z-index:-1;backdrop-filter:blur(9px);background:linear-gradient(90deg,#F4EBDD77,#F4EBDD00);mask-image:linear-gradient(90deg,#000 0%,#000 65%,transparent 100%);pointer-events:none}
+body.inner-page #main .gift-page .gift-page-header .eyebrow{display:block;font-size:10px;letter-spacing:.12em;color:#6C202B;margin:0 0 16px}
+body.inner-page #main .gift-page .gift-page-header .display{font-size:clamp(45px,4.1vw,62px);line-height:1.08;margin:0 0 20px;color:#6C202B;max-width:600px}
+body.inner-page #main .gift-page .gift-page-header p{font-size:14px;line-height:1.85;max-width:390px;margin:0 0 23px;color:#493329}
+body.inner-page #main .gift-page .gift-hero-cta{width:fit-content;display:inline-flex;align-items:center;justify-content:space-between}
+body.inner-page #main .gift-page .gift-builder{width:min(1320px,calc(100% - 100px));padding-top:38px;gap:clamp(28px,4.2vw,60px);grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:0;scroll-margin-top:104px;align-items:start}
+body.inner-page #main .gift-page .gift-config{padding:12px 0 0;scroll-margin-top:100px}
+body.inner-page #main .gift-page .gift-steps{padding-bottom:22px;margin-bottom:29px;border-color:#C6A16466;gap:12px}
+body.inner-page #main .gift-page .gift-steps button{font-size:12px;color:#756351;line-height:1.5}
+body.inner-page #main .gift-page .gift-steps button>span{border-color:#C6A16488;color:#6C202B}
+body.inner-page #main .gift-page .gift-steps .active{color:#6C202B}
+body.inner-page #main .gift-page .gift-steps .active>span{background:#6C202B;color:#F4EBDD;border-color:#6C202B}
+body.inner-page #main .gift-page .gift-steps .completed>span{color:#254834;border-color:#C6A164}
+body.inner-page #main .gift-page .gift-step-content>h2{font-size:clamp(34px,3.05vw,44px);line-height:1.14;color:#6C202B;margin:17px 0 16px}
+body.inner-page #main .gift-page .gift-step-intro{font-size:13px;line-height:1.8;color:#756351;max-width:48ch;margin-bottom:24px}
+body.inner-page #main .gift-page :is(.gift-size,.gift-product-option){border:1px solid #C6A16466;border-radius:10px;background:#F8F1E6;box-shadow:0 6px 18px #49332905;color:#493329}
+body.inner-page #main .gift-page :is(.gift-size.selected,.gift-product-option.selected){border-color:#6C202B;background:#F3E5D1;box-shadow:0 0 0 1px #6C202B18}
+body.inner-page #main .gift-page .size-content>strong{font-size:29px;color:#6C202B}
+body.inner-page #main .gift-page .size-price{font-size:26px;color:#6C202B}
+body.inner-page #main .gift-page .size-content>small{font-size:11px;color:#756351}
+body.inner-page #main .gift-page .size-radio{border-color:#C6A164}
+body.inner-page #main .gift-page .selected .size-radio{background:#6C202B;box-shadow:inset 0 0 0 3px #F4EBDD}
+body.inner-page #main .gift-page .gift-slot-tabs>button{border-color:#C6A16466;border-radius:6px;color:#756351}
+body.inner-page #main .gift-page .gift-slot-tabs>button.active{border-color:#6C202B;color:#6C202B;background:#F3E5D1}
+body.inner-page #main .gift-page .gift-product-option strong{font-size:24px;color:#6C202B;line-height:1.2}
+body.inner-page #main .gift-page .gift-product-option small{font-size:11px}
+body.inner-page #main .gift-page .gift-step-actions{padding-top:20px;margin-top:27px;border-color:#C6A16466;background:#F4EBDD}
+body.inner-page #main .gift-page :is(.commerce-text-link,.gift-open-button){color:#6C202B;border-color:#C6A16488}
+body.inner-page #main .gift-page .gift-preview{top:98px;padding:23px 25px;background:#F8F1E6;border:1px solid #C6A16477;border-radius:18px;box-shadow:0 16px 35px #4933290D;overflow:hidden}
+body.inner-page #main .gift-page .gift-preview::after{content:none}
+body.inner-page #main .gift-page .gift-preview-top>.eyebrow{color:#8D6C3B;font-size:9px;letter-spacing:.12em}
+body.inner-page #main .gift-page .gift-scene{background:radial-gradient(ellipse at 50% 81%,#25483412,transparent 68%)}
+body.inner-page #main .gift-page .gift-3d{--box-color:#254834!important}
+body.inner-page #main .gift-page .gift-large .gift-3d{--box-color:#6C202B!important}
+body.inner-page #main .gift-page .gift-preview-summary{background:transparent;border-color:#C6A16466;box-shadow:none;padding-top:20px}
+body.inner-page #main .gift-page .gift-summary-title h3{color:#6C202B;font-size:31px}
+body.inner-page #main .gift-page .gift-selection-list{gap:9px}
+body.inner-page #main .gift-page .gift-selection-list>div{font-size:11px;gap:16px}
+body.inner-page #main .gift-page .gift-selection-list strong{color:#493329;font-weight:500}
+body.inner-page #main .gift-page .gift-price-total{border-color:#C6A16466;padding-top:18px;margin-top:18px}
+body.inner-page #main .gift-page .gift-price-total strong{color:#6C202B;font-size:31px}
+body.inner-page #main .gift-page :is(.gift-price-note,.gift-preview-caption,.gift-drag-hint){font-size:10px;line-height:1.75;color:#756351}
+body.inner-page #main .gift-page .gift-opening-modes{background:#F4EBDD;border:1px solid #C6A16455;border-radius:7px}
+body.inner-page #main .gift-page .gift-opening-modes button{color:#756351;font-size:10px;line-height:1.5;min-height:35px}
+body.inner-page #main .gift-page .gift-opening-modes button[aria-checked=true]{background:#254834;color:#F4EBDD}
+body.inner-page #main .gift-page :is(.gift-opening-scrub input,.gift-opening-scrub){accent-color:#6C202B}
+body.inner-page #main .gift-page .gift-card-preview{background:#F4EBDD none center bottom/cover no-repeat;border:1px solid #C6A16488;border-radius:10px;color:#6C202B;box-shadow:0 10px 25px #49332908}
+body.inner-page #main .gift-page .gift-card-preview p{color:#6C202B}
+body.inner-page #main .gift-page .gift-card-preview blockquote{color:#6C202B;font-size:28px;line-height:1.45}
+body.inner-page #main :is(.gift-page,.commerce-page) .form-field :is(input,textarea,select){background:#FAF4E9;border:1px solid #C6A16477;color:#493329;border-radius:6px;font-size:14px}
+/* Product photography and buying controls retain their familiar e-commerce layout. */
+body.inner-page #main .detail-section{padding:30px 0 55px}
+body.inner-page #main .detail-section>.wrap{width:min(1320px,calc(100% - 100px))}
+body.inner-page #main .detail-section .pg-crumb{margin-bottom:26px;color:#8B7354;font-size:10px}
+body.inner-page #main .detail-section .detail-main{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(30px,4vw,58px);align-items:start}
+body.inner-page #main .detail-section .detail-gallery{top:100px}
+body.inner-page #main .detail-section .detail-main-image{border:1px solid #C6A16455;background:#F8F1E6;border-radius:16px;box-shadow:0 12px 28px #4933290D;overflow:hidden;aspect-ratio:1.1}
+body.inner-page #main .detail-section .detail-main-image>img{transform:none;object-fit:contain}
+body.inner-page #main .detail-section .detail-thumbnails{gap:10px;margin-top:13px}
+body.inner-page #main .detail-section .detail-thumbnails button{border:1px solid #C6A16466;border-radius:7px;background:#F8F1E6;overflow:hidden}
+body.inner-page #main .detail-section .detail-thumbnails button[aria-pressed=true]{border-color:#6C202B;box-shadow:0 0 0 1px #6C202B22}
+body.inner-page #main .detail-section .detail-info{padding:10px 0;background:transparent}
+body.inner-page #main .detail-section .detail-info h1{font-size:clamp(38px,3.8vw,57px);line-height:1.08;margin:17px 0 18px;color:#6C202B;max-width:600px}
+body.inner-page #main .detail-section .detail-subtitle{color:#756351;font-size:14px;line-height:1.8;max-width:47ch}
+body.inner-page #main .detail-section .detail-price{color:#6C202B;font-size:31px;margin-block:22px 17px}
+body.inner-page #main .detail-section .detail-price>span{color:#756351;font-size:13px}
+body.inner-page #main .detail-section .detail-stock{color:#254834}
+body.inner-page #main .detail-section .detail-stock>span{background:#254834}
+body.inner-page #main .detail-section .detail-quantity{border-color:#C6A16488;border-radius:6px;overflow:hidden;color:#6C202B}
+body.inner-page #main .detail-section .detail-gift-link{color:#6C202B;border-color:#C6A16466;font-size:13px;line-height:1.7}
+body.inner-page #main .detail-section .detail-assurances{border-color:#C6A16466;gap:15px}
+body.inner-page #main .detail-section .detail-assurances svg{color:#A8834C}
+body.inner-page #main .detail-section .detail-assurances span{color:#756351;font-size:11px}
+body.inner-page #main .detail-description{padding:45px 0;background:#F8F1E6;border-block:1px solid #C6A16444}
+body.inner-page #main .detail-description .detail-tab-panel{background:#FBF5EA;border:1px solid #C6A16455;border-radius:12px;box-shadow:none;color:#493329}
+body.inner-page #main .detail-description .detail-tab-panel h3{color:#6C202B;line-height:1.15}
+body.inner-page #main .detail-description .detail-tab-panel p{color:#756351;line-height:1.85}
+body.inner-page #main .detail-description .detail-tab-nav{background:transparent;box-shadow:none}
+body.inner-page #main .detail-description .detail-tab-nav button{color:#756351;border-color:#C6A16466}
+body.inner-page #main .detail-description .detail-tab-nav button[aria-selected=true]{color:#6C202B;border-color:#6C202B}
+body.inner-page #main .detail-mobile-buy{background:#F4EBDDF5;border-color:#C6A16488;backdrop-filter:blur(12px);color:#6C202B}
+/* Cart and checkout remain compact so the next buying step stays easy to find. */
+body.inner-page #main .commerce-page{width:min(1320px,calc(100% - 100px));padding:48px 0 65px;background:transparent}
+body.inner-page #main .commerce-page .commerce-title{padding-bottom:30px}
+body.inner-page #main .commerce-page .commerce-title .display{color:#6C202B;font-size:clamp(42px,4.5vw,64px);line-height:1.13;letter-spacing:-.025em}
+body.inner-page #main .commerce-page :is(.cart-page-aside,.checkout-summary,.cj-handoff,.cj-demo){background:#F8F1E6;border:1px solid #C6A16466;border-radius:12px;box-shadow:0 9px 25px #49332908}
+body.inner-page #main .commerce-page :is(.cart-page-aside,.checkout-summary){padding:28px}
+body.inner-page #main .commerce-page :is(.cart-page-aside h2,.cart-total-row>strong,.checkout-item strong,.checkout-item>span,.cj-handoff h2){color:#6C202B}
+body.inner-page #main .commerce-page :is(.cart-line,.cart-total-row,.checkout-item,.checkout-method,.checkout-assurance,.cj-steps){border-color:#C6A16466}
+body.inner-page #main .commerce-page .cart-line-top>a{color:#6C202B;line-height:1.2}
+body.inner-page #main .commerce-page .cart-line-image{border-radius:8px;background:#F4EBDD;overflow:hidden}
+body.inner-page #main .commerce-page .cart-line-bottom strong{color:#6C202B}
+body.inner-page #main .commerce-page .cart-empty{min-height:340px;padding-block:35px}
+body.inner-page #main .commerce-page .cart-empty svg{color:#A8834C}
+body.inner-page #main .commerce-page .cart-empty h3{color:#6C202B}
+body.inner-page #main .commerce-checkout-journey .cj-handoff-actions .btn.dark{background:#6C202B;color:#F4EBDD;border-color:#6C202B}
+body.inner-page #main .commerce-checkout-journey .cj-handoff-actions .btn.outline{background:transparent;color:#6C202B;border-color:#C6A16499}
+body.inner-page #main .commerce-checkout-journey .cj-steps strong{color:#254834}
+body.inner-page #main .commerce-checkout-journey .cj-demo>summary{color:#6C202B}
+body.inner-page #main .commerce-checkout-journey .checkout-summary{background:#E8EBDD}
+body.inner-page #main .commerce-checkout-journey .cj-copy-fallback textarea{border-color:#C6A16488;background:#FAF4E9;color:#493329;border-radius:6px}
+@media(hover:hover){
+ body.inner-page #main .gift-page :is(.gift-size,.gift-product-option):hover{border-color:#A8834C;background:#F4EBDD}
+ body.inner-page #main :is(.gift-page,.detail-section,.commerce-page) .btn.dark:hover{background:#493329;border-color:#493329}
+}
+@media(max-width:1100px){
+ body.inner-page #main .gift-page .gift-page-header{min-height:clamp(440px,44vw,485px)}
+ body.inner-page #main .gift-page .gift-hero-inner,body.inner-page #main .gift-page .gift-builder,body.inner-page #main .detail-section>.wrap,body.inner-page #main .commerce-page{width:calc(100% - 64px)}
+ body.inner-page #main .gift-page .gift-page-header .uh-hero-copy{width:52%}
+ body.inner-page #main .gift-page .gift-page-header .display{font-size:48px}
+ body.inner-page #main .gift-page .gift-builder{gap:28px}
+ body.inner-page #main .gift-page .gift-preview{padding:20px}
+ body.inner-page #main .gift-page .gift-steps button{font-size:10px;gap:7px}
+ body.inner-page #main .gift-page .gift-selection-list>div{font-size:10px}
+ body.inner-page #main .detail-section .detail-main{gap:33px}
+ body.inner-page #main .detail-section .detail-info h1{font-size:43px}
+}
+@media(max-width:800px){
+ body.inner-page #main .gift-page .gift-page-header{min-height:440px;padding:32px 0 45px}
+ body.inner-page #main .gift-page .gift-page-header .uh-hero-copy{width:56%;padding:15px 0}
+ body.inner-page #main .gift-page .gift-page-header .display{font-size:41px}
+ body.inner-page #main .gift-page .gift-page-header p{font-size:13px}
+ body.inner-page #main .gift-page .gift-page-header::before{background-image:linear-gradient(90deg,#F4EBDD,#F4EBDDEB 33%,#F4EBDD00 84%),url("/assets/original/asin-sinh-loc-poster-v38.webp")}
+ body.inner-page #main .gift-page .gift-builder{grid-template-columns:1fr;gap:28px;padding-top:26px}
+ body.inner-page #main .gift-page .gift-preview{position:relative;top:0;grid-row:1;max-width:620px;width:100%;margin-inline:auto}
+ body.inner-page #main .gift-page .gift-config{padding-top:0}
+ body.inner-page #main .gift-page .gift-step-actions{position:sticky;bottom:0;z-index:10;padding:16px 0;background:#F4EBDDF5;backdrop-filter:blur(10px)}
+ body.inner-page #main .gift-page .gift-step-content>h2{font-size:37px}
+ body.inner-page #main .gift-page .gift-steps button{font-size:12px}
+ body.inner-page #main .gift-page .gift-opening-modes button{min-height:42px;font-size:11px}
+ body.inner-page #main .gift-page .gift-product-option strong{font-size:25px}
+ body.inner-page #main .detail-section .detail-main{grid-template-columns:1fr;gap:30px}
+ body.inner-page #main .detail-section .detail-gallery{position:relative;top:auto}
+ body.inner-page #main .detail-section .detail-main-image{aspect-ratio:1.15;max-height:590px}
+ body.inner-page #main .detail-section .detail-info{padding:0}
+ body.inner-page #main .detail-section .detail-info h1{font-size:43px;max-width:650px}
+ body.inner-page #main .commerce-page{padding-block:32px 45px}
+ body.inner-page #main .commerce-page :is(.cart-page-aside,.checkout-summary){padding:24px}
+ body.inner-page #main .commerce-page .cart-empty{min-height:300px}
+}
+@media(max-width:600px){
+ body.inner-page #main .gift-page{padding-bottom:42px}
+ body.inner-page #main .gift-page .gift-hero-inner,body.inner-page #main .gift-page .gift-builder,body.inner-page #main .detail-section>.wrap,body.inner-page #main .commerce-page{width:calc(100% - 42px)}
+ body.inner-page #main .gift-page .gift-page-header{min-height:clamp(575px,151vw,690px);align-items:flex-start;padding:30px 0 250px}
+ body.inner-page #main .gift-page .gift-hero-image{inset:auto 0 0;width:100%;height:65%;object-position:center 85%;mask-image:linear-gradient(180deg,transparent,#000 30%)}
+ body.inner-page #main .gift-page .gift-page-header::before{background-image:linear-gradient(180deg,#F4EBDD 0%,#F4EBDDF5 33%,#F4EBDD99 58%,#F4EBDD00 85%),url("/assets/original/asin-sinh-loc-poster-v38.webp")}
+ body.inner-page #main .gift-page .gift-page-header::after{height:28px}
+ body.inner-page #main .gift-page .gift-page-header .uh-hero-copy{width:100%;padding:5px 0;text-align:center;max-width:400px;margin-inline:auto}
+ body.inner-page #main .gift-page .gift-page-header .uh-hero-copy::before{inset:-35px -21px -20px;backdrop-filter:blur(6px);mask-image:linear-gradient(#000 40%,transparent);background:#F4EBDD22}
+ body.inner-page #main .gift-page .gift-page-header .eyebrow{font-size:8px;letter-spacing:.11em;margin-bottom:13px}
+ body.inner-page #main .gift-page .gift-page-header .display{font-size:clamp(37px,9.6vw,46px);line-height:1.1;margin-bottom:16px}
+ body.inner-page #main .gift-page .gift-page-header p{font-size:12px;line-height:1.75;margin:0 auto 18px;max-width:33ch}
+ body.inner-page #main .gift-page .gift-hero-cta{margin-inline:auto;font-size:12px;min-height:44px}
+ body.inner-page #main .gift-page .gift-builder{padding-top:24px;gap:24px;scroll-margin-top:90px}
+ body.inner-page #main .gift-page .gift-preview{padding:18px 17px;border-radius:14px}
+ body.inner-page #main .gift-page .gift-preview-summary{padding-top:15px}
+ body.inner-page #main .gift-page .gift-selection-list{display:none}
+ body.inner-page #main .gift-page .gift-summary-title h3{font-size:28px}
+ body.inner-page #main .gift-page .gift-price-total strong{font-size:29px}
+ body.inner-page #main .gift-page .gift-steps{gap:7px;margin-bottom:23px;padding-bottom:18px}
+ body.inner-page #main .gift-page .gift-steps button{font-size:11px;gap:7px;min-height:40px}
+ body.inner-page #main .gift-page .gift-steps button>span{width:24px;height:24px}
+ body.inner-page #main .gift-page .gift-step-content>h2{font-size:35px;line-height:1.14;margin-block:15px}
+ body.inner-page #main .gift-page .gift-size{padding:18px 13px;gap:10px}
+ body.inner-page #main .gift-page .size-content>strong{font-size:25px}
+ body.inner-page #main .gift-page .size-content>small{font-size:10px}
+ body.inner-page #main .gift-page .size-price{font-size:23px}
+ body.inner-page #main .gift-page .gift-product-option{gap:12px}
+ body.inner-page #main .gift-page .gift-product-option strong{font-size:23px}
+ body.inner-page #main .gift-page .gift-slot-tabs>button{font-size:10px;gap:5px;padding:10px 7px;white-space:normal}
+ body.inner-page #main .gift-page .gift-slot-tabs>button>span{display:none}
+ body.inner-page #main .gift-page .gift-card-preview{padding:23px}
+ body.inner-page #main .gift-page .gift-card-preview blockquote{font-size:25px}
+ body.inner-page #main .detail-section{padding-top:23px;padding-bottom:40px}
+ body.inner-page #main .detail-section .detail-info h1{font-size:39px;line-height:1.1}
+ body.inner-page #main .detail-section .detail-main-image{aspect-ratio:1.02;border-radius:12px}
+ body.inner-page #main .detail-section .detail-assurances{gap:10px}
+ body.inner-page #main .detail-section .detail-assurances span{font-size:10px}
+ body.inner-page #main .detail-description{padding-block:32px}
+ body.inner-page #main .detail-description .detail-tab-panel{padding:24px 20px}
+ body.inner-page #main .commerce-page .commerce-title .display{font-size:40px}
+ body.inner-page #main .commerce-page .cart-line-top>a{font-size:22px;line-height:1.2}
+ body.inner-page #main .commerce-page .cart-empty{min-height:270px}
+}
+@media(prefers-reduced-motion:reduce){body.inner-page #main :is(.gift-page,.detail-section,.commerce-page) :is(a,button){transition:none!important}}

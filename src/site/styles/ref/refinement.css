@@ -1,0 +1,92 @@
+/* Continuous material and stable controls across viewport sizes. */
+.sc-reasons{isolation:isolate;overflow:clip;background:var(--cream);border-block-color:var(--line)}
+.sc-reasons::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:none center bottom/100% auto no-repeat;mix-blend-mode:multiply;opacity:.4;mask-image:linear-gradient(transparent 28%,#000 82%);-webkit-mask-image:linear-gradient(transparent 28%,#000 82%)}
+.sc-reasons>.wrap{position:relative;z-index:1}
+.sc-reasons-heading{top:116px}
+.sc-reasons-photo img{width:100%;height:115%;max-width:none;object-fit:cover;object-position:center;margin:0;opacity:1;mix-blend-mode:normal}
+.sc-reasons-heading>img{display:none}
+.sc-reason p{max-width:390px;color:#665d54}
+.sc-reasons-photo{margin-left:8px;width:calc(90% - 8px)}
+.sc-reason>svg{pointer-events:none}
+.sc-manifesto-copy>p,.sc-chapter p{max-width:42ch}
+.sc-section-kicker .eyebrow,.sc-review-top .eyebrow{line-height:1.8}
+.detail-tab-panel:focus-visible{outline:2px solid var(--brand);outline-offset:8px}
+.product-add{min-width:44px;min-height:44px}
+.search-panel{overflow-y:auto;overscroll-behavior:contain}
+.search-field input{min-width:0}
+.search-close{min-width:44px;min-height:44px}
+.policy-dialog{max-height:calc(100svh - 40px);overflow-y:auto}
+.toast{max-width:calc(100vw - 40px);width:max-content;text-align:center;overflow-wrap:anywhere}
+@media(max-width:800px){
+ .sc-reasons{padding-block:40px 32px}
+ .sc-reasons::before{background-size:190% auto;opacity:.3;mask-image:linear-gradient(transparent 40%,#000);-webkit-mask-image:linear-gradient(transparent 40%,#000)}
+ .sc-reasons-photo{width:calc(100% - 16px);margin:26px 8px 24px}
+ .sc-reasons-heading{padding-bottom:22px}
+ .sc-reason h3{max-width:none;font-size:25px}
+ .sc-reason p{font-size:12px;line-height:1.9}
+ .sc-reason>span{opacity:1}
+ .sc-hero-scroll .motion-toggle{min-height:40px;font-size:8px;max-width:145px}
+ .sc-hero-scroll>a{min-height:40px;font-size:8px}
+ .sc-hero-scroll{bottom:26px;gap:10px}
+ .sc-hero-bottom{bottom:118px}
+ .header-tools .icon-button{width:40px;height:44px}
+ .header-tools{gap:3px}
+ body:has(.detail-mobile-buy){padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+ html:has(.detail-mobile-buy){scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+ .detail-mobile-buy{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+ .detail-mobile-buy .btn{min-height:44px}
+ .product-add,.sc-products .product-add{width:44px;height:44px}
+ .st-hotspot{min-width:44px;min-height:44px}
+}
+/* Short viewports flow naturally so pinned controls remain reachable. */
+@media(max-height:740px){
+ .sc-hero{height:auto;min-height:0;--hero:0!important}
+ .sc-hero-stage{position:relative;top:0;height:750px;min-height:750px}
+ .sc-journey{height:auto;min-height:0}
+ .sc-journey-stage{position:relative;top:0;height:auto;min-height:0;overflow:visible}
+ .sc-journey-track{display:block;width:100%;height:auto;transform:none}
+ .sc-chapter{width:100%;height:auto;min-height:0}
+ .sc-chapter-grid{height:auto;min-height:590px;padding-block:45px}
+ .sc-chapter figure,.sc-chapter h2>span,.sc-chapter-image img{transform:none!important}
+ .sc-journey-dock{display:none}
+ .sc-taste{height:auto;min-height:0}
+ .sc-taste-stage{position:relative;top:0;height:auto;min-height:700px}
+ .sc-taste-content{height:auto;min-height:700px;padding-block:40px 165px}
+ .sc-taste h2{margin-block:35px;font-size:clamp(44px,7vw,88px)}
+ .inner-page #main .st-opening,.inner-page #main .st-process,.inner-page #main .st-gift-story{height:auto;min-height:0}
+ .st-opening-stage,.st-process-stage,.st-gift-story-stage{position:relative;top:0;height:auto;min-height:0}
+ .st-opening-stage{min-height:640px}
+ .st-opening-copy{min-height:640px;opacity:1!important;transform:none!important}
+ .st-opening-image{inset:0!important}
+ .st-process-layout{display:block}
+ .st-process-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+ .st-process-step{opacity:1!important;padding:0!important;border:0}
+ .st-process-step>p{margin:18px 0 24px;max-width:none}
+ .st-process-title{align-items:flex-start;gap:10px}
+ .st-process-title h3{font-size:26px}
+ .st-process-inline{display:block;margin:0}
+ .st-process-inline>img{width:100%;aspect-ratio:1;object-fit:cover}
+ .st-process-film{display:none}
+ .st-gift-story-stage{min-height:650px}
+}
+@media(max-height:740px) and (max-width:800px){
+ .sc-chapter-grid{min-height:0;padding-block:38px}
+ .sc-taste-content{padding-bottom:190px}
+ .sc-taste h2{font-size:clamp(43px,10.4vw,76px)}
+ .st-process-list{display:block}
+ .st-process-step{padding-block:28px!important;border-bottom:1px solid #cfaa7555}
+ .st-process-inline{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .sc-reasons::before{transform:none}
+ .sc-reason::after{width:100%}
+ .sc-reason>span,.sc-reason>svg{opacity:1;transform:none}
+}
+
+.st-process-step{opacity:.68}
+.st-process-step.is-current{opacity:1}
+
+/* Keep chapter progress inside the dock's shaped paper frame. */
+.sc-journey-dock .sc-dock-progress{left:18px;right:18px;bottom:5px;height:2px;border-radius:999px;overflow:hidden;pointer-events:none}
+.sc-journey-dock .sc-dock-progress i{width:clamp(0%,calc(var(--journey,0)*100%),100%);max-width:100%;border-radius:inherit}

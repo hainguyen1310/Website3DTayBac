@@ -1,0 +1,324 @@
+/* The illustrated panorama carries the festival mood. Copy stays live above it. */
+body.campaign-page.inner-page #main .cp-page.cp-reference {
+  .cp-hero {
+    min-height: clamp(330px, 26.5vw, 450px);
+    padding-block: 30px 33px;
+    background: var(--heritage-cream);
+    overflow: hidden;
+
+    &::before {
+      background: radial-gradient(ellipse 34% 78% at 25% 49%, #f4ebddf9 3%, #f4ebdde6 49%, #f4ebdd00 98%);
+    }
+
+    &::after {
+      display: block;
+      height: clamp(22px, 4vw, 58px);
+      background: linear-gradient(0deg, var(--heritage-cream) 1%, #f4ebddbb 23%, #f4ebdd00);
+      clip-path: none;
+    }
+
+    .cp-hero-landscape {
+      object-position: center 24%;
+      filter: none;
+    }
+
+    .cp-hero-inner {
+      display: block;
+    }
+
+    .cp-hero-copy {
+      width: min(42%, 500px);
+      max-width: none;
+      margin-inline-start: clamp(10px, calc(10vw - 76px), 69px);
+      text-align: center;
+    }
+
+    .cp-hero-art {
+      display: none;
+    }
+
+    .cp-kicker {
+      color: var(--heritage-wine);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .11em;
+    }
+
+    h1 {
+      margin: 8px 0 11px;
+      color: var(--heritage-wine);
+      font-size: clamp(33px, 3.42vw, 52px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -.034em;
+
+      > span {
+        text-shadow: 0 1px 0 var(--heritage-paper), 0 2px 10px var(--heritage-cream);
+        text-wrap: balance;
+      }
+
+      strong {
+        color: #995015;
+        font-size: 1.25em;
+        font-weight: 700;
+      }
+
+      > em {
+        width: fit-content;
+        max-width: 100%;
+        margin: 5px auto 0;
+        padding: 6px 15px 8px;
+        border: 1px solid var(--heritage-gold);
+        border-radius: 6px 17px 6px 17px;
+        background: var(--heritage-wine);
+        box-shadow: 0 3px 0 #49332925;
+        color: var(--heritage-paper);
+        font-size: .69em;
+        font-weight: 600;
+        line-height: 1.12;
+        text-wrap: balance;
+        transform: rotate(-1.6deg);
+      }
+    }
+
+    .cp-hero-copy > p {
+      width: fit-content;
+      max-width: 42ch;
+      margin: 0 auto 13px;
+      color: var(--heritage-ink);
+      font-size: clamp(13px, 1.23vw, 17px);
+      line-height: 1.58;
+      text-shadow: 0 0 8px var(--heritage-paper);
+    }
+
+    .cp-hero-actions {
+      justify-content: center;
+      gap: 8px;
+
+      .btn {
+        min-height: 44px;
+        padding: 10px 16px;
+        border-radius: var(--heritage-control-radius);
+        font-size: 12px;
+        line-height: 1.3;
+        gap: 9px;
+      }
+
+      .cp-btn-outline {
+        background: var(--heritage-paper);
+      }
+    }
+
+    .cp-hero-meta {
+      justify-content: center;
+      gap: 5px 8px;
+      margin-top: 9px;
+      color: var(--heritage-ink);
+      font-size: 11px;
+      line-height: 1.45;
+      text-wrap: pretty;
+    }
+
+    .cp-demo-badge {
+      padding: 2px 7px;
+      background: var(--heritage-paper);
+      color: var(--heritage-wine);
+      font-size: 10px;
+    }
+  }
+
+  .cp-how {
+    padding-block: clamp(22px, 2.45vw, 36px) clamp(25px, 3vw, 44px);
+    background: linear-gradient(180deg, var(--heritage-cream), var(--heritage-paper) 67%, var(--heritage-cream));
+
+    &::before {
+      height: clamp(14px, 1.7vw, 24px);
+      opacity: .3;
+    }
+
+    .cp-section-heading {
+      margin-bottom: clamp(15px, 1.55vw, 23px);
+      text-align: center;
+
+      h2 {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(9px, 1.4vw, 21px);
+        color: var(--heritage-wine);
+        font-size: clamp(28px, 3.02vw, 44px);
+        font-style: italic;
+
+        &::before,
+        &::after {
+          content: "";
+          flex: 0 0 clamp(14px, 3.6vw, 52px);
+          height: 1px;
+          background: var(--heritage-gold);
+        }
+      }
+    }
+
+    .cp-how-grid {
+      gap: 12px 20px;
+    }
+
+    .cp-how-grid article {
+      display: grid;
+      grid-template-columns: 43px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      min-height: 108px;
+      padding: 15px 12px 15px 13px;
+      border: 1px solid #c6a16469;
+      border-radius: 10px;
+      background: var(--heritage-paper);
+      box-shadow: 0 4px 12px #4933290a;
+
+      &:not(:last-child)::after {
+        top: 50%;
+        right: -17px;
+        translate: 0 -50%;
+        color: var(--heritage-wine);
+        opacity: .7;
+      }
+
+      > div {
+        min-width: 0;
+      }
+    }
+
+    .cp-step-number {
+      top: 10px;
+      left: 24px;
+      width: 21px;
+      height: 21px;
+      border: 1px solid #c6a16486;
+      background: var(--heritage-cream);
+      color: var(--heritage-wine);
+      font-weight: 700;
+    }
+
+    .cp-step-icon {
+      display: grid;
+      place-items: center;
+      height: auto;
+      padding: 21px 0 0;
+      color: var(--heritage-wine);
+
+      svg {
+        width: 31px;
+        height: 31px;
+      }
+    }
+
+    h3 {
+      margin-bottom: 4px;
+      color: var(--heritage-wine);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    p {
+      color: var(--heritage-ink);
+      font-size: 12px;
+      line-height: 1.53;
+    }
+  }
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.campaign-page.inner-page:not(.motion-paused) #main .cp-page.cp-reference .cp-hero-landscape {
+      animation: cp-panorama-drift linear both;
+      animation-duration: auto;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 480px;
+    }
+  }
+}
+
+@keyframes cp-panorama-drift {
+  from { transform: scale(1.025); }
+  to { transform: translate3d(0, -9px, 0) scale(1.06); }
+}
+
+@media (max-width: 880px) {
+  body.campaign-page.inner-page #main .cp-page.cp-reference .cp-hero {
+    --cp-festival-art-height: clamp(180px, 45vw, 290px);
+    min-height: 0;
+    padding: calc(var(--cp-festival-art-height) + 16px) 0 26px;
+
+    &::before {
+      inset: auto 0 auto;
+      top: calc(var(--cp-festival-art-height) - 30px);
+      height: 31px;
+      background: linear-gradient(0deg, var(--heritage-cream), #f4ebdd00);
+    }
+
+    &::after {
+      display: none;
+    }
+
+    .cp-hero-landscape {
+      height: var(--cp-festival-art-height);
+      object-position: 69% 34%;
+    }
+
+    .cp-hero-copy {
+      width: min(100%, 530px);
+      margin-inline: auto;
+    }
+
+    h1 {
+      font-size: clamp(34px, 8.15vw, 48px);
+    }
+  }
+}
+
+@media (max-width: 530px) {
+  body.campaign-page.inner-page #main .cp-page.cp-reference .cp-how {
+    .cp-how-grid {
+      gap: 9px;
+    }
+
+    .cp-how-grid article {
+      grid-template-columns: 31px minmax(0, 1fr);
+      gap: 7px;
+      min-height: 112px;
+      padding: 11px 8px;
+    }
+
+    .cp-step-number {
+      top: 9px;
+      left: 14px;
+      width: 19px;
+      height: 19px;
+    }
+
+    .cp-step-icon svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    h3 {
+      font-size: 12px;
+    }
+
+    p {
+      font-size: 11px;
+    }
+  }
+}
+
+@media (max-width: 370px) {
+  body.campaign-page.inner-page #main .cp-page.cp-reference .cp-how {
+    .cp-how-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cp-how-grid article {
+      min-height: 88px;
+    }
+  }
+}

@@ -383,6 +383,36 @@ export function contactMeta(ctx: SeoContext): SeoMeta {
   });
 }
 
+export function campaignMeta(ctx: SeoContext): SeoMeta {
+  return meta({
+    ctx,
+    route: { kind: "campaign" },
+    title: "Ghép Vị Mở Miền · 24 mảnh ghép Tây Bắc — A Sỉn",
+    description:
+      "Ghép 24 mảnh để khám phá hương vị và chuyện bản làng Tây Bắc cùng A Sỉn: mỗi đơn hàng đủ điều kiện nhận mã, mở từng mảnh và theo dõi tiến độ của bạn.",
+    canonicalPath: "/chuong-trinh",
+    jsonLd: [
+      breadcrumbJsonLd(ctx, [
+        { name: "Trang chủ", path: "/" },
+        { name: "Chương trình", path: "/chuong-trinh" },
+      ]),
+    ],
+  });
+}
+
+/** Trang riêng tư của khách (giỏ hàng, đặt hàng): không lập chỉ mục. */
+export function privatePageMeta(ctx: SeoContext, kind: "cart" | "checkout"): SeoMeta {
+  return meta({
+    ctx,
+    route: { kind },
+    title: kind === "cart" ? "Giỏ hàng — A Sỉn" : "Đặt hàng — A Sỉn",
+    description: "Xem lại các đặc sản và hộp quà bạn đã chọn tại A Sỉn.",
+    canonicalPath: kind === "cart" ? "/gio-hang" : "/thanh-toan",
+    robots: noindexRobots(),
+    jsonLd: [],
+  });
+}
+
 export function noindexMeta(ctx: SeoContext, title = "Không tìm thấy trang — A Sỉn"): SeoMeta {
   return meta({
     ctx,

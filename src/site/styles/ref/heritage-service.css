@@ -1,0 +1,332 @@
+/* Transactional and service pages use the shared palette with quieter surfaces. */
+body.unified-site.inner-page #main :is(.commerce-page, .order-success, .sc-contact, .pg-guide) {
+  --service-line: color-mix(in srgb, var(--heritage-gold) 48%, transparent);
+  --service-shadow: 0 10px 28px color-mix(in srgb, var(--heritage-ink) 6%, transparent);
+  --service-tint: color-mix(in srgb, var(--heritage-forest) 7%, var(--heritage-paper));
+  color: var(--heritage-ink);
+}
+
+body.unified-site.inner-page #main :is(.commerce-page, .order-success, .eu-contact-hero > .wrap, .sc-contact > .wrap, .pg-guide > .wrap) {
+  width: min(var(--heritage-width), calc(100% - 2 * var(--heritage-gutter)));
+  margin-inline: auto;
+}
+
+body.unified-site.inner-page #main :is(.commerce-page, .order-success, .sc-contact, .pg-guide) {
+  padding-block: clamp(38px, 5vw, 72px);
+}
+
+body.unified-site.inner-page #main .commerce-page .commerce-title {
+  padding: 0 0 clamp(24px, 3.5vw, 44px);
+}
+
+body.unified-site.inner-page #main .commerce-page .commerce-title .display {
+  margin-block: 12px 0;
+  font-size: clamp(37px, 5vw, 68px);
+  line-height: 1.12;
+  color: var(--heritage-wine);
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-title-copy {
+  margin-top: 14px;
+  color: var(--heritage-ink);
+}
+
+body.unified-site.inner-page #main .commerce-page :is(.cart-page-grid, .checkout-grid) {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(26px, 4vw, 58px);
+  align-items: start;
+}
+
+body.unified-site.inner-page #main :is(.cart-page-lines, .cart-page-aside, .checkout-summary, .cj-handoff, .cj-demo, .cart-page-empty, .order-demo-notice, .sc-contact-form, .sc-contact-faq, .pg-type-samples, .pg-storyboard article, .pg-guide-disclosure) {
+  min-width: 0;
+  border: 1px solid var(--service-line);
+  border-radius: var(--heritage-radius);
+  background: var(--heritage-paper);
+  box-shadow: var(--service-shadow);
+}
+
+body.unified-site.inner-page #main .commerce-page :is(.cart-page-aside, .checkout-summary, .cj-handoff) {
+  padding: clamp(20px, 3vw, 38px);
+}
+
+body.unified-site.inner-page #main .commerce-page :is(.cart-page-aside, .checkout-summary) {
+  background: var(--service-tint);
+}
+
+body.unified-site.inner-page #main .commerce-page .cart-page-aside h2 {
+  margin-block: 14px 24px;
+  font-size: clamp(32px, 3.2vw, 45px);
+  line-height: 1.12;
+}
+
+body.unified-site.inner-page #main .cart-page-lines {
+  padding-inline: clamp(16px, 2.5vw, 30px);
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-line {
+  align-items: start;
+  gap: clamp(12px, 2vw, 22px);
+  padding-block: clamp(17px, 2.4vw, 26px);
+  border-color: var(--service-line);
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-line:first-child {
+  border-top: 0;
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-line-image {
+  width: clamp(70px, 8vw, 108px);
+  min-width: 0;
+  height: auto;
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+  border-radius: calc(var(--heritage-radius) / 2);
+  background: var(--heritage-cream);
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-line-top > a {
+  min-width: 0;
+  font-size: clamp(20px, 2.2vw, 28px);
+  text-wrap: pretty;
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-line-bottom {
+  flex-wrap: wrap;
+  margin-top: 11px;
+}
+
+body.unified-site.inner-page #main .cart-page-lines .cart-remove {
+  flex: 0 0 auto;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+body.unified-site.inner-page #main .cart-page-lines .qty-control {
+  height: auto;
+  border-color: var(--service-line);
+  border-radius: calc(var(--heritage-radius) / 2);
+  color: var(--heritage-ink);
+}
+
+body.unified-site.inner-page #main .cart-page-lines .qty-control button {
+  width: 36px;
+  height: 36px;
+}
+
+body.unified-site.inner-page #main .cart-page-lines .commerce-text-link {
+  margin-block: 14px;
+}
+
+body.unified-site.inner-page #main .commerce-page .cart-total-row {
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+body.unified-site.inner-page #main .commerce-page .cart-total-row > strong {
+  color: var(--heritage-wine);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+body.unified-site.inner-page #main .commerce-page .cart-page-empty .cart-empty {
+  min-height: clamp(290px, 38vw, 410px);
+  padding: 30px 18px;
+}
+
+body.unified-site.inner-page #main .commerce-page .cart-page-empty .cart-empty > svg {
+  color: var(--heritage-forest);
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-steps {
+  border-color: var(--service-line);
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey :is(.cj-steps strong, .cj-copy-status, .checkout-summary > .eyebrow, .checkout-assurance > svg) {
+  color: var(--heritage-forest);
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-handoff-actions .btn.outline {
+  color: var(--heritage-wine);
+  border-color: var(--service-line);
+  background: transparent;
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-demo {
+  background: transparent;
+  box-shadow: none;
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-demo .checkout-form {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .cj-demo .checkout-form > .btn.dark {
+  color: var(--heritage-wine);
+  background: var(--heritage-paper);
+  border-color: var(--service-line);
+}
+
+body.unified-site.inner-page #main .commerce-checkout-journey .checkout-summary .checkout-item img {
+  border-radius: calc(var(--heritage-radius) / 2);
+  background: var(--heritage-cream);
+}
+
+body.unified-site.inner-page #main .order-success .order-success-icon {
+  color: var(--heritage-forest);
+  background: var(--service-tint);
+  border-color: var(--service-line);
+}
+
+/* Contact retains the same image, message form and supporting questions. */
+body.unified-site.inner-page #main .sc-contact {
+  background: var(--heritage-cream);
+}
+
+body.unified-site.inner-page #main .sc-contact .sc-contact-grid {
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+  gap: clamp(28px, 5vw, 70px);
+  margin-top: 0;
+  align-items: start;
+}
+
+body.unified-site.inner-page #main .sc-contact-grid > * {
+  min-width: 0;
+}
+
+body.unified-site.inner-page #main .sc-contact .sc-contact-grid > aside > img {
+  height: clamp(190px, 23vw, 310px);
+  transform: none;
+  border: 1px solid var(--service-line);
+  border-radius: var(--heritage-radius);
+  box-shadow: var(--service-shadow);
+}
+
+body.unified-site.inner-page #main .sc-contact :is(.sc-contact-form, .sc-contact-faq) {
+  padding: clamp(20px, 3vw, 38px);
+}
+
+body.unified-site.inner-page #main .sc-contact-form {
+  scroll-margin-top: 104px;
+}
+
+body.unified-site.inner-page #main .sc-contact-form .sc-form-title h2 {
+  font-size: clamp(27px, 2.8vw, 38px);
+  line-height: 1.18;
+  color: var(--heritage-wine);
+}
+
+body.unified-site.inner-page #main .sc-contact-form .sc-form-title > span {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--heritage-forest);
+  background: var(--service-tint);
+  font-size: 11px;
+}
+
+body.unified-site.inner-page #main .sc-contact-form .sc-form-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 22px);
+}
+
+body.unified-site.inner-page #main .sc-contact-form .sc-consent input {
+  width: 17px;
+  min-height: 0;
+  height: 17px;
+  padding: 0;
+  accent-color: var(--heritage-wine);
+}
+
+body.unified-site.inner-page #main .sc-contact-form .sc-form-result {
+  padding: clamp(16px, 2.6vw, 25px);
+  background: var(--service-tint);
+  border-color: var(--service-line);
+  border-radius: calc(var(--heritage-radius) / 2);
+}
+
+body.unified-site.inner-page #main .sc-contact .sc-contact-faq {
+  margin-top: 22px;
+}
+
+body.unified-site.inner-page #main .sc-contact-faq details {
+  padding: 0;
+  border-color: var(--service-line);
+}
+
+body.unified-site.inner-page #main .sc-contact-faq summary {
+  min-height: 44px;
+  gap: 14px;
+  color: var(--heritage-wine);
+}
+
+body.unified-site.inner-page #main .sc-contact-faq summary > svg {
+  flex: 0 0 auto;
+}
+
+body.unified-site.inner-page #main .sc-contact-faq details > p {
+  margin-block: 0 16px;
+}
+
+/* The design guide is a readable reference using the same card geometry. */
+body.unified-site.inner-page #main .pg-guide {
+  background: var(--heritage-cream);
+}
+
+body.unified-site.inner-page #main .pg-guide .pg-title {
+  font-size: clamp(37px, 5.2vw, 71px);
+  line-height: 1.14;
+}
+
+body.unified-site.inner-page #main .pg-guide > .wrap > section {
+  margin-block: clamp(36px, 5.3vw, 68px);
+}
+
+body.unified-site.inner-page #main .pg-guide .pg-palette > div > span {
+  border-color: var(--service-line);
+  border-radius: calc(var(--heritage-radius) / 2);
+}
+
+body.unified-site.inner-page #main .pg-guide :is(.pg-type-samples, .pg-storyboard article, .pg-guide-disclosure) {
+  padding: clamp(19px, 3vw, 36px);
+}
+
+body.unified-site.inner-page #main .pg-guide .pg-storyboard :is(.pg-process-num, dt) {
+  color: var(--heritage-forest);
+}
+
+body.unified-site.inner-page #main .pg-guide .pg-guide-disclosure {
+  background: var(--service-tint);
+}
+
+@media (hover: hover) {
+  body.unified-site.inner-page #main .commerce-checkout-journey :is(.cj-handoff-actions .btn.outline, .cj-demo .checkout-form > .btn.dark):hover:not(:disabled) {
+    background: var(--service-tint);
+    border-color: var(--heritage-forest);
+    color: var(--heritage-forest);
+  }
+}
+
+@media (max-width: 800px) {
+  body.unified-site.inner-page #main :is(.commerce-page .cart-page-grid, .commerce-page .checkout-grid, .sc-contact .sc-contact-grid) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  body.unified-site.inner-page #main .sc-contact .sc-contact-grid > aside {
+    position: static;
+  }
+
+  body.unified-site.inner-page #main .cart-page-lines .qty-control button {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 520px) {
+  body.unified-site.inner-page #main .sc-contact-form .sc-form-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}

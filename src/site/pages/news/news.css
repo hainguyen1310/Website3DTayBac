@@ -1,0 +1,14 @@
+/* Trạng thái tải và phân trang (bản gốc chỉ có 3 bài nên không cần). */
+.pg-news-status { margin: 28px 0 0; color: #7b725f; font-size: 13px; }
+
+/*
+ * Hàng nút trang dùng lại kiểu nút của bộ lọc chủ đề, nhưng bỏ phần khung của hàng lọc
+ * (đường kẻ dưới, padding, margin dưới) và tách xa lưới bài phía trên.
+ */
+body.unified-site.inner-page #main .pg-news-list .pg-news-filters.pg-news-pagination {
+  justify-content: center;
+  gap: 8px;
+  margin: clamp(36px, 4vw, 52px) 0 0;
+  padding: 0;
+  border: 0;
+}

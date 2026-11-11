@@ -1,0 +1,163 @@
+.ph-campaign-puzzle {
+  width: min(100%, 36rem);
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.ph-campaign-puzzle__stage { position: relative; }
+
+.ph-campaign-puzzle__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.ph-campaign-puzzle__assembly { filter: drop-shadow(0 12px 14px rgb(73 49 38 / 26%)); }
+
+.ph-campaign-puzzle__piece {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ph-campaign-puzzle__piece--left {
+  --puzzle-start-x: -37px;
+  --puzzle-start-y: 14px;
+  --puzzle-start-angle: -9deg;
+  --puzzle-align-x: -9px;
+}
+
+.ph-campaign-puzzle__piece--right {
+  --puzzle-start-x: 36px;
+  --puzzle-start-y: -13px;
+  --puzzle-start-angle: 8deg;
+  --puzzle-align-x: 9px;
+}
+
+.ph-campaign-puzzle__edge {
+  fill: #704A2D;
+  stroke: #9B703E;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.ph-campaign-puzzle__rim {
+  fill: none;
+  stroke-width: 2.75;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px #ffd7696e);
+}
+
+.ph-campaign-puzzle__hit { cursor: pointer; pointer-events: fill; }
+
+.ph-campaign-puzzle[data-puzzle-selection="left"] .ph-campaign-puzzle__piece--left .ph-campaign-puzzle__rim,
+.ph-campaign-puzzle[data-puzzle-selection="right"] .ph-campaign-puzzle__piece--right .ph-campaign-puzzle__rim {
+  stroke: #fff4cb;
+  stroke-width: 3.75;
+}
+
+.ph-campaign-puzzle__control {
+  position: absolute;
+  inset: var(--control-y) auto auto var(--control-x);
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 1px solid #e5be75;
+  border-radius: 50%;
+  background: #fff5df;
+  color: var(--ph-wine);
+  box-shadow: 0 3px 12px #4933294d;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  touch-action: manipulation;
+}
+
+.ph-campaign-puzzle__control--left { --control-x: 31%; --control-y: 53%; }
+.ph-campaign-puzzle__control--right { --control-x: 71.5%; --control-y: 46%; }
+
+.ph-campaign-puzzle__control[aria-pressed="true"] {
+  background: var(--ph-wine);
+  color: #fff7e9;
+}
+
+.ph-home .ph-campaign-puzzle__control:focus-visible {
+  outline: 2px solid #fff7e9;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--ph-wine);
+}
+
+.ph-campaign-puzzle__caption {
+  display: grid;
+  min-height: calc(3.2em + 12px);
+  width: min(100%, 46ch);
+  margin: 0 auto;
+  padding: 6px 10px;
+  place-content: center;
+  border-block: 1px solid var(--heritage-line);
+  background: #fff7e9f2;
+  color: var(--ph-ink);
+  font: 500 13px/1.55 var(--sans);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.ph-campaign-puzzle__glow {
+  opacity: 0;
+  fill: none;
+  stroke: #FFDF8B;
+  stroke-width: 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px #DCA54A);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.motion-paused) .is-puzzle-observed:not(.is-puzzle-visible, :focus-within) .ph-campaign-puzzle__piece {
+    opacity: 0;
+    transform: translate(var(--puzzle-start-x), var(--puzzle-start-y)) rotate(var(--puzzle-start-angle));
+  }
+
+  body:not(.motion-paused) .is-puzzle-observed:not(.is-puzzle-visible, :focus-within) .ph-campaign-puzzle__control { opacity: 0; }
+
+  body:not(.motion-paused) .is-puzzle-visible .ph-campaign-puzzle__piece {
+    animation: ph-campaign-puzzle-connect 820ms cubic-bezier(.22, .67, .31, 1) both;
+  }
+
+  body:not(.motion-paused) .is-puzzle-visible .ph-campaign-puzzle__glow {
+    animation: ph-campaign-puzzle-spark 380ms ease-out 730ms both;
+  }
+
+  body:not(.motion-paused) .is-puzzle-visible .ph-campaign-puzzle__control:not(:focus-visible) {
+    animation: ph-campaign-control-in 200ms ease-out 690ms both;
+  }
+}
+
+@media (hover: hover) {
+  .ph-campaign-puzzle__control:hover { border-color: var(--ph-wine); }
+  .ph-campaign-puzzle__face:hover .ph-campaign-puzzle__rim { stroke: #fff4cb; }
+}
+
+@keyframes ph-campaign-puzzle-connect {
+  0% {
+    opacity: 0;
+    transform: translate(var(--puzzle-start-x), var(--puzzle-start-y)) rotate(var(--puzzle-start-angle));
+  }
+  32% { opacity: 1; }
+  66% { transform: translate(var(--puzzle-align-x), 0) rotate(0deg); }
+  91%, 100% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes ph-campaign-puzzle-spark {
+  0%, 100% { opacity: 0; }
+  30% { opacity: .86; }
+}
+
+@keyframes ph-campaign-control-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

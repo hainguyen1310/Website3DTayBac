@@ -1,0 +1,46 @@
+/* The story arrives in layers; its final collage and typography keep their authored layout. */
+.sc-manifesto.mr-ready .sc-read>span{transform-origin:0 80%;backface-visibility:hidden}
+.sc-manifesto.mr-ready:not(.mr-copy-pending) .sc-read>span{opacity:1!important}
+.sc-manifesto.mr-ready .sc-memory-collage figure{transform-origin:50% 55%}
+.sc-manifesto.mr-ready .sc-collage-stamp{transform-origin:50% 50%}
+.sc-manifesto.mr-ready.mr-copy-pending .sc-read>span,
+.sc-manifesto.mr-ready.mr-photos-pending .sc-memory-collage figure,
+.sc-manifesto.mr-ready.mr-photos-pending .sc-collage-stamp,
+.sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>p,
+.sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>.text-link{opacity:0!important}
+.sc-manifesto.mr-ready .mr-photo-trace{position:absolute;inset:-5px;width:calc(100% + 10px);height:calc(100% + 10px);z-index:7;overflow:visible;fill:none;stroke:#c28c38;stroke-width:1.2;opacity:0;pointer-events:none}
+.sc-manifesto.mr-ready .mr-photo-trace rect{stroke-dasharray:1;stroke-dashoffset:1;vector-effect:non-scaling-stroke}
+.sc-manifesto.mr-ready .mr-mist{position:absolute;inset:-6% -3% 1%;z-index:6;opacity:0;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(ellipse at 68% 43%,#fff9eac2 0,#fff9ea5c 23%,transparent 57%),radial-gradient(ellipse at 29% 63%,#f9eddb8c 0,#fff9ea30 28%,transparent 60%);filter:blur(15px);mask-image:linear-gradient(0deg,transparent,#000 22%,#000 78%,transparent);-webkit-mask-image:linear-gradient(0deg,transparent,#000 22%,#000 78%,transparent)}
+.sc-manifesto.mr-ready .mr-mist:before,
+.sc-manifesto.mr-ready .mr-mist:after{content:'';position:absolute;pointer-events:none;border-radius:50%;border-top:14px solid #fff8e77d;border-left:5px solid transparent;border-right:5px solid transparent;filter:blur(10px)}
+.sc-manifesto.mr-ready .mr-mist:before{width:86%;height:35%;left:0;top:24%;rotate:-17deg}
+.sc-manifesto.mr-ready .mr-mist:after{width:72%;height:41%;right:0;top:43%;rotate:13deg;border-top-width:20px;opacity:.6}
+.sc-manifesto.mr-ready .mr-stamp-ring{position:absolute;inset:-6px;border:1px solid #c28c38;border-radius:50%;box-shadow:0 0 0 8px #c28c381a;opacity:0;pointer-events:none}
+.sc-manifesto.mr-ready .mr-replay{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 5px;margin-left:15px;border:0;border-bottom:1px solid #c28c3855;background:transparent;color:#8b6d47;font:400 10px/1.4 var(--sans);white-space:nowrap;cursor:pointer;transition:color .2s,background .2s;touch-action:manipulation}
+.sc-manifesto.mr-ready .mr-replay svg{width:16px;height:16px;flex:none;color:#a77a35}
+.sc-manifesto.mr-ready .mr-replay:hover{color:var(--brand);background:#c28c380b}
+.sc-manifesto.mr-ready .mr-replay:focus-visible{outline:2px solid var(--brand);outline-offset:5px}
+.sc-manifesto.mr-ready .mr-replay:disabled{opacity:.48;cursor:default;color:var(--muted);background:transparent}
+@media(max-width:1100px){.sc-manifesto.mr-ready .mr-replay{margin-left:10px;font-size:9px;gap:6px;padding-inline:3px}}
+@media(max-width:800px){
+ .sc-manifesto.mr-ready .mr-replay{min-height:44px;margin-left:13px;font-size:9px;padding-inline:4px;gap:7px}
+ .sc-manifesto.mr-ready .mr-photo-trace{inset:-3px;width:calc(100% + 6px);height:calc(100% + 6px);stroke-width:1}
+ .sc-manifesto.mr-ready .mr-mist{inset:0 -2% 2%;filter:blur(10px)}
+ .sc-manifesto.mr-ready .mr-mist:before,.sc-manifesto.mr-ready .mr-mist:after{filter:blur(7px)}
+ .sc-manifesto.mr-ready .mr-stamp-ring{inset:-4px;box-shadow:0 0 0 5px #c28c381a}
+}
+@media(max-width:370px){.sc-manifesto.mr-ready .mr-replay{margin-left:8px;gap:5px;font-size:8.5px}.sc-manifesto.mr-ready .mr-replay svg{width:14px;height:14px}}
+@media(prefers-reduced-motion:reduce){
+ .sc-manifesto.mr-ready.mr-copy-pending .sc-read>span,.sc-manifesto.mr-ready.mr-photos-pending .sc-memory-collage figure,.sc-manifesto.mr-ready.mr-photos-pending .sc-collage-stamp,.sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>p,.sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>.text-link{opacity:1!important}
+ .sc-manifesto.mr-ready .mr-photo-trace,.sc-manifesto.mr-ready .mr-mist,.sc-manifesto.mr-ready .mr-stamp-ring{display:none!important}
+ .sc-manifesto.mr-ready .mr-replay{transition:none;opacity:.48;cursor:default}
+}
+body.motion-paused .sc-manifesto.mr-ready.mr-copy-pending .sc-read>span,
+body.motion-paused .sc-manifesto.mr-ready.mr-photos-pending .sc-memory-collage figure,
+body.motion-paused .sc-manifesto.mr-ready.mr-photos-pending .sc-collage-stamp,
+body.motion-paused .sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>p,
+body.motion-paused .sc-manifesto.mr-ready.mr-copy-pending .sc-manifesto-copy>.text-link{opacity:1!important}
+body.motion-paused .sc-manifesto.mr-ready .mr-photo-trace,
+body.motion-paused .sc-manifesto.mr-ready .mr-mist,
+body.motion-paused .sc-manifesto.mr-ready .mr-stamp-ring{display:none!important}
+body.motion-paused .sc-manifesto.mr-ready .mr-replay{transition:none;opacity:.48;cursor:default}

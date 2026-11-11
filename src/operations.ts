@@ -59,6 +59,7 @@ export function canAccess(
   return [
     "dashboard",
     "orders",
+    "campaign",
     "products",
     "customers",
     "messages",

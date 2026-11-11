@@ -1,0 +1,64 @@
+/* One terrain, from the products to the last valley. Transparent artwork has no paper edge. */
+.sc-home{background-color:var(--cream);background-image:linear-gradient(#fbf6eda8,#fbf6eda8),none;background-position:center,center 900px;background-size:auto,1600px 900px;background-repeat:repeat,repeat-y}
+.sc-home .sc-products,.sc-home .sc-reasons,.sc-home .sc-journal{background:transparent}
+.sc-home .sc-products{padding-bottom:32px}
+.sc-home .sc-products:before{inset:0;background:none center/cover;opacity:.25}
+.sc-gift-banner{padding-block:28px;border-bottom:0}
+.sc-home .sc-reasons{padding-top:32px;padding-bottom:48px;border-top:0;isolation:isolate;background:var(--cream)}
+.sc-home .sc-reasons::before{inset:-65px 0 -35px;background:none;transform:translateY(calc(var(--cinema-progress,.5)*-30px))}
+.sc-home .sc-reasons .sc-section-kicker{padding-top:22px;border-top:1px solid #c28c3855}
+.sc-reasons-grid{margin-top:30px}
+.sc-reasons-heading h2{line-height:1.18}
+.sc-reasons-photo{box-shadow:0 24px 45px #4c211726,8px 9px 0 #d4ae7f55}
+.sc-reason{border-color:#c28c3844}
+.sc-reason p{color:#665748}
+.sc-home .sc-journal{padding-bottom:52px}
+.sc-journal:before{content:'';position:absolute;inset:0;background:none center bottom/1600px 900px;opacity:.25;pointer-events:none}
+.sc-journal{position:relative;isolation:isolate}
+.sc-journal>.wrap{position:relative}
+/* A real valley, graded into the wine footer, replaces the tiled illustration collage. */
+.sc-home .sc-closing{position:relative;isolation:isolate;min-height:640px;padding-block:92px 72px;background:var(--brand);color:var(--cream);overflow:hidden;display:flex;align-items:center}
+.sc-home .sc-closing>img{position:absolute;inset:-5% 0;width:100%;height:112%;object-fit:cover;object-position:center 48%;opacity:1;z-index:-3;transform:translateY(calc((var(--cinema-progress,.5) - .5)*-60px)) scale(1.06);filter:saturate(.75)}
+.sc-home .sc-closing:before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(0deg,#580a11 0%,#580a11df 16%,#2a1218a6 58%,#3f1f2577 100%);pointer-events:none}
+.sc-home .sc-closing:after{content:'';position:absolute;inset:0 0 auto;height:78px;z-index:-1;background:linear-gradient(var(--cream),#fbf6ed00);pointer-events:none}
+.sc-home .sc-closing-ridge{inset:auto 0 0;height:38%;background:none center/1600px 900px;opacity:.24;mix-blend-mode:screen;z-index:0;transform:translateY(calc((1 - var(--cinema-progress,.5))*35px))}
+.sc-home .sc-closing-ink{inset:0;background:radial-gradient(ellipse at 75% 15%,#e6ba7826,transparent 53%);opacity:.7;z-index:0;transform:none}
+.sc-closing>.wrap{position:relative;z-index:1}
+.sc-home .sc-closing .eyebrow{color:#f0c990;font-size:10px;letter-spacing:.22em}
+.sc-home .sc-closing h2{font-size:clamp(66px,8vw,124px);color:#fff8e9;text-shadow:0 6px 38px #1c111a88;margin:34px 0 42px;line-height:1.15}
+.sc-home .sc-closing h2 em{color:#edc58a}
+.sc-home .sc-closing-bottom{gap:32px}
+.sc-home .sc-closing-bottom p{color:#f3ddbd;max-width:220px}
+.sc-home .sc-closing-bottom .btn{background:var(--cream);color:var(--brand);box-shadow:6px 6px 0 #d4ae7f44}
+.sc-home .sc-closing-bottom .text-link{color:#ffe7c3}
+/* A curved, transparent contour is a connecting line, never a solid section panel. */
+.sc-scene-bridge{position:absolute;inset:0 0 auto;width:100%;height:82px;pointer-events:none;fill:none;stroke:#c28c38;stroke-width:1;opacity:.28;transform:translateY(calc((var(--cinema-progress,.5) - .5)*22px));z-index:0}
+.sc-reasons .sc-scene-bridge{top:-26px;height:58px;opacity:.35}
+.sc-closing .sc-scene-bridge{stroke:#efce92;top:14px;opacity:.28}
+.sc-home .sc-manifesto,.sc-home .sc-products{isolation:isolate}
+.sc-home .sc-manifesto>.wrap,.sc-home .sc-products>.wrap{position:relative;z-index:1}
+.sc-photo-sweep{position:absolute!important;inset:0!important;z-index:4;pointer-events:none;opacity:0;background:linear-gradient(115deg,#fffcf7 38%,#e5d0af 76%,#c28c38);border-radius:inherit}
+@media(max-width:800px){
+ .sc-home{background-size:auto,1100px 620px}
+ .sc-home .sc-products{padding-bottom:20px}
+ .sc-home .sc-reasons{padding-top:20px;padding-bottom:35px}
+ .sc-home .sc-reasons::before{background-size:1100px 620px;opacity:.3}
+ .sc-home .sc-reasons .sc-section-kicker{padding-top:24px}
+ .sc-reasons-grid{margin-top:24px}
+ .sc-home .sc-journal{padding-bottom:40px}
+ .sc-home .sc-closing{min-height:620px;padding-block:92px 58px}
+ .sc-home .sc-closing>img{object-position:50% center;transform:translateY(calc((var(--cinema-progress,.5) - .5)*-24px)) scale(1.06)}
+ .sc-home .sc-closing h2{font-size:clamp(43px,12vw,70px);margin:30px 0 36px;line-height:1.23}
+ .sc-home .sc-closing h2 em{display:inline-block;white-space:nowrap}
+ .sc-home .sc-closing .eyebrow{font-size:8px;letter-spacing:.14em;line-height:1.9}
+ .sc-home .sc-closing-bottom{gap:24px}
+ .sc-home .sc-closing-bottom p{max-width:260px;font-size:12px;text-align:center}
+ .sc-home .sc-closing-bottom .btn{font-size:11px;min-height:50px}
+ .sc-scene-bridge{height:56px}
+}
+@media(prefers-reduced-motion:reduce){.sc-home .sc-closing>img,.sc-home .sc-reasons::before,.sc-home .sc-closing-ridge,.sc-scene-bridge{transform:none!important}.sc-photo-sweep{display:none}}
+body.motion-paused .sc-home .sc-closing>img,body.motion-paused .sc-home .sc-reasons::before,body.motion-paused .sc-home .sc-closing-ridge,body.motion-paused .sc-scene-bridge{transform:none!important}
+body.motion-paused .sc-photo-sweep{display:none}
+
+.site-footer{background:var(--brand-deep);border-top:0;isolation:isolate}
+.site-footer:before{content:"";position:absolute;inset:0;z-index:-1;background:none center bottom/1600px 900px;opacity:.1;pointer-events:none}

@@ -1,0 +1,44 @@
+/* Typesetting and a steady content grid for common laptop viewports. */
+.type-keep,.type-term{white-space:nowrap}
+.type-keep.type-can-wrap,.type-term.type-can-wrap{white-space:normal}
+#main h1,#main h2,#main h3{word-break:normal;overflow-wrap:normal;text-wrap:balance}
+#main p,.site-footer p{text-wrap:pretty;word-break:normal;hyphens:none}
+.sc-hero-title,.sc-read,.sc-chapter h2,.sc-taste h2{text-wrap:initial}
+.ic-title .type-keep,.ic-title .type-term{white-space:nowrap}
+.ic-title .type-keep.type-can-wrap,.ic-title .type-term.type-can-wrap{white-space:normal}
+@media(min-width:1000px) and (max-width:1700px){
+ :root{--gutter:clamp(40px,4vw,64px);--laptop-header:82px;--space:clamp(56px,7svh,80px)}
+ .wrap{width:min(1440px,calc(100% - var(--gutter)*2))}
+ .header-inner{gap:22px}
+ .nav{gap:clamp(16px,1.55vw,23px)}
+ .nav a{font-size:12px;line-height:1.5}
+ .brand img{width:98px;height:64px}
+ .header-tools{gap:10px}
+ .header-tools .icon-button{width:36px;height:44px}
+ .eyebrow{font-size:10px;line-height:1.7;letter-spacing:.13em}
+ .btn{font-size:12px;line-height:1.55;min-height:50px;padding:13px 22px;gap:25px}
+ .text-link,.pg-text-link{font-size:12px;line-height:1.7;min-height:40px;gap:22px}
+ .section-head{gap:40px;align-items:flex-end}
+ .section-head>div{min-width:0}
+ .section-head h2{max-width:15ch}
+ .site-footer{padding-top:56px}
+ .sc-newsletter{gap:44px;padding-bottom:38px;margin-bottom:40px}
+ .sc-newsletter h2{font-size:42px;margin:12px 0}
+ .sc-newsletter p,.footer-brand p{font-size:13px;line-height:1.85}
+ .footer-grid{grid-template-columns:1.35fr 1fr 1fr 1fr;gap:40px}
+ .footer-title{font-size:11px;line-height:1.7;letter-spacing:.1em;margin-bottom:18px}
+ .footer-links{font-size:12px;line-height:1.7;gap:10px}
+ .footer-social{font-size:12px;gap:20px}
+ .footer-bottom{font-size:10px;line-height:1.8;margin-top:38px;padding-top:22px;gap:24px}
+ .footer-bottom button{font-size:10px;line-height:1.8}
+ .motion-toggle{font-size:10px;min-height:38px;line-height:1.5}
+}
+@media(min-width:1000px) and (max-width:1180px){
+ .header-inner{gap:15px}
+ .nav{gap:14px}
+ .nav a{font-size:11px}
+ .header-tools{gap:6px}
+ .header-tools>a[aria-label="Tạo hộp quà"]{display:none}
+ .footer-grid{gap:30px}
+ .footer-links{font-size:11px}
+}

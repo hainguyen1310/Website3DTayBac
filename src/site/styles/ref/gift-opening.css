@@ -1,0 +1,58 @@
+/* Three ways to open the same gift; the slider also works without motion. */
+.gift-page .gift-opening-controls{position:relative;z-index:2;margin:14px auto 0;max-width:430px}
+.gift-page .gift-opening-modes{display:grid;grid-template-columns:.8fr .9fr 1.3fr;gap:5px;padding:4px;border:1px solid #b5956255;background:#fffcf780;border-radius:9px}
+.gift-page .gift-opening-modes button{min-width:0;min-height:40px;border:0;border-radius:5px;padding:7px 8px;background:transparent;font:500 10px/1.4 var(--sans);color:var(--muted);cursor:pointer;transition:background .25s,color .25s}
+.gift-page .gift-opening-modes button[aria-checked=true]{background:var(--brand);color:var(--cream);box-shadow:0 3px 9px #580a111a}
+.gift-page .gift-opening-modes button:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.gift-page .gift-opening-scrub{display:flex;align-items:center;gap:12px;min-height:36px;padding-inline:4px;margin-top:4px;font:400 9px/1.5 var(--sans);color:var(--muted)}
+.gift-page .gift-opening-scrub label{white-space:nowrap}
+.gift-page .gift-opening-scrub input{flex:1;min-width:50px;accent-color:var(--brand);height:24px;margin:0;cursor:ew-resize}
+.gift-page .gift-opening-scrub output{min-width:33px;text-align:right;font-variant-numeric:tabular-nums;color:var(--brand)}
+.gift-page .gift-3d{--gift-open:1}
+.gift-page .gift-lid-hinge{transition:transform .85s cubic-bezier(.2,.7,.2,1)}
+.gift-page .gift-3d .gift-lid{transform:rotateX(calc(90deg + var(--gift-open)*107deg));transition:transform .95s cubic-bezier(.2,.7,.2,1),opacity .7s;}
+.gift-page .box-interior{transform-style:preserve-3d}
+.gift-page .box-slot,.gift-page .box-fixed{transition:transform .85s cubic-bezier(.2,.7,.2,1),filter .85s;}
+.gift-page .box-slot{transform:translateZ(calc(var(--gift-open)*17px));}
+.gift-page .box-slot.bagB{transition-delay:45ms}
+.gift-page .box-slot.jar{transition-delay:90ms}
+.gift-page .box-slot img{object-fit:contain;background:#d5ba87}
+.gift-page .gift-scene[data-opening-mode=slide] .gift-3d .gift-lid{transform:rotateX(90deg) translateX(calc(var(--gift-open)*-112px)) translateY(calc(var(--gift-open)*-28px)) translateZ(calc(var(--gift-open)*42px));opacity:calc(1 - var(--gift-open)*.22)}
+.gift-page .gift-scene[data-opening-mode=slide] .box-slot{transform:translateZ(calc(var(--gift-open)*28px))}
+.gift-page .gift-scene[data-opening-mode=bloom] .gift-3d .gift-lid{transform:rotateX(calc(90deg + var(--gift-open)*28deg)) translateY(calc(var(--gift-open)*-46px)) translateZ(calc(var(--gift-open)*104px));opacity:calc(1 - var(--gift-open)*.36)}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.bagA{transform:translate3d(calc(var(--gift-open)*-19px),calc(var(--gift-open)*-8px),calc(var(--gift-open)*70px)) rotateZ(calc(var(--gift-open)*-7deg))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.bagB{transform:translate3d(0,calc(var(--gift-open)*-18px),calc(var(--gift-open)*88px)) rotateZ(calc(var(--gift-open)*3deg))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.jar{transform:translate3d(calc(var(--gift-open)*22px),calc(var(--gift-open)*-8px),calc(var(--gift-open)*67px)) rotateZ(calc(var(--gift-open)*9deg))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-fixed.cham{transform:translate3d(calc(var(--gift-open)*16px),calc(var(--gift-open)*11px),calc(var(--gift-open)*36px))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-fixed.bottle{transform:translateZ(calc(var(--gift-open)*54px))}
+.gift-page .gift-scene.gift-flat .box-slot,.gift-page .gift-scene.gift-flat .box-fixed{transform:none}
+.gift-page .gift-scene.gift-flat .gift-lid{opacity:0}
+.gift-page .gift-scene:has(+.gift-box-controls){overflow:visible}
+@media(min-width:1000px) and (max-width:1700px){body.inner-page #main .gift-opening-controls{margin-top:10px}body.inner-page #main .gift-opening-modes button{min-height:36px;font-size:10px}body.inner-page #main .gift-opening-scrub{min-height:32px}}
+@media(max-width:800px){.gift-page .gift-opening-controls{max-width:100%;margin-top:12px}.gift-page .gift-opening-modes button{min-height:44px;font-size:10px}.gift-page .gift-opening-scrub{min-height:44px;gap:8px}.gift-page .gift-opening-scrub input{height:36px}.gift-page .gift-scene[data-opening-mode=slide] .gift-3d .gift-lid{transform:rotateX(90deg) translateX(calc(var(--gift-open)*-54px)) translateY(calc(var(--gift-open)*-20px)) translateZ(calc(var(--gift-open)*35px))}}
+@media(prefers-reduced-motion:reduce){.gift-page .gift-3d,.gift-page .gift-lid-hinge,.gift-page .gift-3d .gift-lid,.gift-page .box-slot,.gift-page .box-fixed{transition:none!important}}
+body.motion-paused .gift-page .gift-3d,body.motion-paused .gift-page .gift-lid-hinge,body.motion-paused .gift-page .gift-3d .gift-lid,body.motion-paused .gift-page .box-slot,body.motion-paused .gift-page .box-fixed{transition:none!important}
+/* Headroom for the detached lid and footroom for the near face at every angle. */
+body.inner-page #main .gift-page .gift-scene:not(.gift-flat){height:350px}
+.gift-page .gift-scene:not(.gift-flat) .gift-3d{top:28px;transform:scale(.78) rotateX(-22deg) rotateY(var(--gift-turn))}
+@media(max-width:800px){
+ body.inner-page #main .gift-page .gift-scene:not(.gift-flat){height:350px}
+ .gift-page .gift-scene:not(.gift-flat) .gift-3d{top:20px;transform:scale(.84) rotateX(-22deg) rotateY(var(--gift-turn))}
+}
+.gift-page .box-slot.filled.is-changing{animation:gift-product-arrive .6s cubic-bezier(.16,.75,.3,1) both}
+.gift-page .box-slot.filled.is-changing.bagB{animation-delay:55ms}
+.gift-page .box-slot.filled.is-changing.jar{animation-delay:110ms}
+@keyframes gift-product-arrive{from{opacity:0;scale:.78;filter:blur(2px)}to{opacity:1;scale:1;filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){.gift-page .box-slot.filled.is-changing{animation:none!important}}
+body.motion-paused .gift-page .box-slot.filled.is-changing{animation:none!important}
+/* On the display reveal, the packs stand toward the viewer as they leave the tray. */
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot{transform-origin:50% 100%}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.bagA{transform:translate3d(calc(var(--gift-open)*-19px),calc(var(--gift-open)*-8px),calc(var(--gift-open)*70px)) rotateZ(calc(var(--gift-open)*-7deg)) rotateX(calc(var(--gift-open)*-55deg))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.bagB{transform:translate3d(0,calc(var(--gift-open)*-18px),calc(var(--gift-open)*88px)) rotateZ(calc(var(--gift-open)*3deg)) rotateX(calc(var(--gift-open)*-55deg))}
+.gift-page .gift-scene[data-opening-mode=bloom] .box-slot.jar{transform:translate3d(calc(var(--gift-open)*22px),calc(var(--gift-open)*-8px),calc(var(--gift-open)*67px)) rotateZ(calc(var(--gift-open)*9deg)) rotateX(calc(var(--gift-open)*-45deg))}
+.gift-page .gift-scene.gift-flat[data-opening-mode=bloom] .box-slot{transform:none}
+@media(max-width:800px){
+ .inner-page #main .gift-page .gift-drag-hint{font-size:11px;line-height:1.8}
+ .inner-page #main .gift-page .gift-price-total{gap:12px}
+ .inner-page #main .gift-page .gift-price-total strong{font-size:27px;white-space:nowrap;flex-shrink:0}
+}

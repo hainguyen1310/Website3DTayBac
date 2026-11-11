@@ -1,0 +1,183 @@
+/* Inner pages are set for laptop reading distance and the height beneath the navigation. */
+@media(min-width:1000px) and (max-width:1700px){
+ body.inner-page #main .section{padding-block:clamp(52px,4.8vw,76px)}
+ body.inner-page #main :is(.catalog-intro,.pg-news-intro,.detail-section,.pg-article){padding-top:28px}
+ body.inner-page #main :is(.pg-title,.pg-section-title,.display,h1,h2,h3){text-wrap:balance}
+ body.inner-page #main :is(.catalog-intro-copy,.detail-subtitle,.gift-step-intro,.st-letter-copy p,.st-value p,.sc-contact-grid aside p){text-wrap:pretty}
+ body.inner-page #main :is(.catalog-title-row,.detail-main,.detail-description-grid,.gift-builder,.checkout-grid,.cart-page-grid,.st-hero-grid,.st-process-layout,.st-trace-grid,.st-letter-grid,.st-values-grid,.sc-contact-grid)>*{min-width:0}
+ body.inner-page #main .pg-crumb{margin-bottom:28px;line-height:1.8}
+
+ /* Catalog copy and image share one compact opening, with the filter still close at hand. */
+ body.inner-page #main .catalog-intro{gap:clamp(32px,4vw,60px);padding-block:36px;grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr)}
+ body.inner-page #main .catalog-intro .pg-crumb{margin-bottom:28px}
+ body.inner-page #main .catalog-intro .pg-title{font-size:clamp(42px,3.6vw,58px);line-height:1.22;max-width:600px}
+ body.inner-page #main .catalog-intro .catalog-intro-copy{font-size:14px;line-height:1.85;max-width:43ch;margin-top:22px}
+ body.inner-page #main .catalog-intro .catalog-photo{height:clamp(290px,40svh,380px)}
+ body.inner-page #main .pg-catalog-section{padding-top:26px}
+ body.inner-page #main .catalog-toolbar{gap:22px;padding:16px 20px}
+ body.inner-page #main .catalog-filter-list{gap:4px;flex-wrap:wrap}
+ body.inner-page #main .catalog-filter-list button{padding-inline:15px;min-height:44px;line-height:1.5}
+ body.inner-page #main .catalog-tools{gap:18px;min-width:0}
+ body.inner-page #main .catalog-search{min-width:0}
+ body.inner-page #main .catalog-search input{min-width:0;width:170px}
+ body.inner-page #main .catalog-grid{gap:42px 30px;padding-inline:7px}
+ body.inner-page #main .catalog-grid .product-card h3{font-size:clamp(27px,2.2vw,34px);line-height:1.23}
+ body.inner-page #main .catalog-grid .product-meta{font-size:10px;line-height:1.7;padding-top:23px}
+ body.inner-page #main .catalog-grid .product-bottom{margin-top:14px;padding-bottom:16px}
+
+ /* A complete product photograph and the purchase information fit the same screen. */
+ body.inner-page #main .detail-main{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(38px,4.8vw,72px)}
+ body.inner-page #main .detail-gallery{top:calc(var(--laptop-header,82px) + 22px);max-width:640px;width:100%}
+ body.inner-page #main .detail-main-image{aspect-ratio:auto;height:clamp(340px,calc(100svh - 282px),570px);border-width:7px;border-radius:52px 3px 48px 3px}
+ body.inner-page #main .detail-main-image>img{object-fit:contain;background:var(--sand)}
+ body.inner-page #main .detail-thumbnails{gap:12px;margin-top:10px;padding-block:7px}
+ body.inner-page #main .detail-thumbnails button{width:62px;height:62px}
+ body.inner-page #main .detail-info{padding-top:10px}
+ body.inner-page #main .detail-info h1{font-size:clamp(45px,3.9vw,60px);line-height:1.16;margin:12px 0 18px;max-width:14ch}
+ body.inner-page #main .detail-subtitle{font-size:14px;line-height:1.85;max-width:47ch;margin-bottom:22px}
+ body.inner-page #main .detail-price{font-size:29px;padding-bottom:18px;gap:12px 22px}
+ body.inner-page #main .detail-stock{padding-block:16px;font-size:12px}
+ body.inner-page #main :is(.detail-add,.detail-buy){min-height:52px}
+ body.inner-page #main .detail-gift-link{margin:20px 0;padding-bottom:16px;font-size:12px;line-height:1.7}
+ body.inner-page #main .detail-assurances{gap:15px;padding-top:10px}
+ body.inner-page #main .detail-assurances span{font-size:10px;line-height:1.7}
+ body.inner-page #main .detail-description{padding-block:58px}
+ body.inner-page #main .detail-description-grid{grid-template-columns:minmax(210px,.62fr) minmax(0,1.65fr);gap:clamp(40px,5vw,76px)}
+ body.inner-page #main .detail-tab-panel{max-width:72ch}
+ body.inner-page #main .detail-tab-panel p{font-size:15px;line-height:1.9}
+
+ /* Three stories make one complete row instead of leaving an isolated final card. */
+ body.inner-page #main .pg-news-intro{padding-bottom:38px}
+ body.inner-page #main .pg-news-intro .catalog-title-row{grid-template-columns:minmax(0,1.4fr) minmax(290px,.8fr);gap:48px}
+ body.inner-page #main .pg-news-intro .pg-title{font-size:clamp(46px,4.1vw,64px);line-height:1.2}
+ body.inner-page #main .pg-news-intro .catalog-intro-copy{max-width:36ch;font-size:14px;line-height:1.85}
+ body.inner-page #main .pg-news-list .pg-news-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 30px}
+ body.inner-page #main .pg-news-list .pg-news-grid>.pg-article-card:first-child{grid-column:auto}
+ body.inner-page #main .pg-news-list .pg-news-grid>.pg-article-card:nth-child(2){padding-top:0}
+ body.inner-page #main .pg-news-list .pg-article-card .pg-article-image,
+ body.inner-page #main .pg-news-list .pg-news-grid>.pg-article-card:first-child .pg-article-image{aspect-ratio:1.4}
+ body.inner-page #main .pg-news-list .pg-article-card h2,
+ body.inner-page #main .pg-news-list .pg-news-grid>.pg-article-card:first-child h2{font-size:clamp(27px,2.2vw,34px);line-height:1.3;max-width:none}
+ body.inner-page #main .pg-article-heading{max-width:980px;margin:42px auto 38px}
+ body.inner-page #main .pg-article-heading h1{font-size:clamp(44px,4vw,62px);line-height:1.2;max-width:28ch;margin:23px auto 25px}
+ body.inner-page #main .pg-article-cover{height:clamp(340px,48svh,480px);margin-block:30px 50px;border-width:7px}
+ body.inner-page #main .pg-article-body{max-width:760px}
+ body.inner-page #main .pg-article-body>.pg-large-copy{font-size:24px;line-height:1.65;margin-bottom:34px}
+ body.inner-page #main .pg-original-article-body :is(p,li){font-size:15px;line-height:1.95;margin-bottom:22px;text-wrap:pretty}
+ body.inner-page #main .pg-original-article-body h2{font-size:34px;line-height:1.3;margin:38px 0 20px}
+ body.inner-page #main .pg-original-article-body h3{font-size:28px;line-height:1.35;margin:30px 0 18px}
+ body.inner-page #main .pg-related-articles .pg-news-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:34px}
+
+ /* The gift remains a two-column task, with a compact stage and a readable summary. */
+ body.inner-page #main .gift-page{padding-top:38px}
+ body.inner-page #main .gift-page-header{gap:50px;padding-bottom:32px}
+ body.inner-page #main .gift-page-header .display{font-size:clamp(48px,4.3vw,66px);line-height:1.18;max-width:20ch}
+ body.inner-page #main .gift-page-header>p{max-width:32ch;font-size:14px;line-height:1.85}
+ body.inner-page #main .gift-builder{grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:clamp(36px,5vw,76px);padding-top:30px}
+ body.inner-page #main .gift-preview{top:calc(var(--laptop-header,82px) + 20px);padding:20px;border-width:6px;border-radius:58px 3px 30px 3px;transform:rotate(.6deg)}
+ body.inner-page #main .gift-scene{height:clamp(240px,32svh,300px)}
+ body.inner-page #main .gift-box-controls{gap:16px}
+ body.inner-page #main .gift-drag-hint{margin-block:8px 14px;font-size:10px;line-height:1.7}
+ body.inner-page #main .gift-preview>.gift-preview-summary{padding:17px 18px 13px}
+ body.inner-page #main .gift-summary-title{gap:16px}
+ body.inner-page #main .gift-summary-title h3{font-size:30px;line-height:1.25}
+ body.inner-page #main .gift-selection-list{gap:7px;margin-top:14px}
+ body.inner-page #main .gift-selection-list>div{gap:15px;font-size:10px;line-height:1.7}
+ body.inner-page #main .gift-price-total{padding-top:15px;margin-top:15px}
+ body.inner-page #main .gift-price-total strong{font-size:32px}
+ body.inner-page #main .gift-preview-caption{font-size:9px;line-height:1.75;margin-top:12px}
+ body.inner-page #main .gift-steps{margin-bottom:25px;padding-bottom:20px;gap:12px}
+ body.inner-page #main .gift-steps button{font-size:11px;line-height:1.5}
+ body.inner-page #main .gift-step-content>h2{font-size:clamp(32px,2.8vw,42px);line-height:1.25;margin:16px 0 18px}
+ body.inner-page #main .gift-step-intro{font-size:13px;line-height:1.85;max-width:46ch}
+ body.inner-page #main .gift-size{padding:17px 16px;gap:13px}
+ body.inner-page #main .gift-product-option{min-height:84px;gap:15px;padding:10px}
+ body.inner-page #main .gift-product-option strong{font-size:25px;line-height:1.25}
+ body.inner-page #main .gift-step-actions{margin-top:28px;padding-top:20px}
+ body.inner-page #main .gift-card-preview{padding:25px 28px}
+ body.inner-page #main .gift-card-preview blockquote{font-size:27px;line-height:1.5}
+
+ /* Story scenes keep the image, title and controls inside the actual laptop height. */
+ body.inner-page #main .st-hero-grid,
+ body.inner-page #main .st-hero-about .st-hero-grid{min-height:0;padding:22px 0 50px;gap:6%}
+ body.inner-page #main .st-hero-copy{padding-block:18px}
+ body.inner-page #main .st-hero h1{font-size:clamp(54px,5vw,76px);line-height:1.15;margin-bottom:24px}
+ body.inner-page #main .st-hero-copy>p{font-size:14px;line-height:1.85;margin-bottom:28px}
+ body.inner-page #main .st-hero-image,
+ body.inner-page #main .st-hero-about .st-hero-image{aspect-ratio:auto;height:clamp(370px,calc(100svh - 240px),580px)}
+ body.inner-page #main .st-side-note{right:-8px;font-size:17px}
+ body.inner-page #main .st-opening-stage,
+ body.inner-page #main .st-process-stage,
+ body.inner-page #main .st-gift-story-stage{min-height:0}
+ body.inner-page #main .st-opening-copy{padding-block:44px 82px}
+ body.inner-page #main .st-opening-copy>.eyebrow{margin-bottom:24px}
+ body.inner-page #main .st-opening h2{font-size:clamp(52px,6.2vw,94px);line-height:1.17;margin-bottom:28px}
+ body.inner-page #main .st-opening-bottom{gap:34px}
+ body.inner-page #main .st-opening-bottom p{max-width:46ch;font-size:14px;line-height:1.8}
+ body.inner-page #main .st-process-wrap{padding-block:28px}
+ body.inner-page #main .st-process-kicker{padding-bottom:18px;margin-bottom:26px}
+ body.inner-page #main .st-process-layout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:6%}
+ body.inner-page #main .st-process-step{padding-block:18px}
+ body.inner-page #main .st-process-step:first-child{padding-top:0}
+ body.inner-page #main .st-process-title{gap:13px}
+ body.inner-page #main .st-process-title h3{font-size:clamp(26px,2.2vw,33px);line-height:1.25}
+ body.inner-page #main .st-process-step>p{margin:12px 0 0 37px;font-size:12px;line-height:1.8;max-width:43ch}
+ body.inner-page #main .st-process-film{height:clamp(340px,54svh,490px);min-height:0}
+ body.inner-page #main .st-trace,
+ body.inner-page #main .st-about-letter,
+ body.inner-page #main .st-values{padding-block:clamp(60px,6vw,90px)}
+ body.inner-page #main .st-trace-grid,
+ body.inner-page #main .st-letter-grid,
+ body.inner-page #main .st-values-grid{gap:7%}
+ body.inner-page #main .st-letter-copy h2{font-size:clamp(44px,4.3vw,66px);line-height:1.2;margin-bottom:28px}
+ body.inner-page #main .st-letter-copy p{max-width:62ch;line-height:1.9}
+ body.inner-page #main .st-letter-copy p.st-large-copy{font-size:20px;line-height:1.75}
+ body.inner-page #main .st-value{padding-block:30px}
+ body.inner-page #main .st-values-heading{top:calc(var(--laptop-header,82px) + 30px)}
+ body.inner-page #main .st-value h3{font-size:clamp(28px,2.4vw,36px);margin-bottom:15px;line-height:1.25}
+ body.inner-page #main .st-value p{font-size:13px;line-height:1.85;max-width:44ch}
+ body.inner-page #main .st-gift-story-grid{padding-block:38px 75px;gap:6%}
+ body.inner-page #main .st-gift-story-copy h2{font-size:clamp(44px,4.4vw,66px);line-height:1.2}
+ body.inner-page #main .st-gift-story-copy>p{font-size:14px;line-height:1.85;margin-block:24px;max-width:41ch}
+ body.inner-page #main .st-gift-story-art{min-height:0;height:clamp(350px,55svh,500px)}
+ body.inner-page #main .st-gift-main{max-height:100%}
+
+ /* Forms use a stable reading column; their summaries do not squeeze the input fields. */
+ body.inner-page #main .sc-contact{padding-top:42px}
+ body.inner-page #main .sc-contact-heading h1{font-size:clamp(48px,4.9vw,70px);line-height:1.2;max-width:24ch;margin-top:20px}
+ body.inner-page #main .sc-contact-grid{grid-template-columns:minmax(0,.76fr) minmax(0,1.24fr);gap:6%;margin-top:40px}
+ body.inner-page #main .sc-contact-grid aside{top:calc(var(--laptop-header,82px) + 28px)}
+ body.inner-page #main .sc-contact-grid aside h2{font-size:44px;line-height:1.2;margin-block:24px 18px}
+ body.inner-page #main .sc-contact-grid aside p{font-size:14px;line-height:1.9;max-width:39ch}
+ body.inner-page #main .sc-contact-form{padding:28px 30px}
+ body.inner-page #main .sc-form-row{gap:20px}
+ body.inner-page #main .sc-contact-form :is(input,textarea,select){font-size:14px;min-width:0}
+ body.inner-page #main .sc-contact-form label{font-size:12px;line-height:1.7}
+ body.inner-page #main .commerce-title{padding-bottom:36px}
+ body.inner-page #main .commerce-title .display{font-size:clamp(48px,4.5vw,68px);line-height:1.2}
+ body.inner-page #main .cart-page-grid{grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:6%}
+ body.inner-page #main .checkout-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:6%}
+ body.inner-page #main :is(.cart-page-aside,.checkout-summary){padding:30px;top:calc(var(--laptop-header,82px) + 22px)}
+ body.inner-page #main .cart-page-aside h2{font-size:38px;line-height:1.2;margin-block:18px 28px}
+ body.inner-page #main .cart-page-lines .cart-line{padding-block:24px;gap:20px}
+ body.inner-page #main .cart-page-lines .cart-line-top>a{font-size:26px;line-height:1.25}
+ body.inner-page #main .form-field{margin-bottom:22px}
+ body.inner-page #main .form-field :is(input,textarea,select){font-size:15px;line-height:1.65;padding:13px 15px}
+ body.inner-page #main .form-field label{font-size:12px;line-height:1.7;margin-bottom:10px}
+}
+
+@media(min-width:1000px) and (max-width:1700px) and (max-height:820px){
+ body.inner-page #main .gift-preview{position:relative;top:auto}
+ body.inner-page #main .checkout-summary{position:relative;top:auto}
+ body.inner-page #main .catalog-intro{padding-block:30px}
+ body.inner-page #main .catalog-intro .pg-crumb{margin-bottom:24px}
+ body.inner-page #main .pg-article-heading{margin-block:34px 30px}
+ body.inner-page #main .pg-article-heading h1{font-size:clamp(43px,3.7vw,55px)}
+ body.inner-page #main .st-opening h2{font-size:clamp(50px,5.6vw,80px)}
+ body.inner-page #main .st-gift-story-copy h2{font-size:clamp(43px,4vw,60px)}
+ body.inner-page #main .st-gift-story-grid{padding-block:30px 68px}
+ body.inner-page #main .st-process-wrap{padding-block:24px}
+ body.inner-page #main .st-process-kicker{margin-bottom:22px}
+ body.inner-page #main .st-process-step{padding-block:14px}
+ body.inner-page #main .st-process-step>p{font-size:12px;line-height:1.7;margin-top:10px}
+}

@@ -1,0 +1,72 @@
+/*
+ * Bổ sung cho bản port React. Chỉ chứa những gì CSS gốc (ref/) không có vì React
+ * thay một phần kỹ thuật: khung 3D three.js của cửa hàng thay cho <model-viewer>.
+ */
+
+/* Khung 3D dùng chung (ModelStage): mặc định lấp đầy phần tử cha có kích thước. */
+.sf-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.sf-stage-canvas,
+.sf-stage-canvas canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.sf-stage-canvas canvas:active {
+  cursor: grabbing;
+}
+.sf-stage-status {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 2;
+  margin: 0;
+  padding: 6px 14px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #fffaf2e6;
+  color: #6c5a43;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.sf-stage-status.is-error {
+  color: #731019;
+  white-space: normal;
+  text-align: center;
+  width: max-content;
+  max-width: 86%;
+}
+
+/* Đăng ký nhận tin trong hộp thoại (thay liên kết ra website ngoài). */
+.site-newsletter-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+.site-newsletter-form .btn {
+  justify-self: start;
+}
+.site-newsletter-form p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* Giữ cụm từ cuối dòng không rơi lẻ (thay typesetting.js, vốn sửa trực tiếp text node). */
+#main h1,
+#main h2,
+#main h3,
+#main p,
+.site-footer h2,
+.site-footer p {
+  text-wrap: pretty;
+}

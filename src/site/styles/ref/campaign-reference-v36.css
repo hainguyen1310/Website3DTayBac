@@ -1,0 +1,593 @@
+/* Ghép Vị Mở Miền · a scenic campaign, with the real journey at its centre. */
+body.campaign-page #site-header{top:0}
+body.campaign-page .announcement{display:none}
+body.campaign-page .site-header{height:76px;background:#F4EBDDF5;border-bottom:1px solid #C6A16466;backdrop-filter:blur(14px)}
+body.campaign-page .header-inner{width:min(1380px,calc(100% - 72px));gap:24px}
+body.campaign-page .brand{position:relative;align-self:stretch;min-width:192px;justify-content:center;margin-left:-36px;padding-right:26px;isolation:isolate}
+body.campaign-page .brand::before{content:"";position:absolute;inset:0 -16px 0 0;background:#6C202B;clip-path:polygon(0 0,100% 0,86% 100%,0 100%);z-index:-1}
+body.campaign-page .brand img{width:108px;height:63px;object-fit:contain}
+body.campaign-page .brand .brand-logo-home{display:block}
+body.campaign-page .brand .brand-logo-default,body.campaign-page .brand-caption{display:none}
+body.campaign-page .nav{gap:22px}
+body.campaign-page .nav a{font-size:12px;white-space:nowrap}
+body.campaign-page .header-tools{gap:8px}
+body.campaign-page .icon-button{width:36px;height:40px}
+body.campaign-page #site-footer .site-newsletter{display:none}
+body.campaign-page #site-footer .site-footer{position:relative;isolation:isolate;padding:38px 0 22px;background:#6C202B;color:#F4EBDD;overflow:hidden}
+body.campaign-page #site-footer .site-footer::before{content:"";position:absolute;inset:auto -20px -45px auto;width:420px;height:190px;background:none center/contain no-repeat;opacity:.4;z-index:-1;pointer-events:none}
+body.campaign-page #site-footer .wrap{width:min(1320px,calc(100% - 100px))}
+body.campaign-page #site-footer .footer-grid{grid-template-columns:1.25fr 1fr 1fr 1.1fr;gap:35px}
+body.campaign-page #site-footer .footer-brand img{width:100px;height:66px}
+body.campaign-page #site-footer .footer-brand p,body.campaign-page #site-footer .footer-bottom{color:#E7D5BE}
+body.campaign-page #site-footer .footer-title{color:#E4C08B;margin-bottom:14px}
+body.campaign-page #site-footer .footer-links{gap:9px}
+body.campaign-page #site-footer .footer-bottom{margin-top:30px;padding-top:19px}
+
+body.inner-page #main .cp-page.cp-reference{--cp-forest:#254834;--cp-forest-deep:#173728;--cp-gold:#C6A164;--cp-line:#C6A16455;--cp-cream:#F4EBDD;background:#F4EBDD none repeat;color:#493329;overflow:hidden}
+body.inner-page #main .cp-page.cp-reference .wrap{width:min(1320px,calc(100% - clamp(42px,7vw,120px)));max-width:1320px}
+body.inner-page #main .cp-page.cp-reference :is(h1,h2,h3){letter-spacing:-.025em;color:#6C202B;text-wrap:balance}
+body.inner-page #main .cp-page.cp-reference p{font-size:12px;line-height:1.7;color:#705D4D;text-wrap:pretty}
+body.inner-page #main .cp-page.cp-reference .cp-kicker{font-size:9px;color:#9A723E;letter-spacing:.1em}
+body.inner-page #main .cp-page.cp-reference .btn{min-height:42px;border-radius:6px;padding:10px 18px;font-size:12px;line-height:1.5;gap:14px;transition:background .25s,box-shadow .25s,transform .25s}
+body.inner-page #main .cp-page.cp-reference .btn.dark{background:#6C202B;border:1px solid #6C202B;color:#F4EBDD;box-shadow:0 6px 16px #6C202B16}
+body.inner-page #main .cp-page.cp-reference .btn.light{background:#F4EBDDEB;border:1px solid #B7945A;color:#6C202B}
+body.inner-page #main .cp-page.cp-reference .cp-btn-outline{background:#F4EBDDE0;border:1px solid #B7945A;color:#6C202B}
+body.inner-page #main .cp-page.cp-reference .text-link{font-size:11px;line-height:1.6;min-height:36px;color:#6C202B;gap:12px}
+body.inner-page #main .cp-page.cp-reference :is(a,button,input,summary):focus-visible{outline:2px solid #C6A164;outline-offset:4px}
+body.inner-page #main .cp-page.cp-reference section{position:relative;scroll-margin-top:94px}
+body.inner-page #main .cp-page.cp-reference .cp-section-heading{margin:0 0 21px;text-align:center}
+body.inner-page #main .cp-page.cp-reference .cp-section-heading h2{position:relative;display:inline-block;font-size:30px;line-height:1.2;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-section-heading h2::before,body.inner-page #main .cp-page.cp-reference .cp-section-heading h2::after{content:"◇";display:inline-block;vertical-align:middle;margin:0 17px;font-family:var(--sans);font-size:15px;font-weight:400;color:#B18B55}
+body.inner-page #main .cp-page.cp-reference .cp-section-heading>p{margin:8px auto 0;max-width:65ch;font-size:11px}
+
+/* One panoramic scene leads into the warm paper, without a hard pasted edge. */
+body.inner-page #main .cp-page.cp-reference .cp-hero{min-height:365px;padding:30px 0 36px;background:#DFE6DB;isolation:isolate;display:flex;align-items:center}
+body.inner-page #main .cp-page.cp-reference .cp-hero-landscape{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 55%;z-index:-3;filter:saturate(.7)}
+body.inner-page #main .cp-page.cp-reference .cp-hero::before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,#F4EBDD05 0%,#F4EBDDF2 18%,#F4EBDDEB 43%,#F4EBDD18 69%,#F4EBDD00),linear-gradient(0deg,#F4EBDD 0%,#F4EBDD00 30%);pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:#F4EBDD;clip-path:polygon(0 68%,10% 85%,22% 65%,34% 82%,48% 50%,62% 72%,75% 48%,88% 74%,100% 55%,100% 100%,0 100%);pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-hero-inner{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:35px}
+body.inner-page #main .cp-page.cp-reference .cp-hero-copy{position:relative;z-index:2;padding-left:clamp(0px,5vw,85px);max-width:730px}
+body.inner-page #main .cp-page.cp-reference .cp-hero h1{font-size:clamp(40px,3.55vw,56px);line-height:1.12;margin:12px 0 14px;max-width:660px}
+body.inner-page #main .cp-page.cp-reference .cp-hero h1>span,body.inner-page #main .cp-page.cp-reference .cp-hero h1>em{display:block;margin-left:0}
+body.inner-page #main .cp-page.cp-reference .cp-hero h1 em{color:#493329;font-size:.88em;font-weight:400}
+body.inner-page #main .cp-page.cp-reference .cp-hero h1 strong{font-weight:500;color:#6C202B;font-size:1.2em}
+body.inner-page #main .cp-page.cp-reference .cp-hero-copy>p{font-size:12px;max-width:48ch;color:#67503D;margin:0 0 17px}
+body.inner-page #main .cp-page.cp-reference .cp-hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+body.inner-page #main .cp-page.cp-reference .cp-demo-badge{font-size:8px;line-height:1.5;background:#F4EBDDBB;border:1px solid #C6A16466;color:#6C202B;padding:4px 9px;letter-spacing:.04em;margin-top:14px;border-radius:3px}
+body.inner-page #main .cp-page.cp-reference .cp-hero-art{position:relative;align-self:center;display:grid;place-items:center;min-width:0;height:280px;perspective:900px}
+body.inner-page #main .cp-page.cp-reference .cp-hero-puzzle{width:min(100%,410px);height:100%;overflow:visible;transform:rotate(-6deg) rotateY(-8deg);filter:drop-shadow(0 18px 18px #19352A55)}
+body.inner-page #main .cp-page.cp-reference .cp-hero-token{position:absolute;left:33%;top:31%;width:113px;height:113px;display:grid;place-items:center;color:#E9CB91;transform:rotate(-11deg);filter:drop-shadow(0 4px 0 #47151E) drop-shadow(0 0 17px #F9CF6A88);font-family:var(--serif);font-size:72px;line-height:1}
+body.inner-page #main .cp-page.cp-reference .cp-hero-token svg{width:100%;height:100%;stroke-width:1.2}
+body.inner-page #main .cp-page.cp-reference .cp-hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px;font-size:9px;line-height:1.5;color:#7D664C}
+body.inner-page #main .cp-page.cp-reference .cp-hero-meta .cp-demo-badge{margin-top:0}
+body.inner-page #main .cp-page.cp-reference .cp-hero-art-caption{position:absolute;left:0;right:0;bottom:-16px;text-align:center;font-size:10px;line-height:1.5;color:#493329;text-shadow:0 1px 6px #F4EBDD}
+
+/* A single readable row: receive, enter, unlock, complete. */
+body.inner-page #main .cp-page.cp-reference .cp-how{padding:12px 0 29px;border:0;background:transparent;isolation:isolate}
+body.inner-page #main .cp-page.cp-reference .cp-how::before{content:"";position:absolute;left:-90px;bottom:4px;width:300px;height:125px;background:none center/contain no-repeat;opacity:.46;z-index:-1;pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-how .cp-section-heading{margin-bottom:16px}
+body.inner-page #main .cp-page.cp-reference .cp-how-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+body.inner-page #main .cp-page.cp-reference .cp-how-grid article{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:9px;align-items:start;border:1px solid #C6A16466;border-radius:10px;background:#F9F1E5B8;min-height:111px;padding:18px 14px 14px 32px}
+body.inner-page #main .cp-page.cp-reference .cp-how-grid article:not(:last-child)::after{content:"→";position:absolute;right:-19px;top:40%;color:#A37C4A;font-size:17px}
+body.inner-page #main .cp-page.cp-reference .cp-how-grid .cp-step-number{position:absolute;left:7px;top:8px;display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#A8834D;color:#FFF3DA;font-family:var(--sans);font-size:9px;line-height:1}
+body.inner-page #main .cp-page.cp-reference .cp-step-icon{color:#A8834D;display:block;padding-top:7px}
+body.inner-page #main .cp-page.cp-reference .cp-step-icon svg{width:34px;height:34px;stroke-width:1.25}
+body.inner-page #main .cp-page.cp-reference .cp-how h3{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0;line-height:1.4;text-wrap:pretty;margin:0 0 6px}
+body.inner-page #main .cp-page.cp-reference .cp-how p{font-size:10px;line-height:1.55;margin:0;max-width:none}
+
+/* The landscape remains visible behind locked pieces; gold edges explain the game. */
+body.inner-page #main .cp-page.cp-reference .cp-experience{position:relative;padding:30px 0 27px;border-radius:32px 32px 0 0;background:#254834;isolation:isolate}
+body.inner-page #main .cp-page.cp-reference .cp-experience::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#17372888,transparent 48%,#17372866),none left bottom/52px repeat;opacity:.2;pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-experience::after{content:"";position:absolute;left:-50px;bottom:5px;width:350px;height:210px;background:none center/contain no-repeat;opacity:.5;z-index:-1;pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-experience-grid{display:grid;grid-template-columns:minmax(170px,.65fr) minmax(0,1.85fr) minmax(260px,.87fr);gap:25px;align-items:start}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro{padding:12px 0;min-width:0}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro .cp-kicker{font-size:8px;color:#DEC08C}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro h2{font-size:36px;line-height:1.12;color:#E5CD9C;font-style:italic;margin:13px 0 17px}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro h2 em{color:inherit;font-size:inherit}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro p{font-size:12px;color:#E3DDC9;line-height:1.75;max-width:27ch;margin-bottom:18px}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro .btn{border:1px solid #D0AB76;background:#6C202B;box-shadow:0 6px 18px #081D2022}
+body.inner-page #main .cp-page.cp-reference .cp-journey-intro>.cp-kicker:last-child{display:block;margin-top:18px;line-height:1.7;color:#C9BE9D;letter-spacing:.02em}
+body.inner-page #main .cp-page.cp-reference .cp-journey-seal{display:flex;align-items:center;gap:11px;margin-top:27px;color:#D6BA83;font-family:var(--serif);font-size:53px;line-height:1;border-top:1px solid #C6A16466;padding-top:16px;max-width:170px}
+body.inner-page #main .cp-page.cp-reference .cp-journey-seal small{font-family:var(--sans);font-size:9px;line-height:1.7;letter-spacing:.045em}
+body.inner-page #main .cp-page.cp-reference .cp-board-column{padding-top:0}
+body.inner-page #main .cp-page.cp-reference .cp-board-shell{padding:5px;border:2px solid #C6A164;border-radius:14px;background:#173728;overflow:hidden;box-shadow:0 12px 32px #10291D66,0 0 0 4px #152D2255}
+body.inner-page #main .cp-page.cp-reference svg.cp-board{overflow:hidden;border-radius:8px}
+body.inner-page #main .cp-page.cp-reference .cp-tile-image{opacity:.78}
+body.inner-page #main .cp-page.cp-reference .cp-tile-cover{fill:#48151C;opacity:.78}
+body.inner-page #main .cp-page.cp-reference .cp-tile-edge{stroke:#C6A164B3;stroke-width:1}
+body.inner-page #main .cp-page.cp-reference .cp-tile-lock{color:#E6C083;fill:#E6C083;stroke:#E6C083;opacity:1}
+body.inner-page #main .cp-page.cp-reference .cp-tile-number{font-family:var(--serif);font-size:10px;fill:#EACD93;stroke:#48151C88;stroke-width:1px;font-weight:500}
+body.inner-page #main .cp-page.cp-reference .cp-tile.is-unlocked .cp-tile-cover{opacity:0}
+body.inner-page #main .cp-page.cp-reference .cp-tile.is-unlocked .cp-tile-image{opacity:1}
+body.inner-page #main .cp-page.cp-reference .cp-tile.is-unlocked .cp-tile-edge{stroke:#F4EBDD80}
+body.inner-page #main .cp-page.cp-reference .cp-tile:hover .cp-tile-cover{opacity:.6}
+body.inner-page #main .cp-page.cp-reference .cp-tile.is-unlocked:hover .cp-tile-cover{opacity:0}
+body.inner-page #main .cp-page.cp-reference .cp-tile:is(:hover,:focus-visible) .cp-tile-edge{stroke:#FFE0A0;stroke-width:2}
+body.inner-page #main .cp-page.cp-reference .cp-tile.is-available .cp-tile-edge{stroke:#F4CE84;stroke-width:1.6}
+body.inner-page #main .cp-page.cp-reference .cp-board-legend{margin-top:13px;color:#E5D9BC;font-size:9px;gap:13px}
+body.inner-page #main .cp-page.cp-reference .cp-board-legend button{font-size:9px;color:#E5D9BC;border-color:#C6A16499;padding:5px 0;min-height:30px}
+body.inner-page #main .cp-page.cp-reference .cp-board-legend i{background:#6C202B;border-color:#C6A164}
+body.inner-page #main .cp-page.cp-reference .cp-board-legend i.is-open{background:#B4C1A0;border-color:#D4DAB4}
+body.inner-page #main .cp-page.cp-reference .cp-board-instruction{font-size:10px;line-height:1.6;color:#DDD6BF;margin:9px 0 0;max-width:75ch}
+body.inner-page #main .cp-page.cp-reference .cp-board-message{font-size:10px;color:#F0E3C6;background:#F4EBDD0D;border-left-color:#C6A164;padding:9px 11px;margin-top:11px;border-radius:0 5px 5px 0;min-height:0}
+body.inner-page #main .cp-page.cp-reference .cp-board-message.is-error{color:#FFE9CB;background:#6C202B88;border-left-color:#EDC081}
+body.inner-page #main .cp-page.cp-reference .cp-sidebar{display:grid;gap:11px;padding:0;min-width:0}
+body.inner-page #main .cp-page.cp-reference .cp-journey-status{padding:16px 17px;border-radius:10px;background:#F4EBDD;border:1px solid #C6A164;box-shadow:0 8px 24px #10291D22}
+body.inner-page #main .cp-page.cp-reference .cp-progress-title{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:17px;color:#705A3D;border-bottom:1px solid #C6A16455;padding-bottom:10px;margin-bottom:10px}
+body.inner-page #main .cp-page.cp-reference .cp-progress-title svg{width:21px;height:21px;color:#A5824A}
+body.inner-page #main .cp-page.cp-reference .cp-progress-count{color:#705D4D;justify-content:flex-start;gap:5px;margin-bottom:10px;font-size:11px;line-height:1.3}
+body.inner-page #main .cp-page.cp-reference .cp-progress-panel{width:100%;min-width:0;max-width:none}
+body.inner-page #main .cp-page.cp-reference .cp-progress-label{font-size:10px;line-height:1.5;color:#705D4D;display:block;margin-bottom:5px}
+body.inner-page #main .cp-page.cp-reference .cp-progress-count strong{color:#6C202B;font-size:33px}
+body.inner-page #main .cp-page.cp-reference .cp-progress-track{height:9px;background:repeating-linear-gradient(90deg,#DACEB8 0,#DACEB8 calc(4.1667% - 2px),#F4EBDD calc(4.1667% - 2px),#F4EBDD 4.1667%);border-radius:3px}
+body.inner-page #main .cp-page.cp-reference .cp-progress-track>i{background:#B89453;border-radius:3px}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights{margin-top:12px;display:grid}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>a,body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>div{display:flex;gap:9px;align-items:center;padding:9px 0;border-top:1px solid #C6A16455}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>*>svg{width:23px;height:23px;flex:0 0 23px;color:#A7824A;stroke-width:1.3}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>*>svg:last-child{width:12px;height:12px;flex:0 0 12px;margin-left:auto}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights strong{display:block;font-size:11px;font-weight:500;color:#6C202B;line-height:1.4}
+body.inner-page #main .cp-page.cp-reference .cp-progress-highlights small{display:block;font-size:9px;line-height:1.5;color:#75604D;margin-top:2px}
+body.inner-page #main .cp-page.cp-reference .cp-account-card{padding:16px 17px;background:#F4EBDD;border:1px solid #C6A16499;border-radius:10px;scroll-margin-top:94px}
+body.inner-page #main .cp-page.cp-reference .cp-account-card .cp-kicker{font-size:7px;letter-spacing:.09em}
+body.inner-page #main .cp-page.cp-reference .cp-account-card h3{font-size:24px;line-height:1.15;margin:8px 0 10px;overflow-wrap:anywhere}
+body.inner-page #main .cp-page.cp-reference .cp-account-card h3 br{display:none}
+body.inner-page #main .cp-page.cp-reference .cp-account-card p{font-size:10px;line-height:1.65;margin-bottom:12px}
+body.inner-page #main .cp-page.cp-reference .cp-account-actions{gap:9px}
+body.inner-page #main .cp-page.cp-reference .cp-account-actions .btn{min-height:40px;padding:9px 12px;font-size:10px;gap:8px}
+body.inner-page #main .cp-page.cp-reference .cp-account-actions .text-link{font-size:10px;min-height:30px;line-height:1.5}
+body.inner-page #main .cp-page.cp-reference .cp-account-actions .cp-account-admin{padding-top:9px}
+body.inner-page #main .cp-page.cp-reference .cp-code-card{padding:17px;border-radius:10px;background:#F4EBDD;border-color:#C6A164}
+body.inner-page #main .cp-page.cp-reference .cp-code-card>.cp-kicker{font-size:7px;max-width:30ch;padding-right:22px;margin-bottom:8px}
+body.inner-page #main .cp-page.cp-reference .cp-code-card h2{font-size:24px;margin-bottom:8px}
+body.inner-page #main .cp-page.cp-reference .cp-card-icon{right:14px;top:14px;width:25px;height:25px}
+body.inner-page #main .cp-page.cp-reference .cp-code-form{margin-top:13px}
+body.inner-page #main .cp-page.cp-reference .cp-code-form input{border-radius:5px;min-height:43px;background:#FFF9EF;font-size:11px;padding:9px 10px;letter-spacing:.025em}
+body.inner-page #main .cp-page.cp-reference .cp-code-hint{font-size:9px;line-height:1.55;margin:8px 0;color:#806C51}
+body.inner-page #main .cp-page.cp-reference .cp-form-actions{gap:7px;margin-top:10px}
+body.inner-page #main .cp-page.cp-reference .cp-form-actions .btn{font-size:10px;gap:8px;min-height:40px;padding:9px 11px}
+body.inner-page #main .cp-page.cp-reference .cp-form-actions button:not(.btn){font-size:10px;min-height:32px}
+body.inner-page #main .cp-page.cp-reference .cp-pending-card{border-radius:6px;padding:12px;background:#E6EAD9}
+body.inner-page #main .cp-page.cp-reference .cp-pending-card p{font-size:10px;color:#4A6546}
+body.inner-page #main .cp-page.cp-reference .cp-storage-note{font-size:9px;line-height:1.6;color:#D0C7AA;margin:0;padding:0 3px}
+
+body.inner-page #main .cp-page.cp-reference .cp-discover{padding:26px 0 23px;background:transparent}
+body.inner-page #main .cp-page.cp-reference .cp-discover-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card{display:grid;grid-template-columns:35% minmax(0,1fr);gap:12px;padding:9px;align-items:center;min-height:126px;border:1px solid #C6A16466;border-radius:10px;background:#F8F0E4;box-shadow:0 5px 16px #49332905;transition:transform .3s,box-shadow .3s,border-color .3s;overflow:hidden}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card>img{width:100%;height:100%;min-height:105px;object-fit:cover;border-radius:7px}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card>div{min-width:0;padding:2px 0}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card>.cp-voucher-art{display:grid;place-items:center;align-self:stretch;min-height:105px;border-radius:7px;background:#E8D4B8 none;color:#6C202B;overflow:hidden}
+body.inner-page #main .cp-page.cp-reference .cp-voucher-art>svg{width:75%;height:auto;max-height:82px;transform:rotate(-14deg);stroke-width:.8;filter:drop-shadow(0 5px 2px #6C202B12)}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card>div>span{color:#A8834D;display:block;height:21px;margin-bottom:5px}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card>div>span svg{height:20px;width:20px;stroke-width:1.3}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card h3{font-family:var(--serif);font-size:18px;font-weight:500;line-height:1.16;margin:0 0 5px}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card p{font-size:9px;line-height:1.5;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card strong{display:flex;align-items:center;gap:7px;font-size:9px;line-height:1.5;font-weight:400;color:#6C202B;margin-top:7px}
+body.inner-page #main .cp-page.cp-reference .cp-discover-card strong svg{width:12px;height:12px}
+
+/* Benefits are clearly conditional; no invented discount is presented as live. */
+body.inner-page #main .cp-page.cp-reference .cp-rewards{padding:7px 0 25px;background:transparent}
+body.inner-page #main .cp-page.cp-reference .cp-rewards-grid{display:grid;grid-template-columns:.7fr 2.15fr .8fr .8fr;gap:16px;align-items:stretch}
+body.inner-page #main .cp-page.cp-reference .cp-rewards-intro{padding:8px 4px 5px 0;min-width:0}
+body.inner-page #main .cp-page.cp-reference .cp-rewards-intro h2{font-size:28px;line-height:1.08;margin:0 0 12px;font-style:italic}
+body.inner-page #main .cp-page.cp-reference .cp-rewards-intro p{font-size:10px;line-height:1.65;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward{position:relative;isolation:isolate;border:1px solid #C6A164;border-radius:10px;min-height:184px;padding:18px 22px;overflow:hidden;background:#254834;box-shadow:0 6px 16px #49332911}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward>img{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:cover;object-position:center;z-index:-3;filter:saturate(.8)}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#173728F5,#173728CC 44%,#17372805);z-index:-2;pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward .cp-kicker{color:#E5C082;font-size:8px}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward h3{color:#F0D69F;font-size:30px;font-style:italic;line-height:1.05;margin:7px 0 9px;max-width:15ch}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward p{color:#F1E7D4;max-width:31ch;font-size:10px;line-height:1.6;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward .cp-reward-state{font-size:9px;color:#E6D2A9;margin-top:9px}
+body.inner-page #main .cp-page.cp-reference .cp-travel-reward>.text-link{font-size:9px;color:#F1DBAF;border-color:#C6A16488;min-height:28px;margin-top:3px}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward{min-width:0;padding:17px 14px;text-align:center;border:1px solid #C6A16466;background:#F8F0E4;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward>svg{width:47px;height:47px;color:#9E7845;stroke-width:1.15;margin-bottom:10px}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward>.cp-reward-illustration{display:grid;place-items:center;width:72px;height:60px;color:#9E7845;margin-bottom:10px}
+body.inner-page #main .cp-page.cp-reference .cp-reward-illustration svg{width:54px;height:54px;stroke-width:1.1;filter:drop-shadow(0 5px 3px #6C202B15)}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward>.cp-ticket-illustration{color:#6C202B;transform:rotate(-8deg)}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward>span:last-child:not(.cp-reward-illustration){display:flex;align-items:center;justify-content:center;gap:6px;font-size:8px;line-height:1.5;color:#8D6D40;margin-top:9px}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward>span:last-child:not(.cp-reward-illustration) svg{width:11px;height:11px}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward h3{font-size:19px;line-height:1.15;margin:0 0 7px}
+body.inner-page #main .cp-page.cp-reference .cp-small-reward p{font-size:9px;line-height:1.6;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-rewards-note{font-size:9px;color:#8A7156;text-align:center;margin:11px auto 0;max-width:100ch;line-height:1.6}
+
+body.inner-page #main .cp-page.cp-reference .cp-rules{padding:15px 0 25px;background:transparent;border-top:1px solid #C6A16444}
+body.inner-page #main .cp-page.cp-reference .cp-rules>.wrap{display:grid;grid-template-columns:190px minmax(0,1fr);column-gap:30px;align-items:start}
+body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading{text-align:left;margin:5px 0 0}
+body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading h2{font-size:29px;font-style:italic;line-height:1.1}
+body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading h2::before,body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading h2::after{display:none}
+body.inner-page #main .cp-page.cp-reference .cp-rules-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 20px}
+body.inner-page #main .cp-page.cp-reference .cp-rules details{align-self:start;border:1px solid #C6A16466;border-radius:7px;background:#F9F1E6;overflow:hidden}
+body.inner-page #main .cp-page.cp-reference .cp-rules details:last-child{border-bottom:1px solid #C6A16466}
+body.inner-page #main .cp-page.cp-reference .cp-rules summary{font-family:var(--sans);font-size:11px;line-height:1.5;letter-spacing:0;font-weight:400;padding:11px 13px;gap:14px;min-height:43px}
+body.inner-page #main .cp-page.cp-reference .cp-rules summary::after{font-size:16px;flex-shrink:0}
+body.inner-page #main .cp-page.cp-reference .cp-rules details>p{font-size:11px;line-height:1.8;padding:0 14px 15px;max-width:none;margin:0}
+body.inner-page #main .cp-page.cp-reference .cp-rules-note{grid-column:2;align-items:center;display:flex;flex-wrap:wrap;gap:5px 8px;margin-top:10px;font-size:10px}
+body.inner-page #main .cp-page.cp-reference .cp-rules-note .text-link{font-size:10px;margin:0;min-height:28px}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta{isolation:isolate;padding:25px 0 30px;background:#F4EBDD;overflow:hidden;border-top:1px solid #C6A16433}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#F4EBDD00,#F4EBDD 28%,#F4EBDD 73%,#F4EBDD00),url('/assets/original/images__asin__story-terraces.webp') center 65%/cover no-repeat;opacity:.75;z-index:-1;pointer-events:none}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta .wrap{display:flex;justify-content:center;align-items:center;gap:40px;text-align:center}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta h2{font-size:31px;line-height:1.15;margin:0 0 8px;font-style:italic}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta p{font-size:11px;margin:0;line-height:1.6}
+body.inner-page #main .cp-page.cp-reference .cp-final-cta .btn{flex-shrink:0}
+
+@media(hover:hover){
+ body.inner-page #main .cp-page.cp-reference .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px #4933291F}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card:hover{transform:translateY(-4px);border-color:#B18B55;box-shadow:0 10px 25px #49332913}
+}
+@media(min-width:1500px){body.inner-page #main .cp-page.cp-reference .cp-hero{min-height:390px}}
+@media(max-width:1200px){
+ body.campaign-page .header-inner{width:calc(100% - 48px);gap:15px}
+ body.campaign-page .brand{min-width:145px;margin-left:-24px;padding-right:18px}
+ body.campaign-page .nav{gap:15px}
+ body.campaign-page .nav a{font-size:11px}
+ body.inner-page #main .cp-page.cp-reference .wrap{width:calc(100% - 64px)}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-copy{padding-left:18px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-inner{gap:20px;grid-template-columns:1.12fr .88fr}
+ body.inner-page #main .cp-page.cp-reference .cp-hero h1{font-size:43px}
+ body.inner-page #main .cp-page.cp-reference .cp-experience-grid{grid-template-columns:180px minmax(0,1fr) 258px;gap:19px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro h2{font-size:31px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro p{font-size:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-grid{gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card{grid-template-columns:32% minmax(0,1fr);gap:9px;padding:8px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card h3{font-size:17px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-grid{grid-template-columns:.75fr 1.8fr .8fr .8fr;gap:12px}
+}
+@media(max-width:1000px){
+ body.campaign-page .site-header{height:70px}
+ body.campaign-page .brand img{width:100px;height:61px}
+ body.campaign-page .header-tools .menu-toggle{display:grid}
+ body.campaign-page .nav{gap:0}
+ body.campaign-page .nav a{font-size:26px;white-space:normal}
+ body.inner-page #main .cp-page.cp-reference .cp-hero{min-height:350px;padding-top:28px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero h1{font-size:38px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-copy{padding-left:0}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-art{height:235px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-token{width:92px;height:92px;font-size:62px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article{min-height:100px;padding-top:16px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article:nth-child(2)::after{display:none}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article:nth-child(3)::after{display:block}
+ body.inner-page #main .cp-page.cp-reference .cp-experience{padding:26px 0;border-radius:25px 25px 0 0}
+ body.inner-page #main .cp-page.cp-reference .cp-experience-grid{grid-template-columns:minmax(0,1fr) 270px;gap:20px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro{grid-column:1/-1;display:grid;grid-template-columns:1.05fr 1.5fr auto;align-items:center;gap:18px;padding:0 0 5px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro h2{font-size:32px;margin:0}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro p{max-width:none;margin:0;font-size:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro>.cp-kicker{display:none}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro>.cp-journey-seal{display:none}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro .btn{font-size:10px;padding-inline:13px;gap:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card{grid-template-columns:31% minmax(0,1fr);padding:10px;gap:14px;min-height:130px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card h3{font-size:20px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card p{font-size:10px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro{grid-column:1/-1;display:flex;gap:30px;align-items:center;padding-bottom:0}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro h2{font-size:29px;margin:0;max-width:270px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro p{max-width:42ch}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward{grid-column:1/-1;min-height:210px;padding:22px 25px}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward h3{font-size:36px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward{flex-direction:row;flex-wrap:wrap;column-gap:16px;padding:17px;min-height:125px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward>svg{margin:0;width:40px;height:40px;flex:0 0 40px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward h3{margin:0;flex:1;text-align:left}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward p{flex-basis:100%;margin-top:8px;max-width:34ch}
+ body.inner-page #main .cp-page.cp-reference .cp-rules>.wrap{grid-template-columns:155px minmax(0,1fr);gap:22px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules-list{gap:9px 12px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules summary{font-size:10px;padding:10px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta .wrap{gap:24px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta h2{font-size:28px}
+ body.campaign-page #site-footer .wrap{width:calc(100% - 64px)}
+ body.campaign-page #site-footer .footer-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 45px}
+}
+@media(max-width:700px){
+ body.campaign-page .site-header{height:68px}
+ body.campaign-page .header-inner{width:calc(100% - 38px);gap:8px}
+ body.campaign-page .brand{min-width:123px;margin-left:-19px;padding-right:16px}
+ body.campaign-page .brand img{width:91px;height:60px}
+ body.campaign-page .header-tools{gap:2px}
+ body.campaign-page .icon-button{width:32px;height:40px}
+ body.campaign-page .nav a{font-size:28px}
+ body.inner-page #main .cp-page.cp-reference .wrap{width:calc(100% - 42px)}
+ body.inner-page #main .cp-page.cp-reference section{scroll-margin-top:84px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero{min-height:0;padding:31px 0 29px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-inner{grid-template-columns:1fr;gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero::before{background:linear-gradient(180deg,#F4EBDDF7 0%,#F4EBDDED 43%,#F4EBDD11 80%,#F4EBDD)}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-landscape{object-position:center 60%}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-copy{text-align:center;margin:auto;max-width:460px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero .cp-kicker{font-size:8px;letter-spacing:.08em}
+ body.inner-page #main .cp-page.cp-reference .cp-hero h1{font-size:clamp(34px,8.8vw,46px);line-height:1.14;margin-top:10px;margin-bottom:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero h1 em{font-size:.86em}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-copy>p{font-size:11px;max-width:40ch;margin:0 auto 16px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-actions{justify-content:center;gap:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-meta{justify-content:center;gap:8px;font-size:8px;margin-top:13px}
+ body.inner-page #main .cp-page.cp-reference .btn{font-size:11px;min-height:44px;padding:10px 15px;gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-demo-badge{margin-top:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-art{height:205px;max-width:330px;width:90%;margin:auto}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-art-caption{bottom:-12px;font-size:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-puzzle{width:100%;transform:rotate(-5deg)}
+ body.inner-page #main .cp-page.cp-reference .cp-hero-token{height:80px;width:80px;font-size:54px;top:29%;left:35%;border-radius:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-section-heading h2{font-size:25px;line-height:1.2}
+ body.inner-page #main .cp-page.cp-reference .cp-section-heading h2::before,body.inner-page #main .cp-page.cp-reference .cp-section-heading h2::after{font-size:11px;margin:0 10px}
+ body.inner-page #main .cp-page.cp-reference .cp-how{padding:13px 0 25px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid{gap:11px 12px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article{display:flex;flex-direction:column;gap:9px;min-height:172px;padding:15px 11px 13px}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article:not(:last-child)::after{display:none}
+ body.inner-page #main .cp-page.cp-reference .cp-how-grid article:nth-child(3)::after{display:none}
+ body.inner-page #main .cp-page.cp-reference .cp-step-icon{padding:5px 0 0 25px;height:35px}
+ body.inner-page #main .cp-page.cp-reference .cp-step-icon svg{width:30px;height:30px}
+ body.inner-page #main .cp-page.cp-reference .cp-how h3{font-size:11px;margin-bottom:5px;line-height:1.45}
+ body.inner-page #main .cp-page.cp-reference .cp-how p{font-size:10px;line-height:1.65}
+ body.inner-page #main .cp-page.cp-reference .cp-experience{padding:26px 0;border-radius:23px 23px 0 0}
+ body.inner-page #main .cp-page.cp-reference .cp-experience-grid{grid-template-columns:1fr;gap:21px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro{display:block;text-align:center;padding:0 3px;grid-column:auto}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro h2{font-size:32px;margin:0 auto 12px;max-width:16ch}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro p{font-size:11px;max-width:43ch;margin:0 auto 15px;line-height:1.8}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-intro .btn{font-size:11px;min-height:42px}
+ body.inner-page #main .cp-page.cp-reference .cp-board-shell{padding:3px;border-radius:10px}
+ body.inner-page #main .cp-page.cp-reference .cp-board-legend{gap:11px;font-size:9px;margin-top:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-board-legend button{font-size:9px;min-height:33px}
+ body.inner-page #main .cp-page.cp-reference .cp-board-instruction{font-size:10px;line-height:1.7;margin-top:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-board-message{font-size:10px;line-height:1.65;margin-top:10px;padding:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-sidebar{gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-journey-status{padding:18px 20px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-title{font-size:20px;margin-bottom:13px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-count strong{font-size:37px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-count{font-size:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-highlights{margin-top:14px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>a,body.inner-page #main .cp-page.cp-reference .cp-progress-highlights>div{padding:11px 0;gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-highlights strong{font-size:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-progress-highlights small{font-size:10px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-card,body.inner-page #main .cp-page.cp-reference .cp-code-card{padding:21px 20px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-card .cp-kicker{font-size:8px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-card h3{font-size:29px;margin:10px 0 11px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-card p{font-size:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-actions .btn,body.inner-page #main .cp-page.cp-reference .cp-form-actions .btn{min-height:44px;font-size:11px}
+ body.inner-page #main .cp-page.cp-reference .cp-account-actions .text-link{font-size:11px;min-height:36px}
+ body.inner-page #main .cp-page.cp-reference .cp-code-form input{min-height:47px;font-size:13px}
+ body.inner-page #main .cp-page.cp-reference .cp-code-form input::placeholder{font-size:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-code-hint{font-size:10px;line-height:1.65}
+ body.inner-page #main .cp-page.cp-reference .cp-storage-note{font-size:9px;padding:0 2px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover{padding:26px 0 21px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-grid{grid-template-columns:1fr;gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card{grid-template-columns:32% minmax(0,1fr);gap:16px;padding:10px;min-height:139px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card>img{height:120px;min-height:0}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card h3{font-size:23px;margin-bottom:7px}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card p{font-size:11px;line-height:1.55}
+ body.inner-page #main .cp-page.cp-reference .cp-discover-card strong{font-size:10px;min-height:30px;margin-top:6px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards{padding:8px 0 25px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-grid{gap:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro{display:block;text-align:center;padding:0 0 5px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro h2{max-width:none;font-size:29px;margin:0 auto 10px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-intro p{max-width:42ch;font-size:11px;margin:auto}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward{min-height:229px;padding:21px 20px}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward h3{font-size:35px;margin:9px 0 12px}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward p{font-size:10px;max-width:27ch}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward .cp-reward-state{font-size:9px;margin-top:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-travel-reward>.text-link{font-size:10px;min-height:35px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward{display:flex;flex-direction:column;flex-wrap:nowrap;padding:18px 12px;min-height:194px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward>svg{width:42px;height:42px;margin-bottom:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward h3{font-size:21px;text-align:center;flex:initial;line-height:1.2;min-height:50px;display:grid;align-content:center}
+ body.inner-page #main .cp-page.cp-reference .cp-small-reward p{flex-basis:auto;font-size:10px;margin-top:7px}
+ body.inner-page #main .cp-page.cp-reference .cp-rewards-note{font-size:9px;line-height:1.7;margin-top:12px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules{padding:22px 0 26px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules>.wrap{display:block}
+ body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading{text-align:center;margin:0 0 20px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules .cp-section-heading h2{font-size:29px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules-list{grid-template-columns:1fr;gap:9px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules summary{font-size:11px;padding:12px 14px;min-height:45px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules details>p{font-size:11px;padding:0 15px 15px;line-height:1.8}
+ body.inner-page #main .cp-page.cp-reference .cp-rules-note{margin-top:16px;justify-content:center;font-size:10px}
+ body.inner-page #main .cp-page.cp-reference .cp-rules-note .text-link{min-height:35px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta{padding:30px 0 34px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta .wrap{flex-direction:column;gap:20px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta h2{font-size:31px;max-width:18ch;margin:0 auto 11px}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta p{font-size:11px;max-width:41ch;margin:auto}
+ body.inner-page #main .cp-page.cp-reference .cp-final-cta::before{opacity:.5;background:linear-gradient(180deg,#F4EBDD,#F4EBDD8C 70%,#F4EBDD55),url('/assets/original/images__asin__story-terraces.webp') center bottom/cover no-repeat}
+ body.campaign-page #site-footer .wrap{width:calc(100% - 42px)}
+ body.campaign-page #site-footer .footer-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:27px 22px}
+ body.campaign-page #site-footer .footer-brand{grid-column:1/-1}
+ body.campaign-page #site-footer .footer-grid>div:last-child{grid-column:1/-1}
+ body.campaign-page #site-footer .footer-title{font-size:10px}
+ body.campaign-page #site-footer .footer-links{font-size:11px;gap:10px}
+ body.campaign-page #site-footer .footer-bottom{margin-top:28px;gap:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.inner-page #main .cp-page.cp-reference *,body.inner-page #main .cp-page.cp-reference *::before,body.inner-page #main .cp-page.cp-reference *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+ body.inner-page #main .cp-page.cp-reference :is(.btn,.cp-discover-card):hover{transform:none}
+}
+body.motion-paused.inner-page #main .cp-page.cp-reference *,body.motion-paused.inner-page #main .cp-page.cp-reference *::before,body.motion-paused.inner-page #main .cp-page.cp-reference *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+body.motion-paused.inner-page #main .cp-page.cp-reference :is(.btn,.cp-discover-card):hover{transform:none}
+
+/* Once participating, keep attention on the board and the code, rather than repeat the introduction. */
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-sidebar{gap:9px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-highlights{display:none}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-journey-status{padding:13px 16px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-title{margin-bottom:8px;padding-bottom:8px;font-size:16px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-label{font-size:9px;margin-bottom:3px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-count{margin-bottom:8px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-count strong{font-size:30px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card{padding:12px 16px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card h3{font-size:21px;line-height:1.15;margin:6px 0 7px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card p{font-size:10px;line-height:1.55;margin:0 0 7px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card .cp-account-email{font-size:9px;margin-top:0;margin-bottom:6px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-actions{flex-direction:row;align-items:center;flex-wrap:wrap;gap:5px 15px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-actions .text-link{min-height:31px;font-size:10px;padding-bottom:3px;gap:7px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-actions .cp-account-admin{flex-basis:100%;padding-top:7px;margin-top:2px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card>.text-link{font-size:10px;min-height:30px;gap:7px;padding-bottom:3px}
+body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-code-card{padding:15px 16px}
+@media(max-width:700px){
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-sidebar{gap:12px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-journey-status{padding:17px 20px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-title{font-size:20px;margin-bottom:10px;padding-bottom:10px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-progress-count strong{font-size:35px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card{padding:15px 20px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card h3{font-size:25px;margin-block:7px 9px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card p{font-size:11px;line-height:1.65;margin-bottom:8px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-actions .text-link,body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-account-card>.text-link{font-size:11px;min-height:44px}
+ body.inner-page #main .cp-page.cp-reference:is([data-mode="demo"],[data-mode="real"]) .cp-code-card{padding:20px}
+}
+
+/* Keep the reference layout readable over photography and on smaller screens. */
+body.campaign-page.inner-page #main .cp-page.cp-reference {
+  :is(#cp-hanh-trinh, #cp-account, #cp-the-le, #cp-phan-thuong, [data-cp-board]) {
+    scroll-margin-top: 12px;
+  }
+
+  .cp-hero {
+    &::before {
+      background:
+        linear-gradient(90deg, #f4ebddfa 0%, #f4ebddf2 42%, #f4ebddaf 56%, #f4ebdd0d 78%),
+        linear-gradient(0deg, #f4ebdd, transparent 28%);
+    }
+
+    .cp-kicker {
+      color: #633c23;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+    }
+
+    h1,
+    h1 em {
+      color: #591a24;
+    }
+
+    h1 strong {
+      font-weight: 600;
+    }
+
+    .cp-hero-intro,
+    .cp-hero-meta {
+      color: #493329;
+      font-size: 14px;
+    }
+
+    .cp-hero-meta {
+      font-size: 12px;
+    }
+
+    .cp-demo-badge {
+      background: #fff6e8;
+      color: #65202b;
+      font-size: 11px;
+    }
+
+    .cp-hero-art-caption {
+      inset: auto auto -16px 50%;
+      width: max-content;
+      max-width: 100%;
+      transform: translateX(-50%);
+      padding: 5px 11px;
+      border-radius: 16px;
+      background: #fff6e8;
+      color: #493329;
+      font-size: 11px;
+      text-shadow: none;
+    }
+  }
+
+  :is(.cp-how-grid, .cp-discover-grid, .cp-rewards-grid, .cp-rules, .cp-final-cta) p {
+    font-size: 13px;
+  }
+
+  .cp-how h3,
+  .cp-rules summary {
+    font-size: 14px;
+  }
+
+  .cp-how-grid article {
+    background: #fbf3e7;
+  }
+
+  .cp-journey-intro p,
+  .cp-board-instruction,
+  .cp-board-message,
+  .cp-storage-note {
+    font-size: 13px;
+  }
+
+  .cp-journey-intro h2 {
+    max-width: none;
+  }
+
+  @media (min-width: 1001px) {
+    .cp-journey-intro h2 {
+      font-size: clamp(25px, 2.25vw, 36px);
+    }
+  }
+
+  .cp-board-legend,
+  .cp-board-legend button {
+    font-size: 12px;
+  }
+
+  .cp-tile-number {
+    font-size: 19px;
+    fill: #fff3d5;
+    stroke: #231812;
+    stroke-width: 2.25px;
+  }
+
+  .cp-account-card p,
+  .cp-account-card .text-link,
+  .cp-code-card :is(label, .cp-code-hint, .cp-field-error) {
+    font-size: 12px;
+  }
+
+  .cp-account-card .cp-account-actions .btn,
+  .cp-code-card .cp-form-actions .btn {
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  .cp-sidebar .cp-code-card {
+    grid-area: auto;
+
+    input {
+      min-height: 44px;
+      font-size: 16px;
+    }
+  }
+
+  .cp-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cp-travel-reward {
+    &::after {
+      background: linear-gradient(90deg, #122b20fa 0%, #122b20ed 46%, #122b208c 80%, #122b2066);
+    }
+
+    .cp-kicker,
+    .cp-reward-state,
+    > .text-link {
+      font-size: 12px;
+    }
+  }
+
+  .cp-rewards-note {
+    color: #604b39;
+    font-size: 12px;
+  }
+
+  .cp-final-cta::before {
+    opacity: .55;
+    background-image: linear-gradient(90deg, #f4ebdd66, #f4ebdd 24% 76%, #f4ebdd66),
+      url('/assets/original/images__asin__story-terraces.webp');
+  }
+
+  @media (max-width: 700px) {
+    .cp-hero {
+      padding-bottom: 40px;
+
+      &::before {
+        background: linear-gradient(180deg, #f4ebddfc 0%, #f4ebddf5 52%, #f4ebdd4d 82%, #f4ebdd);
+      }
+
+      h1 {
+        font-size: clamp(30px, 8vw, 44px);
+      }
+    }
+
+    .cp-tile-number {
+      font-size: 22px;
+    }
+  }
+}

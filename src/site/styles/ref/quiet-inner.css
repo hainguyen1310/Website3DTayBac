@@ -1,0 +1,51 @@
+/* Stable commerce surfaces and one calm editorial entry, without ambient motion. */
+body.inner-page #main .ip-atmosphere,
+body.inner-page #main .ic-scene-flow,
+body.inner-page #main .ic-photo-veil {
+  display: none !important;
+}
+body.inner-page #main .ip-title {
+  animation: none !important;
+  clip-path: none;
+}
+body.inner-page #main .ip-reveal,
+body.inner-page #main .ip-reveal.ip-pending {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+body.inner-page #main .catalog-grid .product-visual,
+body.inner-page #main .catalog-grid > .product-card:nth-child(3n+2) .product-visual,
+body.inner-page #main .catalog-grid > .product-card:nth-child(3n+3) .product-visual {
+  transform: none;
+  transition: box-shadow .25s ease;
+}
+body.inner-page #main .pg-process-grid article,
+body.inner-page #main .pg-process-grid article + article,
+body.inner-page #main .pg-belief-list article {
+  transform: none;
+  transition: none;
+}
+body.inner-page #main .pg-process-grid::before {
+  transform: scaleX(1);
+  transition: none;
+}
+body.inner-page #main .catalog-photo img,
+body.inner-page #main .pg-origin-hero > img {
+  transform: translateY(-4%) scale(1.02);
+  will-change: auto;
+}
+body.inner-page #main .pg-about-intro figure > img,
+body.inner-page #main .pg-article-cover img {
+  transform: translateY(-4%);
+  will-change: auto;
+}
+body.inner-page #main .pg-gift-banner img {
+  transform: none;
+}
+body.inner-page #main .catalog-grid .product-visual img,
+body.inner-page #main .pg-article-image img,
+body.inner-page #main .detail-main-image > img {
+  transition-duration: .3s;
+}

@@ -11,8 +11,9 @@ type Shop = {
   cart: CartLine[];
   setQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
-  addProduct: (id: string, quantity?: number) => void;
-  addGift: (design: GiftDesign) => void;
+  /** Trả về `true` khi đã thêm; `message` thay câu thông báo mặc định. */
+  addProduct: (id: string, quantity?: number, message?: string) => boolean;
+  addGift: (design: GiftDesign, message?: string) => boolean;
   favoriteIds: string[];
   toggleFavorite: (id: string) => void;
   cartOpen: boolean;
@@ -76,27 +77,29 @@ export function ShopProvider({ children }: { children: ReactNode }) {
           )
         : [...current, line];
     });
-  const addProduct = (id: string, quantity = 1) => {
-    if (!catalogProducts.some((p) => p.id === id && p.inStock !== false)) return;
+  const addProduct = (id: string, quantity = 1, message?: string) => {
+    if (!catalogProducts.some((p) => p.id === id && p.inStock !== false)) return false;
     const actualQuantity = Math.min(20 - (cart.find(item => item.key === id)?.quantity ?? 0), Math.max(1, Math.min(20, quantity)));
-    if (actualQuantity <= 0) return;
+    if (actualQuantity <= 0) return false;
     add({
       key: id,
       productId: id,
       quantity: Math.max(1, Math.min(20, quantity)),
     });
     trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([{ key: id, productId: id, quantity: actualQuantity }], catalogProducts)));
-    notify("Đã thêm vào giỏ. Một chút hương rừng đang chờ bạn!");
+    notify(message ?? "Đã thêm vào giỏ. Một chút hương rừng đang chờ bạn!");
+    return true;
   };
-  const addGift = (input: GiftDesign) => {
+  const addGift = (input: GiftDesign, message?: string) => {
     const design = cleanDesign(input, catalogProducts);
-    if (!design.productIds.length || (design.includeCard && !design.message.trim()) || design.productIds.some(id => catalogProducts.find(product => product.id === id)?.inStock === false)) return;
+    if (!design.productIds.length || (design.includeCard && !design.message.trim()) || design.productIds.some(id => catalogProducts.find(product => product.id === id)?.inStock === false)) return false;
     const line = { key: `gift:${JSON.stringify(design)}`, design, quantity: 1 };
-    if ((cart.find(item => item.key === line.key)?.quantity ?? 0) >= 20) return;
+    if ((cart.find(item => item.key === line.key)?.quantity ?? 0) >= 20) return false;
     add(line);
     trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([line], catalogProducts)));
-    notify("Đã thêm hộp quà mang dấu ấn của bạn vào giỏ.");
+    notify(message ?? "Đã thêm hộp quà mang dấu ấn của bạn vào giỏ.");
     setCartOpen(true);
+    return true;
   };
   const setQuantity = (key: string, quantity: number) => {
     const line = cart.find(item => item.key === key);

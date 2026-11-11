@@ -1,0 +1,147 @@
+/* Story pages reserve movement for choosing a detail or a making-of chapter. */
+body.inner-page #main .story-page .st-opening,
+body.inner-page #main .story-page .st-process,
+body.inner-page #main .story-page .st-gift-story {
+  height: auto;
+  min-height: 0;
+}
+body.inner-page #main .story-page .st-opening-stage,
+body.inner-page #main .story-page .st-process-stage,
+body.inner-page #main .story-page .st-gift-story-stage {
+  position: relative;
+  top: 0;
+  height: auto;
+  min-height: 0;
+}
+body.inner-page #main .story-page .st-opening-image {
+  inset: 0 !important;
+  border: 0;
+  border-radius: 0;
+  transform: none;
+  box-shadow: none;
+  will-change: auto;
+}
+body.inner-page #main .story-page .st-opening-image > img {
+  transform: none !important;
+  will-change: auto;
+}
+body.inner-page #main .story-page .st-opening-shade {
+  opacity: 1;
+  background: linear-gradient(90deg, #20120ec2, #20120e36 90%), linear-gradient(0deg, #20120e80, transparent 55%);
+}
+body.inner-page #main .story-page .st-opening-copy {
+  min-height: clamp(540px, 72svh, 660px);
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto;
+}
+body.inner-page #main .story-page .st-opening h2 {
+  font-size: clamp(44px, 5.1vw, 76px);
+  line-height: 1.18;
+}
+body.inner-page #main .story-page .st-opening h2 > em {
+  margin-left: 0;
+}
+body.inner-page #main .story-page .st-opening-progress,
+body.inner-page #main .story-page .st-gift-scroll {
+  display: none;
+}
+body.inner-page #main .story-page .st-hero-image img {
+  clip-path: none !important;
+  transform: none !important;
+  transition: none;
+}
+body.inner-page #main .story-page .st-collage-first,
+body.inner-page #main .story-page .st-collage-second,
+body.inner-page #main .story-page .st-gift-story-copy h2,
+body.inner-page #main .story-page .st-gift-main {
+  transform: none !important;
+  will-change: auto;
+}
+body.inner-page #main .story-page .st-gift-main {
+  opacity: 1 !important;
+}
+body.inner-page #main .story-page .st-gift-orbit,
+body.inner-page #main .story-page .st-gift-story-art::before {
+  display: none;
+}
+
+/* One stable picture responds to its selected step; no zoom, mask or frame rotation. */
+body.inner-page #main .story-page .st-process-step {
+  opacity: .86;
+  transition: background .28s ease, border-color .28s ease;
+}
+body.inner-page #main .story-page .st-process-step.is-current {
+  opacity: 1;
+}
+body.inner-page #main .story-page .st-process-title svg,
+body.inner-page #main .story-page .st-process-step.is-current .st-process-title svg {
+  transform: none;
+  transition: none;
+}
+body.inner-page #main .story-page .st-process-film > figure,
+body.inner-page #main .story-page .st-process-film > figure.is-current {
+  transform: none;
+  clip-path: none;
+  transition: opacity .36s ease;
+}
+body.inner-page #main .story-page .st-process-film > figure.is-current {
+  z-index: 1;
+}
+body.inner-page #main .story-page .st-process-progress > i > b {
+  transition: width .3s ease;
+}
+
+@media (min-width: 801px) {
+  body.inner-page #main .story-page .st-process-layout {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  }
+  body.inner-page #main .story-page .st-process-list {
+    display: block;
+  }
+  body.inner-page #main .story-page .st-process-step,
+  body.inner-page #main .story-page .st-process-step:first-child {
+    padding: 18px 17px !important;
+    border: 1px solid #b68d583b;
+  }
+  body.inner-page #main .story-page .st-process-step > p {
+    margin: 12px 0 0 37px;
+  }
+  body.inner-page #main .story-page .st-process-inline {
+    display: none;
+  }
+  body.inner-page #main .story-page .st-process-film {
+    display: block;
+  }
+  body.inner-page #main .story-page .st-gift-story-grid {
+    padding-block: 60px;
+  }
+}
+@media (max-width: 800px) {
+  body.inner-page #main .story-page .st-opening-copy {
+    min-height: 620px;
+    padding-block: 45px 64px;
+  }
+  body.inner-page #main .story-page .st-opening h2 {
+    font-size: clamp(41px, 10.5vw, 61px);
+  }
+  body.inner-page #main .story-page .st-opening-image figcaption {
+    bottom: 19px;
+  }
+  body.inner-page #main .story-page .st-process-step {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.inner-page #main .story-page .st-process-film > figure,
+  body.inner-page #main .story-page .st-process-progress > i > b,
+  body.inner-page #main .story-page .st-process-step {
+    transition: none;
+  }
+}
+body.motion-paused.inner-page #main .story-page .st-process-film > figure,
+body.motion-paused.inner-page #main .story-page .st-process-progress > i > b,
+body.motion-paused.inner-page #main .story-page .st-process-step {
+  transition: none;
+}

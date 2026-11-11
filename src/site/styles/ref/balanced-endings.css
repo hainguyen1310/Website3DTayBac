@@ -1,0 +1,55 @@
+/* Light closing chapters separate the wine accents from the shared footer. */
+body #main .sc-home .lh-closing {
+  background:#fcfaf5;color:#731019;border-top:1px solid #b3926538;
+}
+body #main .sc-home .lh-closing .lh-kicker { color:#987c54; }
+body #main .sc-home .lh-closing h2 { color:#731019; }
+body #main .sc-home .lh-closing h2 em { color:#a17d45; }
+body #main .sc-home .lh-closing-actions>p { color:#7a756a; }
+body #main .sc-home .lh-closing-actions>.btn { background:#731019;border-color:#731019;color:#fffdf8; }
+body #main .sc-home .lh-closing-actions>.btn:hover { background:#580a11;border-color:#580a11; }
+body #main .sc-home .lh-closing-actions>.text-link { color:#731019;border-color:#b3926580; }
+
+body.inner-page #main .og-end {
+  background:#fffdf8;color:#731019;border-top:1px solid #b3926538;
+}
+body.inner-page #main .og-end h2 { color:#731019; }
+body.inner-page #main .og-end h2 em { color:#a17d45; }
+body.inner-page #main .og-end .eyebrow { color:#987c54; }
+body.inner-page #main .og-end-actions .btn { background:#731019;border-color:#731019;color:#fffdf8; }
+body.inner-page #main .og-end-actions .btn:hover { background:#580a11;border-color:#580a11; }
+body.inner-page #main .og-end-actions .text-link { color:#731019;border-color:#b3926580; }
+body.inner-page #main .og-source { color:#92754f; }
+
+#site-footer .site-newsletter {
+  background:#f7f1e7;color:#731019;border-top:1px solid #b3926538;
+}
+#site-footer .site-newsletter .sc-newsletter {
+  display:flex;align-items:center;justify-content:space-between;gap:44px;
+  padding-block:43px;margin-bottom:0;border:0;
+}
+#site-footer .site-newsletter .eyebrow { color:#987c54;font-size:8px;letter-spacing:.15em; }
+#site-footer .site-newsletter h2 {
+  color:#731019;font-family:var(--serif);font-size:clamp(32px,3vw,43px);font-weight:400;
+  line-height:1.2;letter-spacing:-.035em;margin:12px 0 14px;text-wrap:balance;
+}
+#site-footer .site-newsletter p { color:#7a756a;font-size:12px;line-height:1.85; }
+#site-footer .site-newsletter .btn {
+  margin:0;min-width:0;min-height:49px;background:transparent;color:#731019;border-color:#a4835173;font-size:11px;
+}
+#site-footer .site-newsletter .btn:hover { background:#fffdf8; }
+#site-footer .site-footer {
+  padding:47px 0 24px;background:#500b13;border-top:1px solid #b3926540;
+}
+#site-footer .site-footer::before { display:none; }
+#site-footer .site-footer .footer-bottom { margin-top:34px;padding-top:22px; }
+
+@media (max-width:800px) {
+  #site-footer .site-newsletter .sc-newsletter { display:block;padding-block:32px; }
+  #site-footer .site-newsletter h2 { font-size:34px;margin-block:12px; }
+  #site-footer .site-newsletter p { font-size:12px; }
+  #site-footer .site-newsletter p br { display:none; }
+  #site-footer .site-newsletter .btn { margin-top:22px;font-size:10px;min-height:47px;padding-inline:18px; }
+  #site-footer .site-footer { padding:36px 0 22px; }
+  #site-footer .site-footer .footer-bottom { margin-top:29px; }
+}

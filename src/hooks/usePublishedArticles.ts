@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getPublishedArticle, listPublishedArticles } from "../services/storeApi";
 import type { PublishedArticle } from "../services/storeApi";
 import { readBootstrap } from "../seo/bootstrap";
+import { NEWS_PAGE_SIZE } from "../content/article";
 
-const PAGE_SIZE = 9;
+export const PAGE_SIZE = NEWS_PAGE_SIZE;
 
 function bootstrapArticles() {
   const payload = readBootstrap();

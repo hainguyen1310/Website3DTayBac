@@ -468,6 +468,9 @@ function matchSiteRoute(pathname, search) {
     return { kind: "notFound" };
   }
   if (first2 === "thiet-ke" && segments.length === 1) return { kind: "gift" };
+  if (first2 === "chuong-trinh" && segments.length === 1) return { kind: "campaign" };
+  if (first2 === "gio-hang" && segments.length === 1) return { kind: "cart" };
+  if (first2 === "thanh-toan" && segments.length === 1) return { kind: "checkout" };
   if (first2 === "gioi-thieu" && segments.length === 1) return { kind: "about" };
   if (first2 === "nguon-goc" && segments.length === 1) return { kind: "origin" };
   if (first2 === "lien-he" && segments.length === 1) return { kind: "contact" };

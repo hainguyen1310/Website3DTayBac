@@ -10,6 +10,7 @@
  */
 
 import { escapeHtml, renderInline, toBlocks } from "../content/blocks.ts";
+import { NEWS_PAGE_SIZE } from "../content/article.ts";
 import type { ContentBlock } from "../content/blocks.ts";
 import { getSeoEnvironment, isIndexableHost } from "./config.ts";
 import type { SeoEnvironment } from "./config.ts";
@@ -18,6 +19,8 @@ import { PUBLIC_CONTENT_CACHE } from "./cachePolicy.ts";
 import type { SiteRoute } from "./paths.ts";
 import {
   aboutMeta,
+  campaignMeta,
+  privatePageMeta,
   originMeta,
   articleMeta,
   categoryMeta,
@@ -396,7 +399,7 @@ async function renderNews(
   route: Extract<SiteRoute, { kind: "news" }>,
   search: URLSearchParams,
 ): Promise<RenderedPage> {
-  const pageSize = 9;
+  const pageSize = NEWS_PAGE_SIZE;
   let page: Awaited<ReturnType<typeof loadArticleList>>;
   try {
     page = await loadArticleList(client, { limit: pageSize, offset: (route.page - 1) * pageSize, topicSlug: route.topic });
@@ -513,6 +516,8 @@ function staticPage(ctx: SeoContext, route: SiteRoute, title: string, intro: str
           ? originMeta(ctx)
         : route.kind === "contact"
           ? contactMeta(ctx)
+        : route.kind === "campaign"
+          ? campaignMeta(ctx)
           : homeMeta(ctx);
   return { status: 200, seo, bodyHtml: body, cacheControl: PUBLIC_CONTENT_CACHE };
 }
@@ -552,6 +557,10 @@ export async function renderSitePage(input: RenderSiteInput): Promise<RenderedPa
     if (route.kind === "notFound") return notFoundPage(ctx, pathname);
   }
 
+  if (route.kind === "cart" || route.kind === "checkout") {
+    return { status: 200, seo: privatePageMeta(ctx, route.kind), bodyHtml: "", cacheControl: "no-store" };
+  }
+
   if (route.kind === "admin" || route.kind === "unsubscribe") {
     return {
       status: 200,
@@ -588,8 +597,10 @@ export async function renderSitePage(input: RenderSiteInput): Promise<RenderedPa
         ctx,
         route,
         "Tự thiết kế hộp quà Tây Bắc",
-        "Chọn size hộp vừa hoặc to, màu xanh hoặc đỏ đô, sản phẩm bên trong rồi chọn viết thiệp hoặc không. Nếu viết thiệp, nhập lời chúc vào phần ghi chú.",
+        "Chọn cỡ hộp Sinh Lộc hoặc Thịnh Đỉnh, phối hai túi đặc sản và một hũ thịt xé, rồi viết lời nhắn cho người nhận. Chẩm chéo được gói sẵn, hộp Thịnh Đỉnh kèm rượu ngô Bản Phố.",
       );
+    case "campaign":
+      return staticPage(ctx, route, "Ghép Vị Mở Miền · 24 mảnh ghép Tây Bắc", "Ghép 24 mảnh để khám phá hương vị và chuyện bản làng Tây Bắc. Mỗi đơn hàng đủ điều kiện nhận mã, mở từng mảnh ghép và theo dõi tiến độ của bạn.");
     case "origin":
       return staticPage(ctx, route, "Nguồn gốc sản vật A Sỉn", "Khám phá vùng nguyên liệu Tây Bắc, những người sản xuất bản địa và cách chế biến truyền thống phía sau từng sản vật. Xem thông tin xuất xứ cụ thể trên trang sản phẩm hoặc liên hệ A Sỉn để tìm hiểu thêm.");
     case "about":

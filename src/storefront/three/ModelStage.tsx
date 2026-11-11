@@ -6,6 +6,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { tintedTexture } from "./tint";
+import { poseLid, rigLid, riseOffset } from "./lidRig";
+import type { LidMode, LidRig, RiseOffsets } from "./lidRig";
 
 export type StageItem = {
   key: string;
@@ -18,6 +20,8 @@ export type StageItem = {
   appearDelay?: number;
   /** Độ cao (đơn vị cảnh) vật thể rơi xuống khi xuất hiện. */
   appearLift?: number;
+  /** Độ dời khi mở hộp theo từng kiểu, tính theo kích thước thân hộp (rộng, cao, sâu). */
+  rise?: RiseOffsets;
 };
 
 type Props = {
@@ -35,7 +39,28 @@ type Props = {
   /** Hệ số khoảng cách camera khi canh khung (lớn hơn = lùi xa hơn). */
   fitPadding?: number;
   className?: string;
+  /** Góc xoay ngang (độ) so với hướng nhìn ban đầu; đổi giá trị để camera quay mượt tới góc đó. */
+  yaw?: number;
+  /** Báo góc xoay (độ, 0–360) khi khách kéo xoay trực tiếp trên mô hình. */
+  onYawChange?: (degrees: number) => void;
+  /** "top": nhìn thẳng từ trên xuống; "3d": góc nhìn ban đầu. */
+  view?: "3d" | "top";
+  /** Cho phép kéo/xoay/thu phóng bằng chuột hoặc chạm. */
+  interactive?: boolean;
+  /** Mở/đóng nắp vỏ hộp: `open` 0 = đóng, 1 = mở; `mode` là kiểu mở. Bỏ trống = giữ dáng gốc. */
+  lid?: { open: number; mode: LidMode };
+  /** Gọi khi mọi mô hình đã tải và camera đã canh khung. */
+  onReady?: () => void;
+  /** Gọi khi không tải được mô hình hoặc thiết bị không có WebGL. */
+  onError?: () => void;
 };
+
+/** Trạng thái quỹ đạo camera dùng cho góc xoay điều khiển từ ngoài. */
+type Orbit = { fitted: boolean; baseTheta: number; basePhi: number; goalTheta: number | null; goalPhi: number | null; dragging: boolean };
+const TOP_PHI = 0.02;
+const normalizeDegrees = (value: number) => ((value % 360) + 360) % 360;
+/** Góc gần nhất với `current` tương đương `goal` (quay theo đường ngắn). */
+const nearestAngle = (current: number, goal: number) => goal + Math.round((current - goal) / (Math.PI * 2)) * Math.PI * 2;
 
 const APPEAR_MS = 720;
 /** easeOutBack: vượt đà nhẹ rồi về đúng kích thước. */
@@ -57,7 +82,30 @@ const loadModel = (url: string) => {
 };
 
 type Appear = { start: number; target: number; lift: number };
-type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear };
+type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear; rig?: LidRig | null };
+type LidState = { enabled: boolean; target: number; current: number; mode: LidMode };
+
+const riseScratch = new THREE.Vector3();
+/** Đưa nắp và các món tới mức mở hiện tại; trả về true nếu còn đang chuyển động. */
+function stepLid(entries: Map<string, Entry>, state: LidState) {
+  if (!state.enabled) return false;
+  const instant = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
+  const delta = state.target - state.current;
+  state.current = instant || Math.abs(delta) < 0.002 ? state.target : state.current + delta * 0.12;
+  const rig = [...entries.values()].find((entry) => entry.rig)?.rig;
+  if (!rig) return false;
+  for (const entry of entries.values()) {
+    if (!entry.object) continue;
+    if (entry.rig) {
+      poseLid(entry.rig, state.current, state.mode);
+      continue;
+    }
+    if (entry.appear) continue;
+    riseOffset(entry.item.rise, rig.body, state.current, state.mode, riseScratch);
+    entry.object.position.set(...entry.item.position).add(riseScratch);
+  }
+  return state.current !== state.target;
+}
 
 /** Cập nhật hiệu ứng xuất hiện; trả về true khi còn vật thể đang chuyển động. */
 function stepAppear(entries: Map<string, Entry>, now: number) {
@@ -109,7 +157,7 @@ function instantiate(gltf: GLTF, isBox: boolean) {
   return object;
 }
 
-export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], animateIn = false, fitPadding = 1.08, className = "" }: Props) {
+export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], animateIn = false, fitPadding = 1.08, className = "", yaw, onYawChange, view = "3d", interactive = true, lid, onReady, onError }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stage = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -126,6 +174,20 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   tintRef.current = boxTint;
   const animateRef = useRef(animateIn);
   animateRef.current = animateIn;
+  const orbit = useRef<Orbit>({ fitted: false, baseTheta: 0, basePhi: 0, goalTheta: null, goalPhi: null, dragging: false });
+  const yawCallback = useRef(onYawChange);
+  yawCallback.current = onYawChange;
+  const reportedYaw = useRef<number | null>(null);
+  const readyCallback = useRef(onReady);
+  readyCallback.current = onReady;
+  const errorCallback = useRef(onError);
+  errorCallback.current = onError;
+  const lidState = useRef<LidState>({ enabled: Boolean(lid), target: lid?.open ?? 1, current: lid?.open ?? 1, mode: lid?.mode ?? "hinge" });
+  lidState.current.enabled = Boolean(lid);
+  if (lid) {
+    lidState.current.target = lid.open;
+    lidState.current.mode = lid.mode;
+  }
 
   // Khởi tạo renderer một lần.
   useEffect(() => {
@@ -136,6 +198,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     } catch {
       setUnsupported(true);
+      errorCallback.current?.();
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -174,6 +237,46 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     controls.rotateSpeed = 0.7;
     const root = new THREE.Group();
     scene.add(root);
+    const spherical = new THREE.Spherical();
+    const offset = new THREE.Vector3();
+    controls.addEventListener("start", () => {
+      orbit.current.dragging = true;
+      orbit.current.goalTheta = orbit.current.goalPhi = null;
+    });
+    controls.addEventListener("end", () => {
+      orbit.current.dragging = false;
+    });
+    controls.addEventListener("change", () => {
+      if (!orbit.current.dragging || !orbit.current.fitted) return;
+      spherical.setFromVector3(offset.copy(camera.position).sub(controls.target));
+      const degrees = Math.round(normalizeDegrees(THREE.MathUtils.radToDeg(spherical.theta - orbit.current.baseTheta)));
+      reportedYaw.current = degrees;
+      yawCallback.current?.(degrees);
+    });
+    /** Đưa camera dần tới góc mục tiêu (hoặc tức thì khi khách muốn giảm chuyển động). */
+    const steer = () => {
+      const goal = orbit.current;
+      if (goal.goalTheta === null && goal.goalPhi === null) return;
+      spherical.setFromVector3(offset.copy(camera.position).sub(controls.target));
+      const instant = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
+      const blend = instant ? 1 : 0.16;
+      let settled = true;
+      if (goal.goalTheta !== null) {
+        const delta = goal.goalTheta - spherical.theta;
+        spherical.theta += delta * blend;
+        if (Math.abs(delta) > 0.002) settled = false;
+        else spherical.theta = goal.goalTheta;
+      }
+      if (goal.goalPhi !== null) {
+        const delta = goal.goalPhi - spherical.phi;
+        spherical.phi += delta * blend;
+        if (Math.abs(delta) > 0.002) settled = false;
+        else spherical.phi = goal.goalPhi;
+      }
+      camera.position.copy(controls.target).add(offset.setFromSpherical(spherical));
+      camera.lookAt(controls.target);
+      if (settled) goal.goalTheta = goal.goalPhi = null;
+    };
     stage.current = { renderer, scene, camera, controls, root, entries: new Map() };
 
     const resize = () => {
@@ -196,7 +299,11 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     const loop = () => {
       frame = requestAnimationFrame(loop);
       if (!visible) return;
-      if (stage.current) stepAppear(stage.current.entries, performance.now());
+      if (stage.current) {
+        stepAppear(stage.current.entries, performance.now());
+        stepLid(stage.current.entries, lidState.current);
+      }
+      steer();
       controls.update();
       renderer.render(scene, camera);
     };
@@ -229,6 +336,31 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     current.controls.autoRotateSpeed = 1.3;
   }, [autoRotate]);
 
+  useEffect(() => {
+    if (stage.current) stage.current.controls.enabled = interactive;
+  }, [interactive]);
+
+  // Góc xoay và kiểu nhìn điều khiển từ ngoài (thanh xoay, nút xoay, "Xem từ trên").
+  const appliedView = useRef<"3d" | "top">("3d");
+  const applyOrbit = useRef(() => {});
+  applyOrbit.current = () => {
+    const current = stage.current;
+    const state = orbit.current;
+    const echoed = yaw === reportedYaw.current;
+    reportedYaw.current = null;
+    // Giá trị vừa báo lên từ thao tác kéo: không điều khiển ngược lại camera.
+    if (!current || !state.fitted || state.dragging) return;
+    const spherical = new THREE.Spherical().setFromVector3(current.camera.position.clone().sub(current.controls.target));
+    if (yaw !== undefined && !echoed) state.goalTheta = nearestAngle(spherical.theta, state.baseTheta + THREE.MathUtils.degToRad(yaw));
+    if (appliedView.current !== view) {
+      appliedView.current = view;
+      state.goalPhi = view === "top" ? TOP_PHI : state.basePhi;
+    }
+  };
+  useEffect(() => {
+    applyOrbit.current();
+  }, [yaw, view]);
+
   // Đồng bộ danh sách vật thể.
   useEffect(() => {
     const current = stage.current;
@@ -257,6 +389,8 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
           const live = stage.current?.entries.get(item.key);
           if (!live || live.token !== token) return;
           const object = instantiate(gltf, Boolean(item.isBox));
+          // Tách nắp trước khi nhuộm màu để nắp nhận cùng màu vải với thân.
+          if (item.isBox && lidState.current.enabled) live.rig = rigLid(object);
           if (item.isBox) applyTint(object, tintRef.current);
           place(object, live.item);
           live.object = object;
@@ -268,7 +402,10 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
           stage.current?.root.add(object);
           tryFit.current();
         })
-        .catch(() => setFailed(true))
+        .catch(() => {
+          setFailed(true);
+          errorCallback.current?.();
+        })
         .finally(() => setPending((count) => count - 1));
     }
   }, [items]);
@@ -306,6 +443,11 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     current.controls.minDistance = distance * 0.45;
     current.controls.maxDistance = distance * 1.8;
     current.controls.update();
+    const base = new THREE.Spherical().setFromVector3(direction);
+    orbit.current = { ...orbit.current, fitted: true, baseTheta: base.theta, basePhi: base.phi, goalTheta: null, goalPhi: null };
+    appliedView.current = "3d";
+    applyOrbit.current();
+    readyCallback.current?.();
   };
   useEffect(() => {
     tryFit.current();

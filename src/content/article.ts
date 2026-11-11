@@ -79,6 +79,9 @@ export function formatVietnameseDate(value: string | null | undefined): string {
     .replaceAll("/", ".");
 }
 
+/** Số bài mỗi trang Tin tức (client và HTML phía server dùng chung): 3 bài như bố cục bản khách duyệt. */
+export const NEWS_PAGE_SIZE = 3;
+
 export const ARTICLE_PUBLIC_COLUMNS =
   "id, slug, tag, tag_slug, title, excerpt, image_url, read_time_minutes, body, published, published_at, first_published_at, scheduled_at, content_modified_at, author_name, source_name, source_url, seo_title, seo_description, social_image_url, social_title, social_description, canonical_path, related_product_slugs, related_article_slugs";
 

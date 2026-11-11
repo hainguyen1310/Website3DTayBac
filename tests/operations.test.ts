@@ -15,6 +15,8 @@ test("marketing cannot access operational customer data; operations cannot edit 
     assert.equal(canAccess("staff", "marketing", area), false);
   assert.equal(canAccess("staff", "operations", "settings"), false);
   assert.equal(canAccess("staff", "operations", "orders"), true);
+  assert.equal(canAccess("staff", "operations", "campaign"), true);
+  assert.equal(canAccess("staff", "marketing", "campaign"), false);
   assert.equal(canAccess("admin", "operations", "settings"), true);
   assert.equal(canAccess("customer", "operations", "orders"), false);
 });

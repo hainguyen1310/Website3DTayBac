@@ -1,0 +1,129 @@
+/* A continuous, quiet material palette; all lettering belongs to the content. */
+:root {
+  --cream: #fcfaf5;
+  --paper: #fffdf8;
+  --sand: #f5efe5;
+  --surface-champagne: #b68d58;
+  --surface-grain: none;
+  --surface-light: radial-gradient(ellipse at 82% 14%, #ead8bc36, transparent 54%);
+}
+
+body {
+  background: var(--cream) var(--surface-grain) repeat;
+}
+.search-panel {
+  background: var(--surface-light), var(--surface-grain) repeat, var(--cream);
+}
+.asin-route-wine {
+  background: radial-gradient(ellipse at 75% 20%, #a2463038, transparent 60%),
+    var(--surface-grain) repeat, #65111a;
+}
+.asin-route-wine::after {
+  background: none;
+}
+
+/* Remove duplicate words and numbers used only as background decoration. */
+.sc-chapter-word,
+.sc-gift-index,
+.ub-script,
+.st-hero-watermark,
+.st-collage-word,
+.st-reading-number {
+  display: none !important;
+}
+.ub-visual .ux-paper::after,
+.ub-paper::before {
+  content: none !important;
+  display: none !important;
+}
+
+.sc-home {
+  background: var(--surface-grain) repeat, var(--cream);
+}
+.sc-home::before {
+  background: none;
+}
+.sc-home .sc-hero,
+.sc-home .sc-manifesto,
+.sc-home .sc-products,
+.sc-home .sc-reasons,
+.sc-home .sc-journal {
+  background: var(--surface-light), var(--surface-grain) repeat, var(--cream);
+}
+.sc-home .sc-hero-terrain {
+  background: none center / 1500px 840px no-repeat;
+  opacity: .12;
+}
+.sc-home .sc-manifesto-range {
+  background: none center bottom / 1700px 960px no-repeat;
+  opacity: .14;
+}
+.sc-home .sc-products::before,
+.sc-home .sc-reasons::before,
+.sc-home .sc-journal::before {
+  background: none;
+}
+
+.sc-home .sc-journey-stage,
+.sc-home .sc-chapter,
+.sc-home .sc-chapter-2 {
+  background: var(--surface-light), var(--surface-grain) repeat, var(--cream);
+}
+.sc-home .sc-chapter::before {
+  background: none center bottom / 1800px 1000px no-repeat;
+  opacity: .12;
+}
+.sc-home .sc-chapter-1 {
+  background: radial-gradient(ellipse at 80% 25%, #a13a303d, transparent 65%),
+    var(--surface-grain) repeat, #65111a;
+}
+.sc-home .sc-chapter-1::before {
+  background-image: none;
+  opacity: .1;
+  mix-blend-mode: screen;
+}
+.sc-home .sc-reviews {
+  background: radial-gradient(ellipse at 90% 15%, #b7724433, transparent 56%),
+    var(--surface-grain) repeat, #65111a;
+}
+.sc-home .sc-reviews::before {
+  background: none;
+}
+.sc-home .sc-woven {
+  background-color: var(--cream);
+  border-block-color: #b68d5833;
+}
+.sc-home .sc-reasons .sc-section-kicker {
+  border-top-color: #b68d5838;
+}
+.sc-home .sc-closing::after {
+  background: linear-gradient(var(--cream), #fcfaf500);
+}
+.sc-home .sc-closing-ridge {
+  opacity: .1;
+}
+
+/* A matte wine stage gives the physical gift box a clear silhouette. */
+.ub-stage {
+  background: radial-gradient(ellipse at 77% 42%, #a64c303b, transparent 53%),
+    var(--surface-grain) repeat, linear-gradient(135deg, #500b14, #6a131d 62%, #470c13);
+}
+.ub-contours {
+  opacity: .065;
+}
+.site-footer {
+  background: radial-gradient(ellipse at 75% 0, #8a2c2829, transparent 65%),
+    var(--surface-grain) repeat, #500b13;
+}
+.site-footer::before {
+  opacity: .045;
+}
+
+@media (max-width: 800px) {
+  .sc-home .sc-hero-terrain,
+  .sc-home .sc-manifesto-range,
+  .sc-home .sc-chapter::before {
+    background-size: 1050px 650px;
+    opacity: .1;
+  }
+}
