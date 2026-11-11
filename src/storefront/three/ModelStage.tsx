@@ -6,8 +6,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { tintedTexture } from "./tint";
-import { poseLid, rigLid, riseOffset } from "./lidRig";
-import type { LidMode, LidRig, RiseOffsets } from "./lidRig";
+import { approachPose, boxLift, lidPose, poseLid, rigLid, riseOffset, riseTilt, samePose } from "./lidRig";
+import type { LidMode, LidPose, LidRig, RiseOffsets } from "./lidRig";
 
 export type StageItem = {
   key: string;
@@ -82,30 +82,69 @@ const loadModel = (url: string) => {
 };
 
 type Appear = { start: number; target: number; lift: number };
-type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear; rig?: LidRig | null };
-type LidState = { enabled: boolean; target: number; current: number; mode: LidMode };
+/** `extent`: khung bao của món so với gốc của nó (tâm đáy), đo một lần ở dáng nằm yên. */
+type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear; rig?: LidRig | null; extent?: THREE.Box3 };
+/** `shown`: dáng đang hiển thị, tiến dần về dáng của (target, mode) để mở/đóng và đổi kiểu mở đều mượt. */
+type LidState = { enabled: boolean; target: number; mode: LidMode; shown: LidPose | null };
 
+/** Phần quãng còn lại đi được mỗi khung hình khi nắp chuyển dáng. */
+const LID_EASE = 0.12;
 const riseScratch = new THREE.Vector3();
-/** Đưa nắp và các món tới mức mở hiện tại; trả về true nếu còn đang chuyển động. */
+const pivotScratch = new THREE.Vector3();
+
+/** Khung bao của món quanh gốc của nó, đo khi món chưa nghiêng. */
+function extentOf(entry: Entry, object: THREE.Object3D) {
+  if (!entry.extent) {
+    object.quaternion.identity();
+    object.updateMatrixWorld(true);
+    entry.extent = new THREE.Box3().setFromObject(object).translate(object.position.clone().negate());
+  }
+  return entry.extent;
+}
+
+/**
+ * Đặt một món theo "Bung hương vị": dời chéo lên về phía trước hộp, rồi ngả mặt ra phía trước
+ * quanh mép đáy trước của món, để món không chúi xuống vách hộp khi nghiêng.
+ */
+function poseItem(entry: Entry, object: THREE.Object3D, body: THREE.Vector3, pose: LidPose, lift: number) {
+  riseOffset(entry.item.rise, body, pose, riseScratch).y += lift;
+  if (pose.rise > 0 && entry.item.rise) {
+    pivotScratch.set(0, 0, extentOf(entry, object).max.z);
+    riseTilt(entry.item.rise, pose, object.quaternion);
+    riseScratch.add(pivotScratch).sub(pivotScratch.applyQuaternion(object.quaternion));
+  } else object.quaternion.identity();
+  object.position.set(...entry.item.position).add(riseScratch);
+}
+
+/** Đặt nắp, vỏ hộp và các món theo dáng `pose`. Trả về false nếu hộp chưa có nắp tách được. */
+function poseScene(entries: Map<string, Entry>, pose: LidPose) {
+  const rig = [...entries.values()].find((entry) => entry.rig)?.rig;
+  if (!rig) return false;
+  // "Bung hương vị" nhấc cả hộp (vỏ, nắp và các món) lên khỏi mặt sàn.
+  const lift = boxLift(rig.body, pose);
+  for (const entry of entries.values()) {
+    const { object } = entry;
+    if (!object) continue;
+    if (entry.rig) poseLid(entry.rig, pose);
+    if (entry.appear) continue;
+    if (entry.rig) object.position.set(...entry.item.position).add(riseScratch.set(0, lift, 0));
+    else poseItem(entry, object, rig.body, pose, lift);
+  }
+  return true;
+}
+
+/** Đưa nắp và các món tiến về dáng đích; trả về true nếu còn đang chuyển động. */
 function stepLid(entries: Map<string, Entry>, state: LidState) {
   if (!state.enabled) return false;
   const instant = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
-  const delta = state.target - state.current;
-  state.current = instant || Math.abs(delta) < 0.002 ? state.target : state.current + delta * 0.12;
-  const rig = [...entries.values()].find((entry) => entry.rig)?.rig;
-  if (!rig) return false;
-  for (const entry of entries.values()) {
-    if (!entry.object) continue;
-    if (entry.rig) {
-      poseLid(entry.rig, state.current, state.mode);
-      continue;
-    }
-    if (entry.appear) continue;
-    riseOffset(entry.item.rise, rig.body, state.current, state.mode, riseScratch);
-    entry.object.position.set(...entry.item.position).add(riseScratch);
-  }
-  return state.current !== state.target;
+  const goal = lidPose(state.target, state.mode);
+  state.shown = !state.shown || instant ? goal : approachPose(state.shown, goal, LID_EASE);
+  if (!poseScene(entries, state.shown)) return false;
+  return !samePose(state.shown, goal);
 }
+
+/** Các dáng cần lọt khung: đóng, mở bản lề và "Bung hương vị" mở hết (hộp bay lên cao nhất). */
+const FIT_POSES: LidPose[] = [lidPose(0, "hinge"), lidPose(1, "hinge"), lidPose(1, "bloom")];
 
 /** Cập nhật hiệu ứng xuất hiện; trả về true khi còn vật thể đang chuyển động. */
 function stepAppear(entries: Map<string, Entry>, now: number) {
@@ -182,7 +221,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   readyCallback.current = onReady;
   const errorCallback = useRef(onError);
   errorCallback.current = onError;
-  const lidState = useRef<LidState>({ enabled: Boolean(lid), target: lid?.open ?? 1, current: lid?.open ?? 1, mode: lid?.mode ?? "hinge" });
+  const lidState = useRef<LidState>({ enabled: Boolean(lid), target: lid?.open ?? 1, mode: lid?.mode ?? "hinge", shown: null });
   lidState.current.enabled = Boolean(lid);
   if (lid) {
     lidState.current.target = lid.open;
@@ -432,6 +471,12 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     // Đo theo kích thước cuối cùng, không theo khung hình đang bật lên dở dang.
     for (const entry of entries) if (entry.object && entry.appear) place(entry.object, entry.item);
     const box = new THREE.Box3().setFromObject(current.root);
+    // Hộp có nắp: canh theo mọi dáng mở để nắp mở hay hộp bay lên đều không bị cắt khung.
+    const lid = lidState.current;
+    if (lid.enabled) {
+      for (const pose of FIT_POSES) if (poseScene(current.entries, pose)) box.union(new THREE.Box3().setFromObject(current.root));
+      poseScene(current.entries, lid.shown ?? lidPose(lid.target, lid.mode));
+    }
     if (box.isEmpty()) return;
     fitted.current = options.fitKey;
     const center = box.getCenter(new THREE.Vector3());

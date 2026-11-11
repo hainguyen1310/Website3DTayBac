@@ -13,3 +13,8 @@
 .gift-scene.gift-scene-model > .sf-stage-status {
   z-index: 2;
 }
+
+/* Các kiểu mở hộp chia đều bề ngang (CSS gốc để .8fr .9fr 1.3fr nên các nút lệch nhau). */
+body.inner-page #main .gift-page .gift-opening-modes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}

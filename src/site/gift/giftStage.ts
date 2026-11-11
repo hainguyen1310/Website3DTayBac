@@ -8,16 +8,11 @@ import type { GiftBuilderState } from "./giftStore";
 import { DEFAULT_CARD_MESSAGE } from "./variants";
 
 /**
- * Độ dời các món khi mở hộp (tính theo thân hộp: rộng, cao, sâu), mô phỏng các kiểu
- * "Trượt mở" và "Bung hương vị" của bản khách duyệt.
+ * "Bung hương vị": mọi món cùng nhấc lên vừa đủ khỏi miệng hộp rồi bay chéo lên về phía trước hộp
+ * theo một hướng cố định (giữ nguyên bố cục trong khay, cùng một độ cao), mặt món ngả ra phía trước.
+ * [x × rộng, lên trên × cao, ra phía trước × sâu] của thân hộp.
  */
-const RISE: Record<string, RiseOffsets> = {
-  bagA: { slide: [0, 0.3, 0], bloom: [-0.07, 1.45, -0.05] },
-  bagB: { slide: [0, 0.3, 0], bloom: [0, 1.75, -0.1] },
-  jar: { slide: [0, 0.3, 0], bloom: [0.08, 1.35, -0.05] },
-  cham: { slide: [0, 0.3, 0], bloom: [0.05, 0.8, 0.12] },
-  bottle: { slide: [0, 0.3, 0], bloom: [0, 1, 0] },
-};
+const BLOOM_RISE: RiseOffsets = { bloom: [0, 1, 0.35] };
 
 /** Thiết kế hộp quà theo định dạng giỏ hàng của cửa hàng. */
 export function giftDesignOf(state: GiftBuilderState): GiftDesign {
@@ -36,11 +31,7 @@ export function giftDesignOf(state: GiftBuilderState): GiftDesign {
 
 /** Vỏ hộp + các món đã chọn đặt đúng ngăn, kèm độ dời khi mở nắp. */
 export function giftSceneItems(state: GiftBuilderState, products: SiteProduct[]): StageItem[] {
-  return giftStageItems(giftDesignOf(state), products, "all").map((item) => {
-    if (item.isBox) return item;
-    const slot = item.key.split("-").pop() ?? "";
-    return { ...item, rise: RISE[slot] };
-  });
+  return giftStageItems(giftDesignOf(state), products, "all").map((item) => (item.isBox ? item : { ...item, rise: BLOOM_RISE }));
 }
 
 export const boxKeyOf = (size: GiftSize) => (size === "large" ? "large" : "small");

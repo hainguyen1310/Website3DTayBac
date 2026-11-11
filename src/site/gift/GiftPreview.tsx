@@ -12,7 +12,7 @@ import { radioKeys } from "./GiftConfig";
 
 const ModelStage = lazy(() => import("../../storefront/three/ModelStage"));
 
-const OPENING_MODES: [LidMode, string][] = [["hinge", "Hé nắp"], ["slide", "Trượt mở"], ["bloom", "Bung hương vị"]];
+const OPENING_MODES: [LidMode, string][] = [["hinge", "Hé nắp"], ["bloom", "Bung hương vị"]];
 
 type Props = {
   state: GiftBuilderState;
