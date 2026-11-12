@@ -16,6 +16,16 @@ export type Product = {
   inStock?: boolean;
   /** Loại ngăn trong hộp quà 3D mà sản phẩm vừa vặn. */
   giftSlot?: GiftSlotType;
+  /** Các quy cách bán (100g, 250g, lọ, combo…). Không có = bán một quy cách theo `weight`/`price`. */
+  variants?: ProductVariant[];
+};
+
+/** Một quy cách bán của sản phẩm; `price` đã áp khuyến mãi khi đi qua CatalogProvider. */
+export type ProductVariant = {
+  id: string;
+  label: string;
+  price: number;
+  isDefault: boolean;
 };
 
 export type Deal = {
@@ -185,6 +195,8 @@ export const defaultDesign: GiftDesign = {
 export type CartLine = {
   key: string;
   productId?: string;
+  /** Quy cách đã chọn khi sản phẩm bán theo nhiều quy cách. */
+  variantId?: string;
   design?: GiftDesign;
   quantity: number;
 };
@@ -201,13 +213,27 @@ export const includedProductIds = (size: GiftSize): string[] =>
 export const findProduct = (list: Product[], id: string | undefined) =>
   list.find((product) => product.id === id);
 
+/** Quy cách mặc định (sản phẩm bán theo nhiều quy cách); không có thì undefined. */
+export const defaultVariant = (product: Product | undefined): ProductVariant | undefined =>
+  product?.variants?.find((variant) => variant.isDefault) ?? product?.variants?.[0];
+
+/** Quy cách theo id; không truyền id thì lấy quy cách mặc định. */
+export function resolveVariant(product: Product | undefined, variantId?: string): ProductVariant | undefined {
+  if (!product?.variants?.length) return undefined;
+  return variantId ? product.variants.find((variant) => variant.id === variantId) : defaultVariant(product);
+}
+
+/** Khoá dòng giỏ: mỗi quy cách của một sản phẩm là một dòng riêng. */
+export const productLineKey = (productId: string, variantId?: string) =>
+  variantId ? `${productId}::${variantId}` : productId;
+
 export const giftPrice = (design: GiftDesign, _list: Product[] = products) =>
   sizeOf(design.size).price;
 
 export function linePrice(line: CartLine, list: Product[] = products) {
-  return line.design
-    ? giftPrice(line.design, list)
-    : (findProduct(list, line.productId)?.price ?? 0);
+  if (line.design) return giftPrice(line.design, list);
+  const product = findProduct(list, line.productId);
+  return (line.variantId ? resolveVariant(product, line.variantId)?.price : undefined) ?? product?.price ?? 0;
 }
 
 function cleanSlots(raw: unknown, size: GiftSize, list: Product[]): Partial<Record<GiftSlotId, string>> {
@@ -267,7 +293,7 @@ export function cleanCart(
   list: Product[] = products,
 ): CartLine[] {
   if (!Array.isArray(value)) return [];
-  return value.slice(0, 50).flatMap<CartLine>((raw) => {
+  const lines = value.slice(0, 50).flatMap<CartLine>((raw) => {
     if (!raw || typeof raw !== "object" || typeof raw.key !== "string")
       return [];
     const quantity = Math.max(
@@ -280,10 +306,20 @@ export function cleanCart(
         ? [{ key: raw.key, design, quantity }]
         : [];
     }
-    if (list.some((product) => product.id === raw.productId))
-      return [{ key: raw.key, productId: raw.productId, quantity }];
-    return [];
+    const product = findProduct(list, typeof raw.productId === "string" ? raw.productId : undefined);
+    if (!product) return [];
+    if (!product.variants?.length) return [{ key: productLineKey(product.id), productId: product.id, quantity }];
+    // Giỏ cũ chưa có quy cách nhận quy cách mặc định; quy cách đã bỏ thì xoá dòng để khách chọn lại.
+    const variant = resolveVariant(product, typeof raw.variantId === "string" ? raw.variantId : undefined);
+    return variant ? [{ key: productLineKey(product.id, variant.id), productId: product.id, variantId: variant.id, quantity }] : [];
   });
+  // Gộp các dòng trùng khoá (ví dụ dòng cũ không quy cách và dòng quy cách mặc định).
+  const merged = new Map<string, CartLine>();
+  for (const line of lines) {
+    const existing = merged.get(line.key);
+    merged.set(line.key, existing ? { ...existing, quantity: Math.min(20, existing.quantity + line.quantity) } : line);
+  }
+  return [...merged.values()];
 }
 
 export function readSaved(key: string): unknown {

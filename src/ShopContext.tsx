@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { cleanCart, cleanDesign, readSaved, saveLocal } from "./catalog";
+import { cleanCart, cleanDesign, findProduct, productLineKey, readSaved, resolveVariant, saveLocal } from "./catalog";
 import type { CartLine, GiftDesign, Product } from "./catalog";
 import { useCatalog } from "./CatalogContext";
 import { trackEvent } from "./analytics";
@@ -11,8 +11,11 @@ type Shop = {
   cart: CartLine[];
   setQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
-  /** Trả về `true` khi đã thêm; `message` thay câu thông báo mặc định. */
-  addProduct: (id: string, quantity?: number, message?: string) => boolean;
+  /**
+   * Trả về `true` khi đã thêm; `message` thay câu thông báo mặc định.
+   * `variantId`: quy cách khách chọn; bỏ trống thì dùng quy cách mặc định (nếu sản phẩm có).
+   */
+  addProduct: (id: string, quantity?: number, message?: string, variantId?: string) => boolean;
   addGift: (design: GiftDesign, message?: string) => boolean;
   favoriteIds: string[];
   toggleFavorite: (id: string) => void;
@@ -77,16 +80,17 @@ export function ShopProvider({ children }: { children: ReactNode }) {
           )
         : [...current, line];
     });
-  const addProduct = (id: string, quantity = 1, message?: string) => {
-    if (!catalogProducts.some((p) => p.id === id && p.inStock !== false)) return false;
-    const actualQuantity = Math.min(20 - (cart.find(item => item.key === id)?.quantity ?? 0), Math.max(1, Math.min(20, quantity)));
+  const addProduct = (id: string, quantity = 1, message?: string, variantId?: string) => {
+    const product = findProduct(catalogProducts, id);
+    if (!product || product.inStock === false) return false;
+    const variant = resolveVariant(product, variantId);
+    if (product.variants?.length && !variant) return false;
+    const key = productLineKey(id, variant?.id);
+    const actualQuantity = Math.min(20 - (cart.find(item => item.key === key)?.quantity ?? 0), Math.max(1, Math.min(20, quantity)));
     if (actualQuantity <= 0) return false;
-    add({
-      key: id,
-      productId: id,
-      quantity: Math.max(1, Math.min(20, quantity)),
-    });
-    trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([{ key: id, productId: id, quantity: actualQuantity }], catalogProducts)));
+    const line: CartLine = { key, productId: id, ...(variant ? { variantId: variant.id } : {}), quantity: Math.max(1, Math.min(20, quantity)) };
+    add(line);
+    trackEvent("add_to_cart", ecommerceParams(cartAnalyticsItems([{ ...line, quantity: actualQuantity }], catalogProducts)));
     notify(message ?? "Đã thêm vào giỏ. Một chút hương rừng đang chờ bạn!");
     return true;
   };

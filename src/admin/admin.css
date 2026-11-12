@@ -2692,3 +2692,14 @@ input[type="checkbox"].admin-switch:checked::after {
 .admin-campaign-issued { display: grid; gap: 6px; margin: 12px 0; padding: 0; list-style: none; }
 .admin-campaign-issued code { display: inline-block; padding: 6px 10px; border-radius: 8px; background: #f6f1ea; font-size: 15px; letter-spacing: .06em; }
 .admin-table td > code { white-space: nowrap; }
+/* Quy cách & giá trong biểu mẫu sản phẩm. */
+.admin-variants-head { display: grid; gap: 4px; }
+.admin-variants-head small { color: var(--a-muted, #6b7280); font-size: 12px; line-height: 1.5; }
+.admin-variant-list { display: grid; gap: 8px; }
+.admin-variant-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 76px 40px; gap: 10px; align-items: center; }
+.admin-variant-header { color: var(--a-muted, #6b7280); font-size: 12px; font-weight: 600; }
+.admin-variant-default { display: flex; justify-content: center; }
+.admin-variant-default input { width: 17px; height: 17px; margin: 0; accent-color: var(--a-brand); }
+.admin-variant-row > .admin-ghost { min-height: 38px; padding: 8px; }
+.admin-variants .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 640px) { .admin-variant-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px 40px; gap: 6px; } }

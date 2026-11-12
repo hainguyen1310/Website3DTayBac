@@ -21,6 +21,7 @@ export function checkoutItems(lines: CartLine[]) {
   } : {
     kind: "product",
     product_id: line.productId,
+    ...(line.variantId ? { variant_id: line.variantId } : {}),
     quantity: line.quantity,
   });
 }

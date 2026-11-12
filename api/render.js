@@ -509,9 +509,10 @@ function articleFromRow(row) {
 }
 
 // src/pricing.ts
+var validDeal = (deal) => Number.isFinite(deal.originalPrice) && deal.originalPrice >= 0 && Number.isFinite(deal.discount) && deal.discount >= 0 && deal.discount <= 100;
 function effectivePrice(productId, basePrice, deals) {
   return deals.filter((deal) => deal.productId === productId).reduce((price, deal) => {
-    if (!Number.isFinite(deal.originalPrice) || deal.originalPrice < 0 || !Number.isFinite(deal.discount) || deal.discount < 0 || deal.discount > 100) return price;
+    if (!validDeal(deal)) return price;
     return Math.min(price, Math.round(deal.originalPrice * (100 - deal.discount) / 100));
   }, basePrice);
 }

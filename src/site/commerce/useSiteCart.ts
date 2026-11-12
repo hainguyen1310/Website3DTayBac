@@ -1,5 +1,5 @@
 import { useShop } from "../../ShopContext";
-import { linePrice } from "../../catalog";
+import { linePrice, productLineKey, resolveVariant } from "../../catalog";
 import type { CartLine } from "../../catalog";
 import { findProduct, useSiteProducts } from "../data";
 import type { SiteProduct } from "../data";
@@ -46,18 +46,19 @@ export function cartView(line: CartLine, products: SiteProduct[]): CartView {
     };
   }
   const product = findProduct(products, line.productId);
+  const variant = line.variantId ? resolveVariant(product, line.variantId) : undefined;
   return {
     key: line.key,
     href: `/san-pham/${encodeURIComponent(line.productId ?? "")}`,
     name: product?.name ?? "Đặc sản A SỈN",
     image: product?.image ?? "",
-    weight: product?.weight ?? "",
+    weight: variant?.label ?? product?.weight ?? "",
     unitPrice,
     quantity: line.quantity,
     total: unitPrice * line.quantity,
     giftItems: [],
     isGift: false,
-    isUnavailable: !product || product.inStock === false,
+    isUnavailable: !product || product.inStock === false || Boolean(line.variantId && !variant),
   };
 }
 
@@ -89,21 +90,26 @@ export function useSiteCart() {
   const count = lines.reduce((sum, line) => sum + line.quantity, 0);
   const subtotal = lines.reduce((sum, line) => sum + line.total, 0);
 
-  /** Thêm một đặc sản; `openCart` mở ngăn kéo giỏ như bản gốc. */
-  const addToCart = (slug: string, quantity = 1, { openCart = true }: { openCart?: boolean } = {}): boolean => {
+  /**
+   * Thêm một đặc sản; `openCart` mở ngăn kéo giỏ như bản gốc.
+   * `variantId`: quy cách khách chọn trên trang chi tiết; bỏ trống thì dùng quy cách mặc định.
+   */
+  const addToCart = (slug: string, quantity = 1, { openCart = true, variantId }: { openCart?: boolean; variantId?: string } = {}): boolean => {
     const product = findProduct(products, slug);
     if (!product) return false;
     if (product.inStock === false) {
       shop.notify(`${product.name} tạm hết hàng.`);
       return false;
     }
-    const current = shop.cart.find((line) => line.key === slug)?.quantity ?? 0;
+    const variant = resolveVariant(product, variantId);
+    const label = variant ? `${product.name} (${variant.label})` : product.name;
+    const current = shop.cart.find((line) => line.key === productLineKey(slug, variant?.id))?.quantity ?? 0;
     if (current >= MAX_LINE_QUANTITY) {
-      shop.notify(`${product.name} đã đạt tối đa ${MAX_LINE_QUANTITY} trong giỏ.`);
+      shop.notify(`${label} đã đạt tối đa ${MAX_LINE_QUANTITY} trong giỏ.`);
       if (openCart) shop.setCartOpen(true);
       return false;
     }
-    const added = shop.addProduct(slug, quantity, `${product.name} đã được thêm vào giỏ hàng.`);
+    const added = shop.addProduct(slug, quantity, `${label} đã được thêm vào giỏ hàng.`, variant?.id);
     if (!added) return false;
     if (openCart) shop.setCartOpen(true);
     requestAnimationFrame(animateCartCount);

@@ -190,7 +190,15 @@ export function mergeStorefrontProducts(database: Product[]): StorefrontProduct[
   const live = new Map(database.map((product) => [product.id, product]));
   const lineup = STOREFRONT_PRODUCTS.map((product) => {
     const row = live.get(product.id);
-    return row && row.price > 0 ? { ...product, price: row.price, inStock: row.inStock } : product;
+    if (!row || row.price <= 0) return product;
+    // Sản phẩm bán theo quy cách: nhãn quy cách trên thẻ theo quy cách mặc định trong cơ sở dữ liệu.
+    const fallback = row.variants?.find((variant) => variant.isDefault) ?? row.variants?.[0];
+    return {
+      ...product,
+      price: row.price,
+      inStock: row.inStock,
+      ...(row.variants?.length ? { variants: row.variants, weight: fallback?.label ?? product.weight } : {}),
+    };
   });
   const extras = database
     .filter((product) => !BY_ID.has(product.id) && !LEGACY_DEMO_SLUGS.has(product.id))

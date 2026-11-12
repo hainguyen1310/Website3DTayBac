@@ -1,0 +1,54 @@
+/* Chọn quy cách trên trang chi tiết: cùng ngôn ngữ với ô số lượng (viền vàng, bo 6px) và nút đang chọn xanh rêu. */
+body.inner-page #main .detail-section .detail-variants {
+  display: grid;
+  gap: 10px;
+  padding: 18px 0 4px;
+}
+body.inner-page #main .detail-section .detail-variants-label {
+  color: #756351;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+body.inner-page #main .detail-section .detail-variant-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 8px;
+}
+body.inner-page #main .detail-section .detail-variant-list button {
+  display: grid;
+  gap: 3px;
+  min-height: 56px;
+  padding: 9px 10px;
+  border: 1px solid #c6a16488;
+  border-radius: 6px;
+  background: #fffcf7;
+  color: #6c202b;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+body.inner-page #main .detail-section .detail-variant-list button strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+body.inner-page #main .detail-section .detail-variant-list button span {
+  color: #756351;
+  font-size: 12px;
+}
+body.inner-page #main .detail-section .detail-variant-list button:hover {
+  border-color: #6c202b;
+}
+body.inner-page #main .detail-section .detail-variant-list button[aria-checked="true"] {
+  background: #254834;
+  border-color: #254834;
+  color: #f4ebdd;
+}
+body.inner-page #main .detail-section .detail-variant-list button[aria-checked="true"] span {
+  color: #f4ebddcc;
+}
+body.inner-page #main .detail-section .detail-variant-list button:focus-visible {
+  outline: 2px solid #6c202b;
+  outline-offset: 2px;
+}

@@ -233,6 +233,16 @@ export type AdminProduct = {
   sortOrder: number;
   quantity: number;
   lowStockThreshold: number;
+  /** Quy cách bán theo thứ tự hiển thị; rỗng = bán một quy cách theo weightLabel/priceVnd. */
+  variants: AdminVariant[];
+};
+
+export type AdminVariant = {
+  /** Không có khi là quy cách mới thêm trong biểu mẫu. */
+  id?: string;
+  label: string;
+  priceVnd: number;
+  isDefault: boolean;
 };
 
 export type ProductInput = {
@@ -251,6 +261,8 @@ export type ProductInput = {
   sortOrder: number;
   quantity: number;
   lowStockThreshold: number;
+  /** Quy cách & giá; rỗng = bán một quy cách theo weightLabel/priceVnd. */
+  variants: AdminVariant[];
 };
 
 type ProductRow = {
@@ -273,6 +285,7 @@ type ProductRow = {
     | { quantity: number; low_stock_threshold: number }
     | { quantity: number; low_stock_threshold: number }[]
     | null;
+  product_variants: { id: string; label: string; price_vnd: number; is_default: boolean; sort_order: number }[] | null;
 };
 
 const first = <T,>(value: T | T[] | null): T | null =>
@@ -283,7 +296,7 @@ export function listAdminProducts(): Promise<AdminProduct[]> {
     const { data, error } = await supabase
       .from("products")
       .select(
-        "id, category_id, slug, sku, name, origin, weight_label, price_vnd, image_url, tag, description, active, featured, sort_order, product_categories(name), product_inventory(quantity, low_stock_threshold)",
+        "id, category_id, slug, sku, name, origin, weight_label, price_vnd, image_url, tag, description, active, featured, sort_order, product_categories(name), product_inventory(quantity, low_stock_threshold), product_variants(id, label, price_vnd, is_default, sort_order)",
       )
       .order("sort_order")
       .order("name");
@@ -309,6 +322,9 @@ export function listAdminProducts(): Promise<AdminProduct[]> {
         sortOrder: Number(row.sort_order),
         quantity: stock ? Number(stock.quantity) : 0,
         lowStockThreshold: stock ? Number(stock.low_stock_threshold) : 5,
+        variants: [...(row.product_variants ?? [])]
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((variant) => ({ id: variant.id, label: variant.label, priceVnd: Number(variant.price_vnd), isDefault: variant.is_default })),
       };
     });
   });
@@ -332,10 +348,23 @@ function productPayload(input: ProductInput) {
   };
 }
 
-async function saveProduct(id: string | null, input: ProductInput, expectedQuantity?: number): Promise<void> {
+const variantsPayload = (variants: AdminVariant[]) =>
+  variants.map((variant) => ({
+    ...(variant.id ? { id: variant.id } : {}),
+    label: variant.label.trim(),
+    price_vnd: Math.round(variant.priceVnd),
+    is_default: variant.isDefault,
+  }));
+
+/**
+ * Lưu sản phẩm cùng toàn bộ quy cách trong một giao dịch (thêm, sửa, xoá quy cách);
+ * máy chủ đặt giá và nhãn quy cách của sản phẩm theo quy cách mặc định.
+ */
+async function saveProduct(id: string | null, input: ProductInput, expectedQuantity?: number): Promise<string> {
   if (![input.priceVnd,input.quantity,input.lowStockThreshold,input.sortOrder].every(v => Number.isSafeInteger(v) && v >= 0)) throw new Error("Giá, tồn kho và thứ tự phải là số nguyên không âm.");
-  const { error } = await supabase.rpc("save_admin_product", { p_id: id, p_product: productPayload(input), p_quantity: input.quantity, p_threshold: input.lowStockThreshold, p_expected_quantity: expectedQuantity ?? null });
+  const { data, error } = await supabase.rpc("save_admin_product_with_variants", { p_id: id, p_product: productPayload(input), p_quantity: input.quantity, p_threshold: input.lowStockThreshold, p_expected_quantity: expectedQuantity ?? null, p_variants: variantsPayload(input.variants) });
   fail(error); afterWrite();
+  return String(data ?? id);
 }
 export const createProduct = (input: ProductInput) => saveProduct(null,input);
 export const updateProduct = (id: string, input: ProductInput, expectedQuantity: number) => saveProduct(id,input,expectedQuantity);

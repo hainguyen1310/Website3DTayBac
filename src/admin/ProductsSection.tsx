@@ -37,6 +37,9 @@ import {
   useAsync,
 } from "./ui";
 import ImageInput from "./ImageInput";
+import { ProductVariantsEditor } from "./ProductVariantsEditor";
+import { defaultVariantRow, toAdminVariants, toVariantRows, variantRowsError } from "./variantRows";
+import type { VariantRow } from "./variantRows";
 
 type ProductForm = {
   expectedQuantity: number;
@@ -56,6 +59,8 @@ type ProductForm = {
   sortOrder: string;
   quantity: string;
   lowStockThreshold: string;
+  /** Quy cách & giá; rỗng = bán một quy cách theo weightLabel/priceVnd. */
+  variants: VariantRow[];
 };
 
 const emptyForm: ProductForm = {
@@ -76,6 +81,7 @@ const emptyForm: ProductForm = {
   sortOrder: "50",
   quantity: "0",
   lowStockThreshold: "5",
+  variants: [],
 };
 
 const toForm = (product: AdminProduct): ProductForm => ({
@@ -96,7 +102,12 @@ const toForm = (product: AdminProduct): ProductForm => ({
   sortOrder: String(product.sortOrder),
   quantity: String(product.quantity),
   lowStockThreshold: String(product.lowStockThreshold),
+  variants: toVariantRows(product.variants),
 });
+
+/** Sản phẩm có quy cách: nhãn quy cách và giá lấy theo quy cách mặc định. */
+const primaryWeight = (form: ProductForm) => (form.variants.length ? defaultVariantRow(form.variants)?.label ?? "" : form.weightLabel);
+const primaryPrice = (form: ProductForm) => (form.variants.length ? defaultVariantRow(form.variants)?.price ?? "" : form.priceVnd);
 
 const toInput = (form: ProductForm): ProductInput => ({
   categoryId: form.categoryId || null,
@@ -104,8 +115,9 @@ const toInput = (form: ProductForm): ProductInput => ({
   sku: form.sku.trim(),
   name: form.name.trim(),
   origin: form.origin.trim(),
-  weightLabel: form.weightLabel.trim(),
-  priceVnd: Number(form.priceVnd) || 0,
+  weightLabel: primaryWeight(form).trim(),
+  priceVnd: Number(primaryPrice(form)) || 0,
+  variants: toAdminVariants(form.variants),
   imageUrl: form.imageUrl.trim(),
   tag: form.tag.trim(),
   description: form.description.trim(),
@@ -349,8 +361,10 @@ export default function ProductsSection() {
       setActionError("Hãy chọn ảnh sản phẩm.");
       return;
     }
-    if (!form.origin.trim() || !form.weightLabel.trim()) { setActionError("Cần xuất xứ và quy cách / khối lượng của sản phẩm."); return; }
-    if (![form.priceVnd,form.quantity,form.lowStockThreshold,form.sortOrder].every(v=>v.trim()!=="" && Number.isSafeInteger(Number(v)) && Number(v)>=0)) { setActionError("Giá, tồn kho và thứ tự phải là số nguyên không âm."); return; }
+    const variantError = variantRowsError(form.variants);
+    if (variantError) { setActionError(variantError); return; }
+    if (!form.origin.trim() || !primaryWeight(form).trim()) { setActionError("Cần xuất xứ và quy cách / khối lượng của sản phẩm."); return; }
+    if (![primaryPrice(form),form.quantity,form.lowStockThreshold,form.sortOrder].every(v=>v.trim()!=="" && Number.isSafeInteger(Number(v)) && Number(v)>=0)) { setActionError("Giá, tồn kho và thứ tự phải là số nguyên không âm."); return; }
     if (!/^[a-z0-9-]+$/.test(form.slug.trim())) {
       setActionError("Slug chỉ gồm chữ thường, số và dấu gạch ngang.");
       return;
@@ -358,13 +372,10 @@ export default function ProductsSection() {
     setBusy(true);
     setActionError("");
     try {
-      if (form.id) {
-        await updateProduct(form.id, toInput(form), form.expectedQuantity);
-        setNotice(`Đã cập nhật ${form.name}.`);
-      } else {
-        await createProduct(toInput(form));
-        setNotice(`Đã thêm ${form.name}.`);
-      }
+      // Sản phẩm và quy cách lưu trong một giao dịch: lỗi ở bước nào thì không bước nào được ghi.
+      if (form.id) await updateProduct(form.id, toInput(form), form.expectedQuantity);
+      else await createProduct(toInput(form));
+      setNotice(form.id ? `Đã cập nhật ${form.name}.` : `Đã thêm ${form.name}.`);
       setForm(null);
       reload();
     } catch (caught) {
@@ -705,9 +716,10 @@ export default function ProductsSection() {
               />
             </label>
             <label>
-              Quy cách
+              {form.variants.length ? "Quy cách mặc định" : "Quy cách"}
               <input
-                value={form.weightLabel}
+                value={primaryWeight(form)}
+                readOnly={form.variants.length > 0}
                 onChange={(event) =>
                   setForm({ ...form, weightLabel: event.target.value })
                 }
@@ -715,16 +727,21 @@ export default function ProductsSection() {
               />
             </label>
             <label>
-              Giá bán (VND)
+              {form.variants.length ? "Giá quy cách mặc định (VND)" : "Giá bán (VND)"}
               <input
                 type="number"
                 min={0}
-                value={form.priceVnd}
+                value={primaryPrice(form)}
+                readOnly={form.variants.length > 0}
                 onChange={(event) =>
                   setForm({ ...form, priceVnd: event.target.value })
                 }
               />
             </label>
+            <ProductVariantsEditor
+              rows={form.variants}
+              onChange={(variants) => setForm({ ...form, variants })}
+            />
             <label>
               Nhãn ngắn
               <input

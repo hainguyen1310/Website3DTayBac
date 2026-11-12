@@ -9,6 +9,8 @@ export function ProductCard({ product }: { product: SiteProduct }) {
   const { addToCart } = useSiteCart();
   const url = `/san-pham/${encodeURIComponent(product.slug)}`;
   const available = product.inStock !== false;
+  /** Số quy cách bán; thêm nhanh từ thẻ dùng quy cách mặc định đang hiển thị. */
+  const sizes = product.variants?.length ?? 0;
   const quickAdd = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const button = event.currentTarget;
@@ -21,10 +23,10 @@ export function ProductCard({ product }: { product: SiteProduct }) {
         {!available ? <span className="product-tag">Tạm hết hàng</span> : product.tag === "Bán chạy" ? <span className="product-tag">Bán chạy</span> : null}
       </a>
       <h3><a href={url}>{product.name}</a></h3>
-      <div className="product-meta"><span>{product.weight}</span></div>
+      <div className="product-meta"><span>{product.weight}{sizes > 1 ? ` · ${sizes} quy cách` : ""}</span></div>
       <div className="product-bottom">
         <span>{money(product.price)}</span>
-        <button className="product-add" type="button" data-cart-peek="false" aria-label={`Thêm ${product.name} vào giỏ`} disabled={!available} onClick={quickAdd}>
+        <button className="product-add" type="button" data-cart-peek="false" aria-label={sizes > 1 ? `Thêm ${product.name} (${product.weight}) vào giỏ` : `Thêm ${product.name} vào giỏ`} disabled={!available} onClick={quickAdd}>
           <Icon name="bag" />
         </button>
       </div>

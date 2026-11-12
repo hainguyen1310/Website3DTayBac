@@ -2,6 +2,8 @@ import type { Deal, Product } from "../catalog";
 import { supabase } from "../utils/supabase";
 import { cached } from "./cache";
 import { brandCopy } from "../branding";
+import { toVariants } from "../productVariants";
+import type { VariantRow } from "../productVariants";
 
 type ProductRow = {
   slug: string;
@@ -15,6 +17,7 @@ type ProductRow = {
   featured: boolean;
   model_url?: string | null;
   product_categories: { name: string; slug: string } | { name: string; slug: string }[] | null;
+  product_variants?: VariantRow[] | null;
 };
 
 type StockRow = { slug: string; in_stock: boolean };
@@ -31,6 +34,7 @@ async function loadStock(): Promise<Map<string, boolean>> {
 }
 
 function toProduct(row: ProductRow, stock: Map<string, boolean>): Product {
+  const variants = toVariants(row.product_variants);
   return {
     id: row.slug,
     name: brandCopy(row.name),
@@ -50,6 +54,7 @@ function toProduct(row: ProductRow, stock: Map<string, boolean>): Product {
     featured: row.featured,
     modelUrl: row.model_url || undefined,
     inStock: stock.get(row.slug),
+    ...(variants ? { variants } : {}),
   };
 }
 
@@ -74,7 +79,7 @@ export function listStorefrontProducts(): Promise<Product[]> {
     async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*, product_categories(name, slug)")
+        .select("*, product_categories(name, slug), product_variants(id, label, price_vnd, is_default, sort_order)")
         .eq("active", true)
         .order("sort_order")
         .order("name");

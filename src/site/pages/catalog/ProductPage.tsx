@@ -13,6 +13,8 @@ import { noindexMeta, productMeta } from "../../../seo/meta";
 import { toSeoProductInput } from "../../../seo/product";
 import { trackEvent } from "../../../analytics";
 import { ecommerceParams, productAnalyticsItem } from "../../../analyticsItems";
+import { resolveVariant } from "../../../catalog";
+import { VariantPicker } from "./VariantPicker";
 
 const ModelStage = lazy(() => import("../../../storefront/three/ModelStage"));
 
@@ -42,6 +44,8 @@ export function ProductPage() {
   }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const { addToCart } = useSiteCart();
   const [quantity, setQuantity] = useState(1);
+  // Quy cách khách chọn; undefined = quy cách mặc định. Đổi sản phẩm thì quay về mặc định.
+  const [variantChoice, setVariantChoice] = useState<{ productId: string; variantId: string } | null>(null);
   const [activeTabKey, setActiveTabKey] = useState<"description" | "usage" | "storage" | "delivery" | "feedback">("description");
   const [showModel, setShowModel] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -63,6 +67,9 @@ export function ProductPage() {
   }
 
   const available = product.inStock !== false;
+  const variant = resolveVariant(product, variantChoice?.productId === product.id ? variantChoice.variantId : undefined);
+  const price = variant?.price ?? product.price;
+  const weight = variant?.label ?? product.weight;
   const gallery = [product.image, ...(product.gallery || [])]
     .filter(Boolean)
     .filter((v, i, a) => a.indexOf(v) === i);
@@ -132,7 +139,7 @@ export function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    addToCart(product.slug, quantity, { openCart: true });
+    addToCart(product.slug, quantity, { openCart: true, variantId: variant?.id });
   };
 
   const updateQuantity = (newValue: number) => {
@@ -239,9 +246,15 @@ export function ProductPage() {
               <p className="detail-subtitle">{product.description || "Hương vị Tây Bắc, gói ghém gửi trao."}</p>
 
               <div className="detail-price">
-                {money(product.price)}
-                <span>Giá tham khảo · {product.weight || "Xem quy cách trên bao bì"}</span>
+                {money(price)}
+                <span>Giá tham khảo · {weight || "Xem quy cách trên bao bì"}</span>
               </div>
+
+              <VariantPicker
+                variants={product.variants ?? []}
+                selectedId={variant?.id}
+                onSelect={(next) => setVariantChoice({ productId: product.id, variantId: next.id })}
+              />
 
               <div className="detail-stock" data-available={available}>
                 <span aria-hidden="true" />
@@ -403,7 +416,7 @@ export function ProductPage() {
         <div className="detail-mobile-buy">
           <div>
             <strong>{product.name}</strong>
-            <span data-detail-mobile-total>{quantity === 1 ? money(product.price) : `${quantity} × ${money(product.price)}`}</span>
+            <span data-detail-mobile-total>{quantity === 1 ? money(price) : `${quantity} × ${money(price)}`}{variant ? ` · ${variant.label}` : ""}</span>
           </div>
           <button className="btn dark" type="button" onClick={handleAddToCart}>
             Thêm vào giỏ <Icon name="arrow" />

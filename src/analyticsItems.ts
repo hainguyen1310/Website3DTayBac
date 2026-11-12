@@ -1,4 +1,4 @@
-import { linePrice } from "./catalog.ts";
+import { findProduct, linePrice, resolveVariant } from "./catalog.ts";
 import type { CartLine, Product } from "./catalog.ts";
 
 export type AnalyticsItem = {
@@ -22,8 +22,10 @@ export function cartAnalyticsItems(lines: CartLine[], products: Product[]): Anal
       // Không gửi key giỏ hàng, người nhận hoặc lời nhắn của hộp quà.
       return [{ item_id: "gift-box", item_name: "Hộp quà tự chọn", item_category: "Hộp quà", item_variant: [...line.design.productIds].sort().join(","), price: linePrice(line, products), quantity: line.quantity }];
     }
-    const product = products.find(item => item.id === line.productId);
-    return product ? [productAnalyticsItem(product, line.quantity)] : [];
+    const product = findProduct(products, line.productId);
+    if (!product) return [];
+    const variant = line.variantId ? resolveVariant(product, line.variantId) : undefined;
+    return [{ ...productAnalyticsItem(product, line.quantity), price: linePrice(line, products), ...(variant ? { item_variant: variant.label } : {}) }];
   });
 }
 
