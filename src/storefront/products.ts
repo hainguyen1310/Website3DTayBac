@@ -20,8 +20,9 @@ const M = "/models/gift";
 type Entry = Omit<StorefrontProduct, "origin" | "inStock" | "featured" | "categorySlug" | "modelUrl"> & { origin?: string };
 
 /**
- * Danh mục hiển thị theo thiết kế Figma. Giá ở đây là giá thiết kế; khi Supabase có
- * sản phẩm cùng slug đang bán, giá và tồn kho trong cơ sở dữ liệu được ưu tiên.
+ * Danh mục hiển thị theo thiết kế Figma. Giá theo bảng giá bán trực tiếp của cửa hàng
+ * (11/2026, quy cách túi 500g cho đồ gác bếp). Khi Supabase có sản phẩm cùng slug đang bán,
+ * giá và tồn kho trong cơ sở dữ liệu được ưu tiên.
  */
 const ENTRIES: Entry[] = [
   {
@@ -29,7 +30,7 @@ const ENTRIES: Entry[] = [
     name: "Thịt trâu gác bếp",
     category: "Thịt gác bếp",
     weight: "Túi 500g",
-    price: 480000,
+    price: 450000,
     image: `${P}/trau/cam-on-12.webp`,
     gallery: [`${P}/trau/f8371072.webp`, `${P}/trau/f8451008.webp`],
     tag: "Bán chạy",
@@ -44,7 +45,7 @@ const ENTRIES: Entry[] = [
     name: "Lạp xưởng gác bếp",
     category: "Lạp xưởng",
     weight: "Túi 500g",
-    price: 320000,
+    price: 225000,
     image: `${P}/lap-xuong/cam-on-7.webp`,
     gallery: [`${P}/lap-xuong/f10757888.webp`, `${P}/lap-xuong/f11140992.webp`, `${P}/lap-xuong/f9744704.webp`, `${P}/lap-xuong/img-2014.webp`],
     tag: "Quà biếu",
@@ -59,7 +60,7 @@ const ENTRIES: Entry[] = [
     name: "Thịt lợn gác bếp",
     category: "Thịt gác bếp",
     weight: "Túi 500g",
-    price: 550000,
+    price: 285000,
     image: `${P}/lon/cam-on-5.webp`,
     gallery: [],
     tag: "Thịt gác bếp",
@@ -72,8 +73,8 @@ const ENTRIES: Entry[] = [
     id: "thit-lon-xe",
     name: "Thịt lợn xé",
     category: "Thịt gác bếp",
-    weight: "Hũ 500g",
-    price: 220000,
+    weight: "Lọ 200g",
+    price: 150000,
     image: `${P}/lon-xe/cam-on-8.webp`,
     gallery: [`${P}/lon-xe/f8142848.webp`, `${P}/lon-xe/f2668352.webp`, `${P}/lon-xe/f8164032.webp`],
     tag: "Thịt gác bếp",
@@ -86,8 +87,8 @@ const ENTRIES: Entry[] = [
     id: "cham-cheo",
     name: "Chẩm chéo Tây Bắc",
     category: "Gia vị",
-    weight: "Hũ 100g",
-    price: 85000,
+    weight: "Lọ 100g",
+    price: 28000,
     image: `${P}/cham-cheo/cam-on-10.webp`,
     gallery: [`${P}/lap-xuong/f7259904.webp`],
     tag: "Gia vị",
@@ -101,8 +102,8 @@ const ENTRIES: Entry[] = [
     id: "ruou-ngo-ban-pho",
     name: "Rượu ngô Bản Phố",
     category: "Rượu",
-    weight: "Bình 500ml",
-    price: 135000,
+    weight: "Chai 1 lít",
+    price: 100000,
     image: `${P}/ruou/cam-on-11.webp`,
     gallery: [`${P}/ruou/f8196800.webp`, `${P}/ruou/img-2145.webp`, `${P}/ruou/img-2174.webp`],
     tag: "Rượu",
@@ -116,7 +117,7 @@ const ENTRIES: Entry[] = [
     name: "Ba chỉ lợn gác bếp",
     category: "Thịt gác bếp",
     weight: "Túi 500g",
-    price: 75000,
+    price: 245000,
     image: `${P}/ba-chi/cam-on-6.webp`,
     gallery: [`${P}/ba-chi/img-2025.webp`, `${P}/ba-chi/img-2028.webp`],
     tag: "Thịt gác bếp",

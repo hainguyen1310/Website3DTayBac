@@ -23,7 +23,7 @@ test("database rows with no price keep the design price; unknown database produc
     { ...products[0], id: "thit-lon-xe", price: 0 },
     { ...products[1], id: "admin-new-product" },
   ]);
-  assert.equal(merged.find((product) => product.id === "thit-lon-xe")!.price, 220000);
+  assert.equal(merged.find((product) => product.id === "thit-lon-xe")!.price, 150000);
   assert.equal(merged.at(-1)!.id, "admin-new-product");
   assert.deepEqual(merged.at(-1)!.filters, []);
 });
