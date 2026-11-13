@@ -1,11 +1,15 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { MouseEvent } from "react";
+import { CAMPAIGN_IMAGE } from "../../../campaign/data";
 
 /**
  * Bộ ghép "Ghép Vị - Mở Miền" với 2 mảnh tương tác.
- * Port từ home-campaign-puzzle.js
+ * Port từ home-campaign-puzzle.js; hiệu ứng ghép chạy khi khối vào màn hình (initHomeCampaign).
  */
 
-const campaignImage = "/assets/campaign-editorial/landscape-village.webp";
+/** Ngưỡng của bản gốc: hai mảnh bắt đầu ghép khi 18% khối đã vào màn hình. */
+const REVEAL_THRESHOLD = 0.18;
+type Side = "left" | "right";
 
 interface PuzzleDetails {
   number: string;
@@ -13,7 +17,7 @@ interface PuzzleDetails {
   description: string;
 }
 
-const pieceDetails: Record<"left" | "right", PuzzleDetails> = {
+const pieceDetails: Record<Side, PuzzleDetails> = {
   left: {
     number: "01",
     label: "Từ đơn hàng đến mã",
@@ -68,37 +72,47 @@ const rightShape = `${seamMove}
  L617 318 Q615 337 596 337 L521 332 C510 331 503 326 507 316 C515 299 504 283 488 282
  C467 279 452 294 457 311 C461 324 457 328 444 327 L428 325 ${reverseSeam} Z`;
 
-export function CampaignPuzzle() {
-  const puzzleRef = useRef<HTMLElement>(null);
-  const [selection, setSelection] = useState<"left" | "right" | "">(""); // Mảnh đang được chọn
-  const [caption, setCaption] = useState(puzzleHint);
-
-  const handleClick = (event: React.MouseEvent) => {
-    const hit = (event.target as Element).closest("[data-puzzle-hit]");
-    const control = (event.target as Element).closest("[data-puzzle-control]");
-    const side = (hit?.getAttribute("data-puzzle-hit") ||
-      control?.getAttribute("data-puzzle-control")) as "left" | "right" | null;
-
-    if (!side) return;
-
-    const next: typeof selection = selection === side ? "" : side;
-    setSelection(next);
-    setCaption(next ? pieceDetails[next].description : puzzleHint);
-  };
+/**
+ * Hai mảnh chỉ ẩn chờ hiệu ứng ghép khi đã có IntersectionObserver theo dõi (`is-puzzle-observed`)
+ * và hiện lại khi khối vào màn hình (`is-puzzle-visible`). Không có observer thì hai mảnh hiện sẵn.
+ */
+function usePuzzleReveal() {
+  const ref = useRef<HTMLElement>(null);
+  const [observed, setObserved] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Cập nhật trạng thái selection trên element
-    if (puzzleRef.current) {
-      puzzleRef.current.setAttribute("data-puzzle-selection", selection);
-    }
-  }, [selection]);
+    const element = ref.current;
+    if (!element || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      setVisible(true);
+      observer.disconnect();
+    }, { threshold: REVEAL_THRESHOLD });
+    setObserved(true);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const className = ["ph-campaign-puzzle", observed && "is-puzzle-observed", visible && "is-puzzle-visible"].filter(Boolean).join(" ");
+  return { ref, className };
+}
+
+export function CampaignPuzzle() {
+  const reveal = usePuzzleReveal();
+  const [selection, setSelection] = useState<Side | "">("");
+  const caption = selection ? pieceDetails[selection].description : puzzleHint;
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    const target = event.target as Element;
+    const side = (target.closest("[data-puzzle-hit]")?.getAttribute("data-puzzle-hit") ??
+      target.closest("[data-puzzle-control]")?.getAttribute("data-puzzle-control")) as Side | null;
+    if (!side) return;
+    setSelection((current) => (current === side ? "" : side));
+  };
 
   return (
-    <figure
-      ref={puzzleRef}
-      className="is-puzzle-observed ph-campaign-puzzle"
-      onClick={handleClick}
-    >
+    <figure ref={reveal.ref} className={reveal.className} data-puzzle-selection={selection} onClick={handleClick}>
       <div className="ph-campaign-puzzle__stage" role="group" aria-label="Hai mảnh ghép phong cảnh ruộng bậc thang Tây Bắc">
         <svg
           className="ph-campaign-puzzle__art"
@@ -119,7 +133,7 @@ export function CampaignPuzzle() {
             </clipPath>
             <image
               id="ph-puzzle-landscape"
-              href={campaignImage}
+              href={CAMPAIGN_IMAGE}
               x="54"
               y="40"
               width="636"

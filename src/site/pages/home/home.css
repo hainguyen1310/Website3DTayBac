@@ -28,3 +28,41 @@
 [data-ph-gift] {
   cursor: pointer;
 }
+
+/*
+ * Khối "Mở hộp quà 3D": hộp xoay bằng cách kéo trên mô hình nên không còn thanh xoay;
+ * hai nút điều khiển chia đều cả hàng (nút mở/đóng rộng hơn).
+ */
+body.unified-site #main .ph-refined-gift-experience .pgp-module .pgp-controls {
+  display: block;
+}
+
+body.unified-site #main .ph-refined-gift-experience .pgp-module .pgp-stage-actions {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8px;
+}
+
+body.unified-site #main .ph-refined-gift-experience .pgp-module .pgp-stage-actions button {
+  width: 100%;
+  margin: 0;
+}
+
+/* Thiệp xem trước nổi trên khung 3D: chỉ hiện khi mô hình đã tải và nắp đang mở. */
+.pgp-module .pgp-card-float {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 16px;
+  pointer-events: none;
+}
+
+.pgp-module .pgp-card-float .pgp-card-preview {
+  position: static;
+  display: block;
+  max-width: 136px;
+}
+
+.pgp-module:not([data-open="true"][data-mesh="ready"]) .pgp-card-float {
+  display: none;
+}
