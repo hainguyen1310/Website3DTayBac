@@ -105,6 +105,9 @@ def main(argv: list[str]) -> None:
         export_rig(rig["collection"], os.path.join(out_dir, f"box-{kind}.rig.glb"))
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out_dir, f"box-{kind}.blend"), compress=True)
         print(f"[gift-rigs] {kind}: mặt lạc màu đã sửa: {seam_report(rig)}")
+        turned = rig["info"].get("lid_art_turned")
+        if turned is not None:
+            print(f"[gift-rigs] {kind}: nửa tranh nắp lộn ngược đã xoay lại: {', '.join(turned) or 'không có'}")
         print(f"[gift-rigs] {kind}: xong -> {out_dir}")
 
 

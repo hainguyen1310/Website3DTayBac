@@ -2,15 +2,17 @@
 
 File gốc chỉ có MỘT lưới `hop to` gồm 114 mảnh rời, dựng sẵn ở dáng mở. Ở đây lưới được tách thành
 các khối cứng (thân, lụa lót, hai cánh, ngăn kéo, khoen kéo), đặt trục bản lề, điểm neo sản phẩm,
-và chỉnh nhẹ hai cánh để khi gập lại hai nửa nóc khít nhau ở đường giữa.
+chỉnh nhẹ hai cánh để khi gập lại hai nửa nóc khít nhau ở đường giữa, và xoay lại nửa tranh nắp nào
+đang lộn ngược so với hộp thật.
 """
 from __future__ import annotations
 
 import math
+from typing import NamedTuple
 
 import bmesh
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 import rig_common as rc
 import uv_seams
@@ -31,6 +33,26 @@ BODY_OVERHANG = 0.5
 WING_AREA_TOLERANCE = 0.02
 #: Khoen kéo là một vòng nhỏ; lớn hơn tỉ lệ này so với ngăn kéo là đã ôm nhầm mảnh của ngăn kéo.
 RING_AREA_SHARE = 0.02
+#: Vỏ đỏ chỉ có tranh ở mặt nóc, mọi tấm khác của hai cánh là đỏ trơn: mặt lạc màu trên các tấm đó là lỗi
+#: nướng texture kể cả khi UV của nó nằm trong ô của tấm (file gốc 11/2026 có một dải vàng chạy dọc góc
+#: sau của cánh trái, trên cả mặt hông lẫn tấm chắn sau).
+PLAIN_SHELL = ("wing_L", "wing_R")
+#: Diện tích nhỏ nhất (đơn vị mô hình bình phương) của một "tấm" của vỏ đỏ. Tấm nhỏ nhất có dải lạc màu
+#: là tấm chắn sau (~285). Các dải vát và mép mỏng chỉ gồm vài mặt nhỏ (dưới 3): "gần như một màu" ở đó
+#: không nói lên điều gì, nên chúng vẫn theo quy tắc thận trọng mặc định của `uv_seams`.
+PLAIN_PANEL_AREA = 100.0
+#: Mặt được coi là hướng lên khi pháp tuyến lệch trục đứng không quá chừng 25°.
+FACING_UP = 0.9
+#: Mặt nóc ngoài của cánh nằm trong khoảng này (đơn vị mô hình) dưới điểm cao nhất của cánh khi đóng.
+ROOF_BAND = 0.3
+#: Mảng tranh của nửa nắp phải phủ gần hết mặt nóc và gần như chỉ nằm trên mặt nóc (trừ viền vát mảnh).
+LID_ART_COVER = 0.95
+#: Hướng tranh phải gần song song với cạnh hộp; lệch hơn mức này là mảng UV đã xoay 90° hoặc bị méo.
+ART_ALIGNED = 0.9
+#: Sai số khi xét một mảng UV có nằm gọn trong khung UV của mảng tranh nắp hay không.
+UV_TOLERANCE = 1e-4
+#: Mặt có diện tích không quá mức này là mặt suy biến: không có pháp tuyến đáng tin.
+DEGENERATE_AREA = 1e-9
 
 
 def _material_index(mesh: bpy.types.Mesh, prefix: str) -> int:
@@ -197,6 +219,149 @@ def tuck_body(mesh: bpy.types.Mesh, max_x: float, max_y: float) -> int:
     return moved
 
 
+Faces = list[bmesh.types.BMFace]
+
+
+def _closed_roof(bm: bmesh.types.BMesh, closing: Matrix, name: str) -> Faces:
+    """Các mặt nóc ngoài của một cánh ở dáng đóng: pháp tuyến hướng lên và nằm cao nhất.
+
+    `closing` xoay quanh gốc toạ độ chứ không quanh bản lề; hai cách chỉ lệch nhau một phép tịnh tiến
+    nên thứ tự cao thấp giữa các mặt không đổi.
+    """
+    lifted = [(face, (closing @ face.calc_center_median()).z) for face in bm.faces if (closing @ face.normal).z >= FACING_UP]
+    if not lifted:
+        raise RuntimeError(f"{name}: không thấy mặt nào của cánh hướng lên khi gập lại; góc đóng hoặc lưới cánh đã lệch")
+    top = max(height for _, height in lifted)
+    return [face for face, height in lifted if height >= top - ROOF_BAND]
+
+
+def _uv_bounds(faces: Faces, layer) -> tuple[Vector, Vector]:
+    uvs = [loop[layer].uv for face in faces for loop in face.loops]
+    return Vector((min(uv.x for uv in uvs), min(uv.y for uv in uvs))), Vector((max(uv.x for uv in uvs), max(uv.y for uv in uvs)))
+
+
+class LidPicture(NamedTuple):
+    """Nửa tranh nắp trên một cánh."""
+
+    #: Mọi mặt lấy màu từ ô tranh.
+    faces: Faces
+    #: Phần nằm phẳng trên nóc, dùng để đo hướng tranh.
+    flat: Faces
+    #: Hai góc của ô tranh trong atlas (khung UV của mảng tranh chính).
+    lo: Vector
+    hi: Vector
+
+
+def _lid_picture(bm: bmesh.types.BMesh, layer, closing: Matrix, name: str) -> LidPicture:
+    """Tách nửa tranh nắp của một cánh.
+
+    Tranh là mảng UV lớn nhất trên mặt nóc cùng mọi mảng UV khác nằm gọn trong khung UV của nó: mô hình
+    gốc để vài mặt sợi chỉ dọc mép nóc thành mảng riêng, chúng vẫn lấy màu từ cùng ô tranh trong atlas.
+    Các mảng thêm vào đó phải nằm trên mặt nóc; một mặt ở chỗ khác của cánh mà dùng chung ô tranh là
+    điều file gốc 11/2026 không có, nên báo lỗi thay vì lặng lẽ coi nó là tranh.
+    """
+    roof = set(_closed_roof(bm, closing, name))
+    roof_area = sum(face.calc_area() for face in roof)
+    groups = uv_seams.uv_face_groups(bm, layer)
+    main = max(groups, key=lambda faces: sum(face.calc_area() for face in faces if face in roof))
+    flat = [face for face in main if face in roof]
+    flat_area = sum(face.calc_area() for face in flat)
+    main_area = sum(face.calc_area() for face in main)
+    if flat_area < LID_ART_COVER * roof_area or flat_area < LID_ART_COVER * main_area:
+        raise RuntimeError(
+            f"{name}: mảng tranh nắp không còn là một mảng UV phủ riêng mặt nóc "
+            f"(trên nóc {flat_area:.1f}, cả mảng {main_area:.1f}, cả mặt nóc {roof_area:.1f}); cần xem lại file gốc"
+        )
+    lo, hi = _uv_bounds(main, layer)
+    picture = list(main)
+    for faces in groups:
+        if faces is main or faces[0].material_index != main[0].material_index:
+            continue
+        other_lo, other_hi = _uv_bounds(faces, layer)
+        if other_lo.x < lo.x - UV_TOLERANCE or other_lo.y < lo.y - UV_TOLERANCE or other_hi.x > hi.x + UV_TOLERANCE or other_hi.y > hi.y + UV_TOLERANCE:
+            continue
+        # Mặt suy biến (diện tích 0) không có pháp tuyến nên không xét được có nằm trên nóc hay không.
+        strangers = [face for face in faces if face not in roof and face.calc_area() > DEGENERATE_AREA]
+        if strangers:
+            raise RuntimeError(f"{name}: {len(strangers)} mặt không nằm trên mặt nóc nhưng lấy màu từ ô tranh nắp; cần xem lại file gốc")
+        picture += faces
+    return LidPicture(picture, flat, lo, hi)
+
+
+def _art_axes(faces: Faces, layer, closing: Matrix, name: str) -> tuple[Vector, Vector]:
+    """Hướng trong không gian (dáng đóng) của chiều +U và chiều +V của ảnh trên một tấm, trung bình theo diện tích."""
+    along_u, along_v = Vector((0.0, 0.0, 0.0)), Vector((0.0, 0.0, 0.0))
+    for face in faces:
+        first, *rest = face.loops
+        origin, uv0 = closing @ first.vert.co, first[layer].uv
+        for a, b in zip(rest, rest[1:]):
+            e1, e2 = closing @ a.vert.co - origin, closing @ b.vert.co - origin
+            t1, t2 = a[layer].uv - uv0, b[layer].uv - uv0
+            det = t1.x * t2.y - t2.x * t1.y
+            if abs(det) < 1e-14:
+                continue
+            weight = e1.cross(e2).length / 2 / det
+            along_u += (e1 * t2.y - e2 * t1.y) * weight
+            along_v += (e2 * t1.x - e1 * t2.x) * weight
+    if along_u.length == 0.0 or along_v.length == 0.0:
+        raise RuntimeError(f"{name}: mảng tranh nắp không có diện tích UV, không đo được hướng tranh")
+    return along_u.normalized(), along_v.normalized()
+
+
+class LidArt(NamedTuple):
+    """Nửa tranh nắp của một cánh sau khi soát chiều."""
+
+    #: Chỉ số các mặt mang tranh; bước dọn mép texture không được sơn lại hay co các mặt này.
+    faces: frozenset[int]
+    #: Tranh lộn ngược trong file gốc và đã được xoay lại.
+    turned: bool
+
+
+def _is_upside_down(picture: LidPicture, layer, closing: Matrix, name: str) -> bool:
+    """Nửa tranh có đang xoay 180° so với chiều đúng không. Kiểu lệch khác (lật gương, xoay 90°) thì báo lỗi."""
+    along_u, along_v = _art_axes(picture.flat, layer, closing, name)
+    if abs(along_u.x) < ART_ALIGNED or abs(along_v.y) < ART_ALIGNED:
+        raise RuntimeError(f"{name}: tranh nắp không song song với cạnh hộp (+U {tuple(round(c, 2) for c in along_u)}, +V {tuple(round(c, 2) for c in along_v)})")
+    if (along_u.x > 0) != (along_v.y > 0):
+        raise RuntimeError(f"{name}: tranh nắp bị lật gương (+U theo X {along_u.x:+.2f}, +V theo Y {along_v.y:+.2f}); xoay UV không sửa được")
+    return along_u.x < 0
+
+
+def upright_lid_art(mesh: bpy.types.Mesh, close_angle: float) -> LidArt:
+    """Tìm nửa tranh nắp của một cánh và xoay lại nếu nó đang lộn ngược khi hộp đóng.
+
+    File gốc 11/2026 dựng cánh phải bằng cách quay cánh trái nửa vòng nhưng không xoay theo mảng UV của
+    mặt nóc, nên nửa tranh bên phải (núi và ruộng bậc thang) lộn ngược so với hộp thật. Ở dáng mở của
+    mô hình gốc hai nửa nóc dựng đứng hai bên nên không ai thấy; đóng hộp lại mới lộ.
+
+    Tranh đúng chiều khi nhìn hộp đóng từ trên xuống: chiều ngang của ảnh (+U) chạy sang phải hộp (+X),
+    chiều lên của ảnh (+V của Blender) chạy ra sau hộp (+Y), tức mây ở phía sau và dải thổ cẩm ở phía
+    khoen kéo. `close_angle` là góc quanh trục Y đưa cánh từ dáng mở (dáng của lưới) về dáng đóng.
+    """
+    closing = Matrix.Rotation(close_angle, 3, "Y")
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    try:
+        layer = bm.loops.layers.uv.active
+        if layer is None:
+            raise RuntimeError(f"{mesh.name}: lưới cánh không có UV")
+        bm.faces.ensure_lookup_table()
+        bm.normal_update()
+        picture = _lid_picture(bm, layer, closing, mesh.name)
+        turned = _is_upside_down(picture, layer, closing, mesh.name)
+        if turned:
+            # Xoay nửa vòng quanh tâm ô tranh: ô tranh vẫn nằm đúng chỗ cũ trong atlas, chỉ đổi chiều.
+            turn = picture.lo + picture.hi
+            for face in picture.faces:
+                for loop in face.loops:
+                    loop[layer].uv = turn - loop[layer].uv
+            bm.to_mesh(mesh)
+            mesh.update()
+        return LidArt(frozenset(face.index for face in picture.faces), turned)
+    finally:
+        bm.free()
+
+
 def build(source: str, scene: bpy.types.Scene) -> dict:
     """Dựng rig hộp lớn trong `scene`. Trả về các object và thông số để làm animation."""
     rig = rc.new_collection(scene, "rig_large")
@@ -218,11 +383,21 @@ def build(source: str, scene: bpy.types.Scene) -> dict:
 
     left = reshape_wing(parts["wing_L"].data, 1.0)
     right = reshape_wing(parts["wing_R"].data, -1.0)
+    wing_close = {"L": left["close_angle"], "R": -right["close_angle"]}
+    lid_art = {f"wing_{side}": upright_lid_art(parts[f"wing_{side}"].data, angle) for side, angle in wing_close.items()}
     # Mặt ngoài của vỏ khi đóng: hông ở |x| = bản lề, trước/sau ở |y| = mép tấm chắn.
     cap_y = max(abs(v.co.y) for v in parts["wing_L"].data.vertices)
     tuck_body(parts["body"].data, min(-left["hinge_x"], right["hinge_x"]) - 0.08, cap_y - 0.08)
 
-    seams = {name: uv_seams.clean_uv_seams(ob.data) for name, ob in parts.items() if name != "ring"}
+    seams = {
+        name: uv_seams.clean_uv_seams(
+            ob.data,
+            plain_panel_area=PLAIN_PANEL_AREA if name in PLAIN_SHELL else math.inf,
+            art_faces=lid_art[name].faces if name in lid_art else frozenset(),
+        )
+        for name, ob in parts.items()
+        if name != "ring"
+    }
 
     # Đặt đáy hộp lên mặt sàn (file gốc để hộp lơ lửng).
     floor = min(v.co.z for v in parts["body"].data.vertices)
@@ -286,7 +461,7 @@ def build(source: str, scene: bpy.types.Scene) -> dict:
         "preview": preview,
         "root": root,
         "wings": wings,
-        "wing_close": {"L": left["close_angle"], "R": -right["close_angle"]},
+        "wing_close": wing_close,
         "drawer": drawer,
         "drawer_travel": travel,
         "ring": ring,
@@ -295,5 +470,5 @@ def build(source: str, scene: bpy.types.Scene) -> dict:
         "slots": slots,
         "parts": parts,
         "preview_objects": others,
-        "info": {"left": left, "right": right, "floor": floor, "hinge_x": hinge_x, "body": (body_lo, body_hi), "areas": areas, "seams": seams},
+        "info": {"left": left, "right": right, "floor": floor, "hinge_x": hinge_x, "body": (body_lo, body_hi), "areas": areas, "seams": seams, "lid_art_turned": [name for name, art in lid_art.items() if art.turned]},
     }

@@ -32,20 +32,24 @@ npm test
 Các chốt chặn dọc đường, để một lần xuất lại lệch chuẩn không lặng lẽ ra web:
 
 - `build_gift_rigs.py` báo lỗi khi lưới hộp lớn không tách được đủ khối (cánh dính vào thân, hai cánh
-  lệch diện tích, khoen ôm nhầm ngăn kéo) hoặc file nguồn thiếu bình rượu / hộp giấy; và in số mặt
-  "lạc màu" đã sửa ở từng khối (hiện tại: thân 25, cánh trái 16, cánh phải 1).
+  lệch diện tích, khoen ôm nhầm ngăn kéo), khi file nguồn thiếu bình rượu / hộp giấy, hoặc khi tranh nắp
+  lệch theo kiểu không tự sửa được; và in số mặt "lạc màu" đã sửa ở từng khối (hiện tại: thân 25, cánh
+  trái 38, cánh phải 1) cùng nửa tranh nắp nào đã được xoay lại.
 - `build-gift-models.mjs` dựng mọi thứ vào thư mục tạm, kiểm hai clip (đủ `open` + `bloom`, cùng thời
   lượng, cùng bộ kênh) rồi mới thay file trong `public/models/gift`; một lần dựng hỏng giữa chừng (thiếu
   nút, rig lệch hợp đồng…) không để lại GLB mới đi kèm layout cũ. Bước thay file cuối cùng chỉ là chép
   vài chục file nhỏ, không phải một giao dịch: nếu chính bước đó hỏng (đĩa đầy), chạy lại lệnh.
-- `tests/gift-models.test.ts` đọc chính các GLB đang phát hành và kiểm lại hợp đồng bên dưới.
+- `tests/gift-models.test.ts` đọc chính các GLB đang phát hành và kiểm lại hợp đồng bên dưới, cùng với
+  chiều và tỉ lệ của tranh nắp và màu các tấm đỏ trơn của hộp lớn.
 - Trên web, vỏ hộp thiếu clip hoặc thiếu điểm neo làm khung 3D báo lỗi (trang chủ chuyển sang hộp CSS)
   thay vì hiện hộp trống.
 
 Xem nhanh một GLB (kể cả bản đã nén): `node scripts/gift3d/inspect-glb.mjs <file>` (cây nút, lưới, ảnh)
 và `node scripts/gift3d/inspect-anim.mjs <file>` (các kênh của từng clip). Khi sửa script dựng rig mà
 không định đổi hình học, so `node scripts/gift3d/hash-meshes.mjs <rig.glb>` trước và sau: lệnh dựng cho
-kết quả lặp lại được nên lưới và UV phải trùng từng byte.
+kết quả lặp lại được nên lưới và UV phải trùng từng byte. Lưu ý khi cố ý đổi UV của một lưới: bộ xuất
+glTF gộp đỉnh theo cả UV, nên mã băm của chỉ số, toạ độ và pháp tuyến của lưới đó cũng đổi dù hình học
+giữ nguyên; lúc đó phải so từng tam giác chứ không so mã băm.
 
 ## Hợp đồng của GLB hộp (`box-large.glb`, `box-small.glb`)
 
@@ -131,6 +135,30 @@ Quy tắc khai báo ở hai nơi và phải khớp nhau:
 Khi triển khai: đưa giao diện mới lên trước rồi chạy migration ngay sau đó. Chạy migration trước thì đơn
 Thịnh Đỉnh gửi từ giao diện cũ (hai túi + một hũ) bị từ chối với thông báo yêu cầu tải lại trang. Giỏ hàng
 đã lưu của khách tự bỏ món ở ngăn hũ của hộp Thịnh Đỉnh khi mở lại trang (`cleanDesign`).
+
+## Tranh nắp và màu vỏ của hộp lớn
+
+Hoạ sĩ chỉ xem mô hình 11/2026 ở dáng mở, nên hai lỗi texture dưới đây chỉ lộ khi hộp đóng.
+`rig_large.py` sửa cả hai lúc dựng rig và `tests/gift-models.test.ts` kiểm lại trên GLB phát hành.
+
+- **Nửa tranh bên phải lộn ngược.** Cánh phải là bản quay nửa vòng của cánh trái nhưng mảng UV của mặt nóc
+  không xoay theo, nên núi và ruộng bậc thang quay 180° so với hộp thật (ảnh
+  `public/assets/original/asin-thinh-dinh.webp`: ngựa bên trái, núi bên phải, mây ở phía sau, dải thổ cẩm ở
+  phía khoen kéo, tranh liền qua khe giữa). `upright_lid_art` đo chiều tranh ở dáng đóng và xoay UV nửa
+  vòng quanh tâm ô tranh khi cần. Kiểu lệch khác (lật gương, xoay 90°, mảng tranh vắt sang mặt khác, một
+  mặt ngoài mặt nóc dùng chung ô tranh) làm lệnh dựng dừng lại để người dựng xem.
+- **Dải vàng ở góc sau của cánh trái.** Atlas tô vàng một dải rộng chừng 0,4 đơn vị chạy dọc góc sau bên
+  trái, trên cả mặt hông lẫn tấm chắn sau; cánh phải không có. Vỏ đỏ ngoài tranh nắp ra là đỏ trơn, nên
+  với hai cánh mọi mặt lạc màu trên tấm rộng từ 100 đơn vị vuông trở lên đều được sơn lại
+  (`plain_panel_area` của `uv_seams.clean_uv_seams`). Còn sót vài mặt sợi chỉ rộng dưới 0,05 đơn vị ở đúng
+  cạnh góc, không thấy được ở cỡ hiển thị trên web.
+
+Các mặt mang tranh nắp được báo cho bước dọn mép texture (`art_faces`): chúng không bị sơn lại và mảng UV
+của chúng giữ nguyên cỡ. Không báo thì bước đó đoán loại mảng từ vài điểm màu lấy mẫu, có thể coi nửa tranh
+là "tấm một màu" rồi co UV còn 60%, tức phóng to riêng nửa tranh đó.
+
+Mỗi khi hoạ sĩ gửi lại mô hình: mở `box-large.blend`, về khung 0, nhìn từ trên xuống và so với ảnh sản phẩm
+ở trên trước khi phát hành. Dáng mở trông đúng không nói lên điều gì về dáng đóng.
 
 ## Chỉnh animation
 

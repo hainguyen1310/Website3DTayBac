@@ -6,6 +6,9 @@ và khi trình duyệt thu nhỏ/mipmap texture thì lộ thành sọc vàng ở
 """
 from __future__ import annotations
 
+import math
+from collections.abc import Collection
+
 import bmesh
 import bpy
 import numpy as np
@@ -71,10 +74,15 @@ def _color_class(color: np.ndarray) -> str:
     return "other"
 
 
-def _repaint_stray_faces(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> int:
-    """Dời UV của các mặt lạc màu trên một tấm phẳng một màu về giữa vùng màu chính của tấm đó."""
+def _repaint_stray_faces(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh, plain_panel_area: float, art_faces: Collection[int]) -> int:
+    """Dời UV của các mặt lạc màu trên một tấm phẳng một màu về giữa vùng màu chính của tấm đó.
+
+    Các mặt trong `art_faces` đứng ngoài hẳn: không bị sơn lại và không tính vào màu chính của tấm nào.
+    """
     planes: dict[tuple, list] = {}
     for face in bm.faces:
+        if face.index in art_faces:
+            continue
         area = face.calc_area()
         material = mesh.materials[face.material_index]
         pixels = base_color_pixels(material) if material else None
@@ -93,17 +101,22 @@ def _repaint_stray_faces(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> 
             if entry is not None and (not cluster or entry[0] - cluster[-1][0] < 0.05):
                 cluster.append(entry)
                 continue
-            repainted += _repaint_cluster(cluster, layer)
+            repainted += _repaint_cluster(cluster, layer, plain_panel_area)
             cluster = [entry] if entry is not None else []
     return repainted
 
 
-def _repaint_cluster(cluster: list, layer) -> int:
+def _repaint_cluster(cluster: list, layer, plain_panel_area: float) -> int:
     """Một tấm phẳng: nếu gần như một màu thì đưa các mặt khác màu về vùng màu chính.
 
+    Mặt khác màu có UV nằm TRONG vùng UV của phần màu chính được coi là hoạ tiết thật và giữ nguyên.
+    Ngoại lệ: tấm rộng từ `plain_panel_area` trở lên được người gọi cam đoan là tấm trơn, nên mặt khác
+    màu nào trên đó cũng là lỗi nướng texture và đều bị sơn lại, kể cả khi UV của nó nằm trong ô của tấm.
+
     Giới hạn đã biết: một viền trang trí thật khác màu, đồng phẳng với tấm chính, chiếm dưới 10% diện
-    tích và có UV nằm ngoài vùng UV của tấm thì không phân biệt được với mặt lạc màu, sẽ bị sơn đè.
-    File gốc 11/2026 không có viền như vậy; lệnh dựng in số mặt đã sửa ở từng khối để soát lại.
+    tích và có UV nằm ngoài vùng UV của tấm (hoặc nằm trên một tấm được cam đoan là trơn) thì không phân
+    biệt được với mặt lạc màu, sẽ bị sơn đè. File gốc 11/2026 không có viền như vậy; lệnh dựng in số
+    mặt đã sửa ở từng khối để soát lại.
     """
     total = sum(item[2] for item in cluster)
     by_class: dict[str, float] = {}
@@ -125,7 +138,7 @@ def _repaint_cluster(cluster: list, layer) -> int:
             continue
         uvs = [loop[layer].uv.copy() for loop in face.loops]
         centre = sum(uvs, Vector((0.0, 0.0))) / len(uvs)
-        if min(main_us) <= centre.x <= max(main_us) and min(main_vs) <= centre.y <= max(main_vs):
+        if total < plain_panel_area and min(main_us) <= centre.x <= max(main_us) and min(main_vs) <= centre.y <= max(main_vs):
             continue
         for loop, uv in zip(face.loops, uvs):
             # Giữ một chút diện tích UV để tiếp tuyến của normal map không suy biến.
@@ -134,8 +147,8 @@ def _repaint_cluster(cluster: list, layer) -> int:
     return moved
 
 
-def _uv_islands(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> list[dict]:
-    """Các mảng UV của lưới (mặt liền nhau qua toạ độ UV) kèm loại mảng theo màu lấy mẫu."""
+def uv_face_groups(bm: bmesh.types.BMesh, layer) -> list[list[bmesh.types.BMFace]]:
+    """Các mảng UV của lưới: nhóm mặt cùng vật liệu, liền nhau qua cạnh chung có toạ độ UV trùng nhau."""
     parent = list(range(len(bm.faces)))
 
     def find(i: int) -> int:
@@ -162,8 +175,13 @@ def _uv_islands(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> list[dict
     groups: dict[int, list] = {}
     for face in bm.faces:
         groups.setdefault(find(face.index), []).append(face)
+    return list(groups.values())
+
+
+def _uv_islands(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> list[dict]:
+    """Các mảng UV của lưới kèm loại mảng theo màu lấy mẫu."""
     islands = []
-    for faces in groups.values():
+    for faces in uv_face_groups(bm, layer):
         material = mesh.materials[faces[0].material_index]
         pixels = base_color_pixels(material) if material else None
         solid = [face for face in faces if face.calc_area() > 1e-6]
@@ -179,12 +197,25 @@ def _uv_islands(bm: bmesh.types.BMesh, layer, mesh: bpy.types.Mesh) -> list[dict
     return islands
 
 
-def clean_uv_seams(mesh: bpy.types.Mesh, plain_scale: float = 0.6, shaded_scale: float = 0.97) -> dict[str, int]:
+def clean_uv_seams(
+    mesh: bpy.types.Mesh,
+    plain_scale: float = 0.6,
+    shaded_scale: float = 0.97,
+    plain_panel_area: float = math.inf,
+    art_faces: Collection[int] = frozenset(),
+) -> dict[str, int]:
     """Dọn mép texture của một lưới hộp. Trả về số mảng UV theo từng loại và số mặt lạc màu đã sửa.
 
-    1. Mặt lạc màu trên tấm phẳng một màu được dời UV về vùng màu chính.
+    1. Mặt lạc màu trên tấm phẳng một màu được dời UV về vùng màu chính. `plain_panel_area` là diện
+       tích (đơn vị mô hình bình phương) mà từ đó trở lên một tấm gần như một màu của lưới này chắc
+       chắn là tấm trơn; mặc định không tấm nào được coi như vậy (xem `_repaint_cluster`).
     2. Co mảng UV quanh tâm: mảng một màu co mạnh (`plain_scale`), mảng chuyển sắc co rất nhẹ
        (`shaded_scale`), mảng hoạ tiết (đỏ lẫn vàng) giữ nguyên để hình ghép giữa các tấm không lệch.
+
+    `art_faces` là chỉ số các mặt mà người gọi biết chắc mang tranh (tranh nắp hộp lớn): chúng không bị
+    sơn lại và mảng UV của chúng luôn được giữ nguyên cỡ. Loại mảng đoán từ màu lấy mẫu không đủ tin
+    cho tranh: tấm tranh chỉ gồm vài mặt lớn nên rất ít điểm mẫu, dễ bị xếp nhầm thành mảng một màu.
+    Tranh luôn gồm trọn từng mảng UV, nên chỉ cần xét mặt đầu tiên của mỗi mảng.
     """
     counts = {"plain": 0, "shaded": 0, "art": 0, "repainted": 0}
     bm = bmesh.new()
@@ -195,9 +226,9 @@ def clean_uv_seams(mesh: bpy.types.Mesh, plain_scale: float = 0.6, shaded_scale:
         return counts
     bm.faces.ensure_lookup_table()
     bm.normal_update()
-    counts["repainted"] = _repaint_stray_faces(bm, layer, mesh)
+    counts["repainted"] = _repaint_stray_faces(bm, layer, mesh, plain_panel_area, art_faces)
     for island in _uv_islands(bm, layer, mesh):
-        kind = island["kind"]
+        kind = "art" if island["faces"][0].index in art_faces else island["kind"]
         counts[kind] += 1
         scale = plain_scale if kind == "plain" else shaded_scale if kind == "shaded" else 1.0
         if scale == 1.0:
