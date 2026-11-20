@@ -1721,7 +1721,7 @@ async function renderSitePage(input) {
         ctx,
         route,
         "T\u1EF1 thi\u1EBFt k\u1EBF h\u1ED9p qu\xE0 T\xE2y B\u1EAFc",
-        "Ch\u1ECDn c\u1EE1 h\u1ED9p Sinh L\u1ED9c ho\u1EB7c Th\u1ECBnh \u0110\u1EC9nh, ph\u1ED1i hai t\xFAi \u0111\u1EB7c s\u1EA3n v\xE0 m\u1ED9t h\u0169 th\u1ECBt x\xE9, r\u1ED3i vi\u1EBFt l\u1EDDi nh\u1EAFn cho ng\u01B0\u1EDDi nh\u1EADn. Ch\u1EA9m ch\xE9o \u0111\u01B0\u1EE3c g\xF3i s\u1EB5n, h\u1ED9p Th\u1ECBnh \u0110\u1EC9nh k\xE8m r\u01B0\u1EE3u ng\xF4 B\u1EA3n Ph\u1ED1."
+        "Ch\u1ECDn h\u1ED9p Sinh L\u1ED9c (hai t\xFAi \u0111\u1EB7c s\u1EA3n, m\u1ED9t h\u0169 th\u1ECBt x\xE9, k\xE8m ch\u1EA9m ch\xE9o) ho\u1EB7c Th\u1ECBnh \u0110\u1EC9nh (hai t\xFAi \u0111\u1EB7c s\u1EA3n, k\xE8m r\u01B0\u1EE3u ng\xF4 B\u1EA3n Ph\u1ED1), r\u1ED3i vi\u1EBFt l\u1EDDi nh\u1EAFn cho ng\u01B0\u1EDDi nh\u1EADn."
       );
     case "campaign":
       return staticPage(ctx, route, "Gh\xE9p V\u1ECB M\u1EDF Mi\u1EC1n \xB7 24 m\u1EA3nh gh\xE9p T\xE2y B\u1EAFc", "Gh\xE9p 24 m\u1EA3nh \u0111\u1EC3 kh\xE1m ph\xE1 h\u01B0\u01A1ng v\u1ECB v\xE0 chuy\u1EC7n b\u1EA3n l\xE0ng T\xE2y B\u1EAFc. M\u1ED7i \u0111\u01A1n h\xE0ng \u0111\u1EE7 \u0111i\u1EC1u ki\u1EC7n nh\u1EADn m\xE3, m\u1EDF t\u1EEBng m\u1EA3nh gh\xE9p v\xE0 theo d\xF5i ti\u1EBFn \u0111\u1ED9 c\u1EE7a b\u1EA1n.");

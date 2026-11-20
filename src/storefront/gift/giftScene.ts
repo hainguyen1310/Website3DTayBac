@@ -1,26 +1,21 @@
-import { sizeOf } from "../../catalog";
-import type { GiftDesign, GiftSlotId } from "../../catalog";
-import type { StorefrontProduct } from "../products";
+import { sizeOf } from "../../catalog.ts";
+import type { GiftDesign, GiftSlotId } from "../../catalog.ts";
+import type { StorefrontProduct } from "../products.ts";
 import type { StageItem } from "../three/ModelStage";
-import { GIFT_LAYOUT } from "./layout.generated";
+import { GIFT_LAYOUT } from "./layout.generated.ts";
 
-type Size3 = readonly [number, number, number];
-type SlotLayout = { x: number; z: number; floor: number; size: Size3 };
+type Vec3 = readonly [number, number, number];
+/** Cách đặt một món vào ngăn: `seat` là vị trí so với điểm neo; túi có thêm hộp giấy con (`pack`). */
+type ProductLayout = { size: Vec3; seat: Vec3; pack?: string };
 
 const MODEL_ROOT = "/models/gift";
-/** Biên độ co giãn khi đặt một món vào ngăn không phải ngăn gốc của nó. */
-const FIT_RANGE: [number, number] = [0.85, 1.1];
+const ORIGIN: Vec3 = [0, 0, 0];
 /** Các món lần lượt rơi vào hộp ở chế độ "Xem trong hộp". */
 const DROP_STAGGER_MS = 120;
 const DROP_LIFT = 14;
 
 const modelKey = (url: string) => url.split("/").pop()!.replace(/\.glb$/, "");
-
-function fitScale(slot: SlotLayout, product: Size3 | undefined) {
-  if (!product) return 1;
-  const ratio = Math.min(slot.size[0] / product[0], slot.size[2] / product[2]);
-  return Math.min(FIT_RANGE[1], Math.max(FIT_RANGE[0], ratio));
-}
+const boxKeyOf = (design: GiftDesign) => (design.size === "large" ? "large" : "small");
 
 export type TrayItem = {
   key: string;
@@ -42,33 +37,38 @@ export function trayItems(design: GiftDesign, products: StorefrontProduct[]): Tr
   });
 }
 
-/**
- * Vỏ hộp, có hoặc không kèm món. `contents: "all"` đặt mọi món vào đúng ngăn
- * (toạ độ lấy từ file combo gốc) và cho chúng rơi xuống lần lượt.
- */
-export function giftStageItems(design: GiftDesign, products: StorefrontProduct[], contents: "none" | "all"): StageItem[] {
-  const boxKey = design.size === "large" ? "large" : "small";
-  const box = GIFT_LAYOUT.boxes[boxKey];
-  const items: StageItem[] = [{ key: `box-${boxKey}`, url: `${MODEL_ROOT}/${box.model}`, position: [0, 0, 0], isBox: true }];
-  if (contents === "none") return items;
-  const slotLayouts = box.slots as Record<string, SlotLayout>;
-  const sizes = GIFT_LAYOUT.products as Record<string, { size: Size3 }>;
-  trayItems(design, products).forEach(({ slotId, product }, index) => {
-    const layout = slotLayouts[slotId];
-    if (!product.giftModel || !layout) return;
-    items.push({
-      key: `${boxKey}-${slotId}`,
-      url: product.giftModel,
-      position: [layout.x, layout.floor, layout.z],
-      scale: fitScale(layout, sizes[modelKey(product.giftModel)]?.size),
-      appearDelay: 180 + index * DROP_STAGGER_MS,
-      appearLift: DROP_LIFT,
-    });
-  });
-  return items;
+/** Món dựng được trong vỏ hộp: có mô hình 3D và mô hình vỏ hộp có điểm neo cho ngăn của nó. */
+function isDrawn(design: GiftDesign, { slotId, product }: TrayItem): boolean {
+  const slots: readonly string[] = GIFT_LAYOUT.boxes[boxKeyOf(design)].slots;
+  return Boolean(product.giftModel) && slots.includes(slotId);
 }
 
-/** Một món đứng riêng giữa sân khấu (đã chuẩn hoá tâm và đáy khi xuất mô hình). */
-export function focusStageItems(product: StorefrontProduct | undefined): StageItem[] {
-  return product?.giftModel ? [{ key: `focus-${product.id}`, url: product.giftModel, position: [0, 0, 0] }] : [];
+/**
+ * Các món có trong hộp nhưng khung 3D không dựng (hộp Thịnh Đỉnh mới chỉ có ngăn cho hai túi và
+ * bình rượu), để giao diện nói rõ với khách thay vì lặng lẽ bỏ qua.
+ */
+export function undrawnItems(design: GiftDesign, products: StorefrontProduct[]): TrayItem[] {
+  return trayItems(design, products).filter((item) => !isDrawn(design, item));
+}
+
+/**
+ * Vỏ hộp, có hoặc không kèm món. `contents: "all"` gắn mọi món vào điểm neo của ngăn trong vỏ hộp
+ * (nút `slot_*` của GLB, đi theo animation đóng/mở) và cho chúng rơi xuống lần lượt. Món mà mô hình
+ * hộp không có ngăn chứa không được dựng (xem `undrawnItems`).
+ */
+export function giftStageItems(design: GiftDesign, products: StorefrontProduct[], contents: "none" | "all"): StageItem[] {
+  const boxKey = boxKeyOf(design);
+  const box = GIFT_LAYOUT.boxes[boxKey];
+  const items: StageItem[] = [{ key: `box-${boxKey}`, url: `${MODEL_ROOT}/${box.model}`, position: ORIGIN, isBox: true }];
+  if (contents === "none") return items;
+  const layouts: Record<string, ProductLayout> = GIFT_LAYOUT.products;
+  trayItems(design, products).forEach((item, index) => {
+    const { slotId, product } = item;
+    if (!product.giftModel || !isDrawn(design, item)) return;
+    const layout = layouts[modelKey(product.giftModel)];
+    const drop = { anchor: slotId, appearDelay: 180 + index * DROP_STAGGER_MS, appearLift: DROP_LIFT };
+    if (layout?.pack) items.push({ key: `${boxKey}-${slotId}-pack`, url: `${MODEL_ROOT}/${layout.pack}.glb`, position: ORIGIN, ...drop });
+    items.push({ key: `${boxKey}-${slotId}`, url: product.giftModel, position: layout?.seat ?? ORIGIN, ...drop });
+  });
+  return items;
 }

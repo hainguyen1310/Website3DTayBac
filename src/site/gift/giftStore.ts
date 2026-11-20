@@ -1,7 +1,7 @@
 import type { GiftSize } from "../../catalog";
-import type { LidMode } from "../../storefront/three/lidRig";
+import type { LidMode } from "../../storefront/three/boxRig.ts";
 import type { SiteProduct } from "../data";
-import { GIFT_DRAFT_KEY } from "./variants.ts";
+import { GIFT_DRAFT_KEY, GIFT_SIZES, choosableSlotsOf } from "./variants.ts";
 import type { ChoosableSlot } from "./variants.ts";
 
 /** Trạng thái trình tạo hộp quà (giftState của commerce.js). */
@@ -49,8 +49,15 @@ export function slotProducts(products: SiteProduct[], slot: ChoosableSlot): Site
   return products.filter((product) => product.giftSlot === type && product.inStock !== false);
 }
 
+/** Hộp đủ món khi mọi ô tự chọn của mẫu hộp đang chọn đều có món còn hàng (ô của mẫu hộp khác không tính). */
 export const giftReady = (state: GiftBuilderState, products: SiteProduct[]): boolean =>
-  (Object.keys(state.items) as ChoosableSlot[]).every((slot) => slotProducts(products, slot).some((product) => product.slug === state.items[slot]));
+  choosableSlotsOf(state.size).every((slot) => slotProducts(products, slot).some((product) => product.slug === state.items[slot]));
+
+/** Ô đang mở phải thuộc mẫu hộp hiện tại: đổi sang Thịnh Đỉnh khi đang ở ô hũ thì quay về ô đầu tiên. */
+export function withValidSlot(state: GiftBuilderState): GiftBuilderState {
+  const slots = choosableSlotsOf(state.size);
+  return slots.includes(state.activeSlot) ? state : { ...state, activeSlot: slots[0] };
+}
 
 /** Bản nháp từ khối xem hộp 360° ở trang chủ (?nguon=trang-chu). */
 function readHomeDraft(state: GiftBuilderState): GiftBuilderState {
@@ -83,6 +90,8 @@ export function applyGiftPrefill(state: GiftBuilderState, search: string, produc
     ? "bagA"
     : slotProducts(products, "jar").some((product) => product.slug === slug) ? "jar" : null;
   if (!slot) return next;
-  next = { ...next, items: { ...next.items, [slot]: slug }, step: 2, activeSlot: slot, opening: 1 };
+  // Món không có ngăn trong mẫu hộp đang chọn (hũ thịt xé với hộp Thịnh Đỉnh): chuyển sang mẫu hộp chứa được nó.
+  const size = choosableSlotsOf(next.size).includes(slot) ? next.size : GIFT_SIZES.find((option) => choosableSlotsOf(option).includes(slot)) ?? next.size;
+  next = { ...next, size, items: { ...next.items, [slot]: slug }, step: 2, activeSlot: slot, opening: 1 };
   return next;
 }

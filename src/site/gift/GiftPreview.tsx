@@ -3,16 +3,18 @@ import { CommerceIcon } from "../icons";
 import { fmt } from "../format";
 import { findProduct } from "../data";
 import type { SiteProduct } from "../data";
-import type { LidMode } from "../../storefront/three/lidRig";
-import { GIFT_SLOT_NAMES, GIFT_VARIANTS, CHOOSABLE_SLOTS, fixedItemsLabel } from "./variants";
+import type { LidMode } from "../../storefront/three/boxRig";
+import { GIFT_SLOT_NAMES, GIFT_VARIANTS, choosableSlotsOf, fixedItemsLabel } from "./variants";
 import type { GiftBuilderState } from "./giftStore";
-import { boxKeyOf, giftSceneItems } from "./giftStage";
+import { boxKeyOf, giftSceneItems, giftUndrawnNames } from "./giftStage";
 import { GiftCssBox, canRenderWebGL } from "./GiftCssBox";
 import { radioKeys } from "./GiftConfig";
 
 const ModelStage = lazy(() => import("../../storefront/three/ModelStage"));
 
-const OPENING_MODES: [LidMode, string][] = [["hinge", "Hé nắp"], ["bloom", "Bung hương vị"]];
+const OPENING_MODES: LidMode[] = ["hinge", "bloom"];
+/** Hộp Thịnh Đỉnh mở bằng hai cánh và ngăn kéo, không có nắp để "hé". */
+const modeName = (mode: LidMode, size: GiftBuilderState["size"]) => (mode === "bloom" ? "Bung hương vị" : size === "large" ? "Mở cánh" : "Hé nắp");
 
 type Props = {
   state: GiftBuilderState;
@@ -24,7 +26,7 @@ type Props = {
 function SelectionSummary({ state, products }: { state: GiftBuilderState; products: SiteProduct[] }) {
   return (
     <div className="gift-selection-list">
-      {CHOOSABLE_SLOTS.map((slot) => (
+      {choosableSlotsOf(state.size).map((slot) => (
         <div key={slot}><span>{GIFT_SLOT_NAMES[slot]}</span><strong>{findProduct(products, state.items[slot])?.name ?? "Chưa chọn"}</strong></div>
       ))}
       <div><span>Món đi kèm</span><strong>{fixedItemsLabel(state.size)}</strong></div>
@@ -37,10 +39,18 @@ export function GiftPreview({ state, products, update, announce }: Props) {
   const variant = GIFT_VARIANTS[state.size];
   const scene = useRef<HTMLDivElement>(null);
   const [webgl] = useState(canRenderWebGL);
+  /** Khách đã tự bấm nút mở/đóng, kéo thanh hoặc đổi kiểu mở: từ đó khung 3D bỏ màn chào "hộp tự mở". */
+  const [steered, setSteered] = useState(false);
+  const steer = (changes: Partial<GiftBuilderState>) => {
+    setSteered(true);
+    update(changes);
+  };
   const flat = state.view === "2d";
   const opened = state.opening >= 0.5;
   const percent = Math.round(state.opening * 100);
   const items = useMemo(() => giftSceneItems(state, products), [state.size, state.items, products]); // eslint-disable-line react-hooks/exhaustive-deps
+  /** Món có trong hộp mà khung 3D không dựng được (chưa có mô hình 3D…): nói rõ để khách không tưởng bị thiếu. */
+  const undrawn = useMemo(() => giftUndrawnNames(state, products), [state.size, state.items, products]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Kéo ngang trên hộp CSS (khi không có WebGL) để xoay, như bản gốc. */
   const drag = useRef<{ id: number; x: number } | null>(null);
@@ -93,7 +103,7 @@ export function GiftPreview({ state, products, update, announce }: Props) {
                 yaw={state.rotation}
                 onYawChange={(rotation) => update({ rotation })}
                 view={flat ? "top" : "3d"}
-                lid={{ open: state.opening, mode: state.openMode }}
+                lid={{ open: state.opening, mode: state.openMode, intro: !steered }}
                 className="gift-model-stage"
               />
             </Suspense>
@@ -104,12 +114,12 @@ export function GiftPreview({ state, products, update, announce }: Props) {
       </div>
       <div className="gift-box-controls">
         <button type="button" className="icon-button" disabled={flat} aria-label="Xoay hộp sang trái" onClick={() => update({ rotation: state.rotation - 35 })}><CommerceIcon name="rotate" size={18} /></button>
-        <button type="button" className="gift-open-button" aria-controls="gift-box-container" aria-expanded={opened} onClick={() => update({ opening: opened ? 0 : 1 })}>{opened ? "Đóng hộp" : "Mở hộp"}</button>
+        <button type="button" className="gift-open-button" aria-controls="gift-box-container" aria-expanded={opened} onClick={() => steer({ opening: opened ? 0 : 1 })}>{opened ? "Đóng hộp" : "Mở hộp"}</button>
         <button type="button" className="icon-button rotate-other" disabled={flat} aria-label="Xoay hộp sang phải" onClick={() => update({ rotation: state.rotation + 35 })}><CommerceIcon name="rotate" size={18} /></button>
       </div>
       <div className="gift-opening-controls">
         <div className="gift-opening-modes" role="radiogroup" aria-label="Kiểu mở hộp">
-          {OPENING_MODES.map(([mode, name]) => (
+          {OPENING_MODES.map((mode) => (
             <button
               key={mode}
               type="button"
@@ -118,22 +128,25 @@ export function GiftPreview({ state, products, update, announce }: Props) {
               tabIndex={state.openMode === mode ? 0 : -1}
               onClick={() => {
                 if (state.openMode === mode) return;
-                update({ openMode: mode });
-                announce(`Kiểu mở hộp: ${name}. Kéo thanh để khám phá.`);
+                steer({ openMode: mode });
+                announce(`Kiểu mở hộp: ${modeName(mode, state.size)}. Kéo thanh để khám phá.`);
               }}
               onKeyDown={radioKeys}
             >
-              {name}
+              {modeName(mode, state.size)}
             </button>
           ))}
         </div>
         <div className="gift-opening-scrub">
           <label htmlFor="gift-opening-range">Mức mở hộp</label>
-          <input id="gift-opening-range" type="range" min="0" max="100" step="1" value={percent} aria-valuetext={`Mở ${percent} phần trăm`} onChange={(event) => update({ opening: Number(event.target.value) / 100 })} />
+          <input id="gift-opening-range" type="range" min="0" max="100" step="1" value={percent} aria-valuetext={`Mở ${percent} phần trăm`} onChange={(event) => steer({ opening: Number(event.target.value) / 100 })} />
           <output htmlFor="gift-opening-range" id="gift-opening-value">{percent}%</output>
         </div>
       </div>
-      <p className="gift-drag-hint" id="gift-drag-hint">Kéo ngang để xoay · Kéo thanh để điều chỉnh nắp</p>
+      <p className="gift-drag-hint" id="gift-drag-hint">Kéo ngang để xoay · Kéo thanh để {state.size === "large" ? "mở cánh và ngăn kéo" : "điều chỉnh nắp"}</p>
+      {webgl && undrawn.length > 0 && (
+        <p className="gift-drag-hint gift-undrawn-note">Mô hình 3D chưa thể hiện: {undrawn.join(", ")} (vẫn có trong hộp).</p>
+      )}
       <div className="gift-preview-summary">
         <div className="gift-summary-title"><h3>{variant.name}</h3><span>{variant.dimensions}</span></div>
         <details className="gift-preview-contents">

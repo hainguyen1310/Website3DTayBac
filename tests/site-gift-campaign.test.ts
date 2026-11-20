@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { INITIAL_GIFT_STATE, applyGiftPrefill, giftReady, slotProducts } from "../src/site/gift/giftStore.ts";
+import { INITIAL_GIFT_STATE, applyGiftPrefill, giftReady, slotProducts, withValidSlot } from "../src/site/gift/giftStore.ts";
 import type { GiftBuilderState } from "../src/site/gift/giftStore.ts";
-import { GIFT_DRAFT_KEY, GIFT_VARIANTS } from "../src/site/gift/variants.ts";
+import { giftDesignOf } from "../src/site/gift/giftStage.ts";
+import { GIFT_DRAFT_KEY, GIFT_VARIANTS, choosableSlotsOf, fixedItemsLabel } from "../src/site/gift/variants.ts";
 import { initialState, nextDemoCode, normalizeState, unlockPiece, validateCode, cancelPending, PIECE_COUNT } from "../src/site/campaign/state.ts";
 import { shippingAddress, shippingFor } from "../src/site/commerce/checkoutOrder.ts";
 import type { SiteProduct } from "../src/site/data.ts";
@@ -28,6 +29,57 @@ test("a gift is ready only when both bags and the jar hold valid products", () =
   assert.equal(giftReady(partial, catalog), false);
   assert.equal(giftReady({ ...partial, items: { ...partial.items, bagB: "lap-xuong-gac-bep" } }, catalog), true);
   assert.equal(giftReady({ ...partial, items: { ...partial.items, bagB: "ba-chi-gac-bep" } }, catalog), false, "out-of-stock products cannot fill a slot");
+});
+
+test("each box states what it holds", () => {
+  assert.deepEqual(choosableSlotsOf("medium"), ["bagA", "bagB", "jar"]);
+  assert.deepEqual(choosableSlotsOf("large"), ["bagA", "bagB"], "Thịnh Đỉnh has no jar compartment");
+  assert.equal(fixedItemsLabel("medium"), "Chẩm chéo");
+  assert.equal(fixedItemsLabel("large"), "Rượu ngô Bản Phố");
+  assert.match(GIFT_VARIANTS.medium.contents, /^3 món tự chọn/);
+  assert.match(GIFT_VARIANTS.large.contents, /^2 túi tự chọn/);
+});
+
+test("a Thịnh Đỉnh gift is ready with two bags and never sends a jar picked for the other box", () => {
+  const large: GiftBuilderState = { ...INITIAL_GIFT_STATE, size: "large", items: { bagA: "trau-gac-bep-tay-bac", bagB: "", jar: "" } };
+  assert.equal(giftReady(large, catalog), false);
+
+  const full: GiftBuilderState = { ...large, items: { ...large.items, bagB: "lap-xuong-gac-bep" } };
+  assert.equal(giftReady(full, catalog), true, "no jar is needed");
+
+  // Khách chọn hũ lúc còn ở hộp Sinh Lộc rồi đổi sang Thịnh Đỉnh: lựa chọn được giữ lại nhưng không vào đơn.
+  const design = giftDesignOf({ ...full, items: { ...full.items, jar: "thit-trau-xe" } });
+  assert.deepEqual(design.slots, { bagA: "trau-gac-bep-tay-bac", bagB: "lap-xuong-gac-bep" });
+  assert.deepEqual(design.productIds, ["trau-gac-bep-tay-bac", "lap-xuong-gac-bep"]);
+});
+
+test("the same picks in a Sinh Lộc box send the jar as well", () => {
+  const state: GiftBuilderState = { ...INITIAL_GIFT_STATE, items: { bagA: "trau-gac-bep-tay-bac", bagB: "lap-xuong-gac-bep", jar: "thit-trau-xe" } };
+
+  const design = giftDesignOf(state);
+
+  assert.deepEqual(design.slots, { bagA: "trau-gac-bep-tay-bac", bagB: "lap-xuong-gac-bep", jar: "thit-trau-xe" });
+  assert.deepEqual(design.productIds, ["trau-gac-bep-tay-bac", "lap-xuong-gac-bep", "thit-trau-xe"]);
+});
+
+test("switching to Thịnh Đỉnh moves the active compartment off the jar", () => {
+  const onJar: GiftBuilderState = { ...INITIAL_GIFT_STATE, activeSlot: "jar" };
+
+  assert.equal(withValidSlot({ ...onJar, size: "large" }).activeSlot, "bagA");
+  assert.equal(withValidSlot(onJar), onJar, "Sinh Lộc keeps its jar compartment");
+});
+
+test("a jar sent from its product page goes into a Sinh Lộc box even when Thịnh Đỉnh was selected", () => {
+  const large: GiftBuilderState = { ...INITIAL_GIFT_STATE, size: "large" };
+
+  const jar = applyGiftPrefill(large, "?san-pham=thit-trau-xe", catalog);
+  assert.equal(jar.size, "medium", "the only box with a jar compartment");
+  assert.equal(jar.items.jar, "thit-trau-xe");
+  assert.equal(jar.activeSlot, "jar");
+
+  const bag = applyGiftPrefill(large, "?san-pham=lap-xuong-gac-bep", catalog);
+  assert.equal(bag.size, "large", "a bag fits both boxes");
+  assert.equal(bag.items.bagA, "lap-xuong-gac-bep");
 });
 
 test("product page prefill places a bag or jar product and jumps to the flavour step", () => {

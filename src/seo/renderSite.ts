@@ -597,7 +597,7 @@ export async function renderSitePage(input: RenderSiteInput): Promise<RenderedPa
         ctx,
         route,
         "Tự thiết kế hộp quà Tây Bắc",
-        "Chọn cỡ hộp Sinh Lộc hoặc Thịnh Đỉnh, phối hai túi đặc sản và một hũ thịt xé, rồi viết lời nhắn cho người nhận. Chẩm chéo được gói sẵn, hộp Thịnh Đỉnh kèm rượu ngô Bản Phố.",
+        "Chọn hộp Sinh Lộc (hai túi đặc sản, một hũ thịt xé, kèm chẩm chéo) hoặc Thịnh Đỉnh (hai túi đặc sản, kèm rượu ngô Bản Phố), rồi viết lời nhắn cho người nhận.",
       );
     case "campaign":
       return staticPage(ctx, route, "Ghép Vị Mở Miền · 24 mảnh ghép Tây Bắc", "Ghép 24 mảnh để khám phá hương vị và chuyện bản làng Tây Bắc. Mỗi đơn hàng đủ điều kiện nhận mã, mở từng mảnh ghép và theo dõi tiến độ của bạn.");

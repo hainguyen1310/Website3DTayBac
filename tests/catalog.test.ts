@@ -4,10 +4,12 @@ import { checkoutItems } from "../src/checkoutItems.ts";
 import {
   CARD_PRICE,
   boxSizes,
+  choosableSlots,
   cleanCart,
   cleanDesign,
   defaultDesign,
   giftPrice,
+  includedProductIds,
   linePrice,
   products,
 } from "../src/catalog.ts";
@@ -72,13 +74,36 @@ test("saved cart discards invalid products and empty custom gifts and caps quant
   assert.deepEqual(cleanCart("invalid"), []);
 });
 
+test("Thịnh Đỉnh holds two chosen bags and the wine jug, Sinh Lộc two bags, a jar and chẩm chéo", () => {
+  assert.deepEqual(choosableSlots("large").map((slot) => slot.id), ["bagA", "bagB"]);
+  assert.deepEqual(includedProductIds("large"), ["ruou-ngo-ban-pho"]);
+  assert.deepEqual(choosableSlots("medium").map((slot) => slot.id), ["bagA", "bagB", "jar"]);
+  assert.deepEqual(includedProductIds("medium"), ["cham-cheo"]);
+});
+
+test("a Thịnh Đỉnh gift saved with a jar loses it when the cart is restored", () => {
+  const saved = { ...defaultDesign, size: "large", slots: { bagA: "jerky", bagB: "tea", jar: "spice" }, productIds: ["jerky", "tea", "spice"] };
+
+  const [line] = cleanCart(JSON.parse(JSON.stringify([{ key: "old-large", design: saved, quantity: 1 }])));
+
+  assert.deepEqual(line.design?.slots, { bagA: "jerky", bagB: "tea" });
+  assert.deepEqual(line.design?.productIds, ["jerky", "tea"]);
+});
+
+test("a legacy gift without slots keeps only as many products as its box lets the customer choose", () => {
+  const ids = ["tea", "honey", "jerky", "spice"];
+
+  assert.deepEqual(cleanDesign({ size: "large", productIds: ids }).productIds, ["tea", "honey"]);
+  assert.deepEqual(cleanDesign({ size: "medium", productIds: ids }).productIds, ["tea", "honey", "jerky"]);
+});
+
 test("cart round trip preserves exact personalization and pricing", () => {
   const design = {
     ...defaultDesign,
     includeCard: true,
     size: "large" as const,
-    slots: { bagA: "jerky", bagB: "jerky", jar: "spice" },
-    productIds: ["jerky", "jerky", "spice"],
+    slots: { bagA: "jerky", bagB: "jerky" },
+    productIds: ["jerky", "jerky"],
     recipient: "Mẹ",
     message: "Một chút bình yên.",
     color: "#681b22",
@@ -115,15 +140,15 @@ test("legacy gifts retain their cards and invalid new options use safe defaults"
 
 test("checkout carries box size, slots, included items and optional card text", () => {
   const items = checkoutItems([
-    { key: "with-card", quantity: 1, design: { ...defaultDesign, size: "large", slots: { jar: "spice" }, productIds: ["spice"], includeCard: true, message: "Chúc mừng!" } },
+    { key: "with-card", quantity: 1, design: { ...defaultDesign, size: "large", slots: { bagA: "spice" }, productIds: ["spice"], includeCard: true, message: "Chúc mừng!" } },
     { key: "without-card", quantity: 2, design: { ...defaultDesign, includeCard: false, message: "Old text", recipient: "Old recipient" } },
     { key: "tea", quantity: 1, productId: "tea" },
   ]);
   assert.equal(items[0].design?.size, "large");
   assert.equal(items[0].design?.includeCard, true);
   assert.equal(items[0].design?.message, "Chúc mừng!");
-  assert.deepEqual(items[0].design?.slots, { jar: "spice" });
-  assert.deepEqual(items[0].design?.included, ["cham-cheo", "ruou-ngo-ban-pho"]);
+  assert.deepEqual(items[0].design?.slots, { bagA: "spice" });
+  assert.deepEqual(items[0].design?.included, ["ruou-ngo-ban-pho"], "Thịnh Đỉnh comes with the wine jug only");
   assert.deepEqual(items[1].design?.included, ["cham-cheo"]);
   assert.equal(items[1].design?.message, "");
   assert.equal(items[1].design?.recipient, "");

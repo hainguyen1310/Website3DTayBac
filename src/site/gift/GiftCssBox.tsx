@@ -3,8 +3,9 @@ import type { CSSProperties, RefObject } from "react";
 import { CommerceIcon } from "../icons";
 import { findProduct } from "../data";
 import type { SiteProduct } from "../data";
+import { sizeOf } from "../../catalog";
 import { GiftArt, trackGiftArt } from "./GiftArt";
-import { CHOOSABLE_SLOTS, GIFT_VARIANTS } from "./variants";
+import { GIFT_VARIANTS, choosableSlotsOf } from "./variants";
 import type { GiftBuilderState } from "./giftStore";
 
 let webglSupport: boolean | null = null;
@@ -29,14 +30,15 @@ export function canRenderWebGL(): boolean {
 export function GiftCssBox({ state, products, sceneRef }: { state: GiftBuilderState; products: SiteProduct[]; sceneRef: RefObject<HTMLDivElement | null> }) {
   const variant = GIFT_VARIANTS[state.size];
   useEffect(() => (sceneRef.current ? trackGiftArt(sceneRef.current, variant.artKey) : undefined), [variant.artKey, sceneRef]);
-  const extras: [string, string][] = state.size === "large" ? [["cham", "cham-cheo"], ["bottle", "ruou-ngo-ban-pho"]] : [["cham", "cham-cheo"]];
+  /** Món gói sẵn của mẫu hộp: [lớp CSS của ngăn, mã sản phẩm], theo quy tắc hộp trong catalog. */
+  const extras = sizeOf(state.size).slots.flatMap((slot) => ("fixed" in slot && slot.fixed ? [[slot.id, slot.fixed] as const] : []));
   const style = { "--gift-open": String(state.opening), "--gift-turn": `${state.rotation}deg` } as CSSProperties;
   return (
     <>
       <div className={`gift-3d${state.opening >= 0.5 ? " is-open" : ""}`} aria-hidden="true" style={style}>
         <div className="box-floor">
           <div className="box-interior">
-            {CHOOSABLE_SLOTS.map((slot) => {
+            {choosableSlotsOf(state.size).map((slot) => {
               const product = findProduct(products, state.items[slot]);
               return (
                 <div key={slot} className={`box-slot ${slot}${product ? " filled" : ""}`}>

@@ -136,13 +136,17 @@ type BoxSize = {
   slots: readonly GiftSlot[];
 };
 
-const BASE_SLOTS: GiftSlot[] = [
+const BAG_SLOTS: GiftSlot[] = [
   { id: "bagA", type: "bag", label: "Ngăn túi thứ nhất" },
   { id: "bagB", type: "bag", label: "Ngăn túi thứ hai" },
-  { id: "jar", type: "jar", label: "Ngăn hũ" },
-  { id: "cham", type: "cham", label: "Ngăn chẩm chéo", fixed: "cham-cheo" },
 ];
 
+/**
+ * Hai mẫu hộp và những gì mỗi hộp chứa. Đây là nơi duy nhất khai báo quy tắc ở phía trình duyệt; hàm
+ * thanh toán `checkout_order_internal` trong cơ sở dữ liệu phải khớp (món kèm sẵn và số món tự chọn tối đa).
+ * - Sinh Lộc: hai túi + một hũ tự chọn, kèm sẵn chẩm chéo.
+ * - Thịnh Đỉnh (theo mô hình 3D 11/2026): hai túi tự chọn, kèm sẵn bình rượu ngô; không có ngăn hũ, không kèm chẩm chéo.
+ */
 export const boxSizes = [
   {
     value: "medium",
@@ -151,21 +155,24 @@ export const boxSizes = [
     description: "Kích thước 22 × 22 × 10 cm, gọn gàng cho 3 món.",
     price: 300000,
     color: "#315442",
-    slots: BASE_SLOTS,
+    slots: [
+      ...BAG_SLOTS,
+      { id: "jar", type: "jar", label: "Ngăn hũ" },
+      { id: "cham", type: "cham", label: "Ngăn chẩm chéo", fixed: "cham-cheo" },
+    ],
   },
   {
     value: "large",
     name: "Thịnh Đỉnh",
     dimensions: "32 × 32 × 14 cm",
-    description: "Kích thước 32 × 32 × 14 cm, dành cho hộp quà nhiều món.",
+    description: "Kích thước 32 × 32 × 14 cm, hai túi đặc sản cùng bình rượu ngô.",
     price: 500000,
     color: "#681b22",
-    slots: [...BASE_SLOTS, { id: "bottle", type: "bottle", label: "Ngăn rượu", fixed: "ruou-ngo-ban-pho" }],
+    slots: [...BAG_SLOTS, { id: "bottle", type: "bottle", label: "Ngăn rượu", fixed: "ruou-ngo-ban-pho" }],
   },
 ] as const satisfies readonly BoxSize[];
 
 export const CARD_PRICE = 0;
-export const GIFT_CAPACITY = 3;
 
 export const patterns = ["Thổ cẩm", "Triền núi", "Tối giản"];
 
@@ -262,11 +269,11 @@ export function cleanDesign(
   const size: GiftSize = d.size === "large" ? "large" : "medium";
   const hasSlots = Boolean(d.slots && typeof d.slots === "object" && Object.keys(d.slots).length);
   const slots = hasSlots ? cleanSlots(d.slots, size, list) : {};
-  // Thiết kế cũ chưa có ngăn: giữ danh sách món không trùng như trước.
+  // Thiết kế cũ chưa có ngăn: giữ danh sách món không trùng như trước, tối đa bằng số ngăn tự chọn của hộp.
   const productIds = hasSlots
     ? choosableSlots(size).flatMap((slot) => (slots[slot.id] ? [slots[slot.id]!] : []))
     : Array.isArray(d.productIds)
-      ? [...new Set(d.productIds.filter((id) => list.some((product) => product.id === id)))].slice(0, GIFT_CAPACITY)
+      ? [...new Set(d.productIds.filter((id) => list.some((product) => product.id === id)))].slice(0, choosableSlots(size).length)
       : [...defaultDesign.productIds];
   return {
     size,

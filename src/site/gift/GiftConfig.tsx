@@ -3,7 +3,7 @@ import type { KeyboardEvent } from "react";
 import { CommerceIcon } from "../icons";
 import { fmt } from "../format";
 import type { SiteProduct } from "../data";
-import { CHOOSABLE_SLOTS, DEFAULT_CARD_MESSAGE, GIFT_SIZES, GIFT_SLOT_NAMES, GIFT_VARIANTS } from "./variants";
+import { DEFAULT_CARD_MESSAGE, GIFT_SIZES, GIFT_SLOT_NAMES, GIFT_VARIANTS, choosableSlotsOf } from "./variants";
 import type { ChoosableSlot } from "./variants";
 import { MESSAGE_MAX, RECIPIENT_MAX, giftReady, slotProducts } from "./giftStore";
 import type { GiftBuilderState } from "./giftStore";
@@ -43,7 +43,7 @@ function StepOne({ state, update }: { state: GiftBuilderState; update: Update })
               <span className="size-content">
                 <strong>{variant.name}</strong>
                 <small>{variant.dimensions} · {variant.finish}</small>
-                <small>3 món tự chọn + chẩm chéo{size === "large" ? " + rượu ngô" : ""}</small>
+                <small>{variant.contents}</small>
               </span>
               <span className="size-price">{fmt(variant.price)}<small>trọn hộp</small></span>
             </button>
@@ -89,9 +89,9 @@ function StepTwo({ state, products, update }: { state: GiftBuilderState; product
     <>
       <span className="eyebrow">02 / CHỌN HƯƠNG VỊ</span>
       <h2>Gói những món<br />người thương thích.</h2>
-      <p className="gift-step-intro">Chọn hai túi đặc sản và một hũ thịt xé. Chẩm chéo được gói sẵn{state.size === "large" ? " cùng rượu ngô Bản Phố" : ""}.</p>
+      <p className="gift-step-intro">{GIFT_VARIANTS[state.size].pickHint}</p>
       <div className="gift-slot-tabs" role="group" aria-label="Vị trí sản phẩm">
-        {CHOOSABLE_SLOTS.map((slot, index) => {
+        {choosableSlotsOf(state.size).map((slot, index) => {
           const active = slot === state.activeSlot;
           return (
             <button key={slot} type="button" aria-pressed={active} aria-controls="gift-product-options" className={active ? "active" : undefined} onClick={() => { if (!active) update({ activeSlot: slot }); }}>

@@ -6,22 +6,23 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { tintedTexture } from "./tint";
-import { approachPose, boxLift, lidPose, poseLid, rigLid, riseOffset, riseTilt, samePose } from "./lidRig";
-import type { LidMode, LidPose, LidRig, RiseOffsets } from "./lidRig";
+import { INTRO_HOLD_SECONDS, INTRO_WAITING, PLAY_RATE, advanceLid, createBoxRig, disposeBoxRig, fitSamples, missingAnchors, playRate, poseBoxRig, rigGoal, sameRigState } from "./boxRig";
+import type { BoxRig, LidMode, LidPlayback } from "./boxRig";
 
 export type StageItem = {
   key: string;
   url: string;
-  position: [number, number, number];
+  /** Vị trí trên sân khấu; với món có `anchor` là vị trí so với điểm neo trong vỏ hộp. */
+  position: readonly [number, number, number];
   scale?: number;
-  /** Vỏ hộp: nhận màu từ `boxTint`. */
+  /** Vỏ hộp: nhận màu từ `boxTint`, mang animation đóng/mở và các điểm neo `slot_*`. */
   isBox?: boolean;
+  /** Tên ngăn của vỏ hộp (`bagA`, `jar`…) mà món gắn vào; món đi theo mọi chuyển động của ngăn đó. */
+  anchor?: string;
   /** Độ trễ (ms) trước khi vật thể bật lên khi `animateIn`. */
   appearDelay?: number;
   /** Độ cao (đơn vị cảnh) vật thể rơi xuống khi xuất hiện. */
   appearLift?: number;
-  /** Độ dời khi mở hộp theo từng kiểu, tính theo kích thước thân hộp (rộng, cao, sâu). */
-  rise?: RiseOffsets;
 };
 
 type Props = {
@@ -47,17 +48,37 @@ type Props = {
   view?: "3d" | "top";
   /** Cho phép kéo/xoay/thu phóng bằng chuột hoặc chạm. */
   interactive?: boolean;
-  /** Mở/đóng nắp vỏ hộp: `open` 0 = đóng, 1 = mở; `mode` là kiểu mở. Bỏ trống = giữ dáng gốc. */
-  lid?: { open: number; mode: LidMode };
+  /**
+   * Mở/đóng vỏ hộp: `open` 0 = đóng, 1 = mở; `mode` là kiểu mở. Bỏ trống = giữ dáng mở của mô hình.
+   * `intro`: màn chào — bật từ lúc gắn khung thì khi mọi mô hình vừa tải xong, hộp hiện ở dáng đóng, nghỉ
+   * một nhịp rồi tự mở tới mức `open`, đúng một lần. Trang chuyển `intro` về false ngay khi khách tự điều
+   * khiển hộp (bấm nút, kéo thanh, đổi kiểu mở) để bỏ màn chào; `open`/`mode` do trang tự đổi thì không ảnh hưởng.
+   */
+  lid?: { open: number; mode: LidMode; intro?: boolean };
+  /** Những kiểu mở khung này dùng tới; camera chỉ canh khung theo các dáng của chúng. */
+  fitModes?: readonly LidMode[];
   /** Gọi khi mọi mô hình đã tải và camera đã canh khung. */
   onReady?: () => void;
   /** Gọi khi không tải được mô hình hoặc thiết bị không có WebGL. */
   onError?: () => void;
 };
 
-/** Trạng thái quỹ đạo camera dùng cho góc xoay điều khiển từ ngoài. */
-type Orbit = { fitted: boolean; baseTheta: number; basePhi: number; goalTheta: number | null; goalPhi: number | null; dragging: boolean };
+/** Trạng thái quỹ đạo camera dùng cho góc xoay điều khiển từ ngoài; `distance`: khoảng lùi chuẩn đang áp dụng. */
+type Orbit = { fitted: boolean; baseTheta: number; basePhi: number; goalTheta: number | null; goalPhi: number | null; dragging: boolean; distance: number };
+/** Khung hình camera: điểm nhìn và khoảng lùi vừa ôm trọn mọi dáng của một kiểu mở. */
+type Frame = { center: THREE.Vector3; distance: number };
+type Framing = Record<LidMode, Frame>;
 const TOP_PHI = 0.02;
+/** Khách được phóng to/thu nhỏ trong khoảng này so với khoảng lùi chuẩn. */
+const MIN_ZOOM = 0.45;
+const MAX_ZOOM = 1.8;
+
+/** Khung hình ứng với trọng số kiểu mở `bloom` (0 = "Hé nắp", 1 = "Bung hương vị"). */
+function frameAt(framing: Framing, bloom: number, target: Frame) {
+  target.center.lerpVectors(framing.hinge.center, framing.bloom.center, bloom);
+  target.distance = THREE.MathUtils.lerp(framing.hinge.distance, framing.bloom.distance, bloom);
+  return target;
+}
 const normalizeDegrees = (value: number) => ((value % 360) + 360) % 360;
 /** Góc gần nhất với `current` tương đương `goal` (quay theo đường ngắn). */
 const nearestAngle = (current: number, goal: number) => goal + Math.round((current - goal) / (Math.PI * 2)) * Math.PI * 2;
@@ -82,71 +103,70 @@ const loadModel = (url: string) => {
 };
 
 type Appear = { start: number; target: number; lift: number };
-/** `extent`: khung bao của món so với gốc của nó (tâm đáy), đo một lần ở dáng nằm yên. */
-type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear; rig?: LidRig | null; extent?: THREE.Box3 };
-/** `shown`: dáng đang hiển thị, tiến dần về dáng của (target, mode) để mở/đóng và đổi kiểu mở đều mượt. */
-type LidState = { enabled: boolean; target: number; mode: LidMode; shown: LidPose | null };
+/** `rig`: bộ phát animation của vỏ hộp (chỉ vỏ hộp có). */
+type Entry = { item: StageItem; object: THREE.Object3D | null; token: number; appear?: Appear; rig?: BoxRig | null };
+/**
+ * `shown`: dáng đang hiển thị, tiến dần về dáng của (target, mode); `intro`: màn chào còn lại (xem `LidPlayback`);
+ * `rate`: tốc độ đuổi theo (bội số tốc độ clip).
+ */
+type LidState = LidPlayback & { enabled: boolean; target: number; mode: LidMode; rate: number };
 
-/** Phần quãng còn lại đi được mỗi khung hình khi nắp chuyển dáng. */
-const LID_EASE = 0.12;
-const riseScratch = new THREE.Vector3();
-const pivotScratch = new THREE.Vector3();
+/** Bỏ qua quãng nghỉ dài (tab ẩn, khung ra khỏi màn hình) để animation không nhảy cóc. */
+const MAX_FRAME_SECONDS = 0.1;
+const ALL_MODES: readonly LidMode[] = ["hinge", "bloom"];
 
-/** Khung bao của món quanh gốc của nó, đo khi món chưa nghiêng. */
-function extentOf(entry: Entry, object: THREE.Object3D) {
-  if (!entry.extent) {
-    object.quaternion.identity();
-    object.updateMatrixWorld(true);
-    entry.extent = new THREE.Box3().setFromObject(object).translate(object.position.clone().negate());
+/** Khách muốn giảm chuyển động: theo hệ điều hành hoặc nút tạm dừng chuyển động của trang. */
+const motionReduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
+
+/** Vỏ hộp đang mang rig (mỗi sân khấu chỉ có một vỏ hộp). */
+function boxOf(entries: Map<string, Entry>): Entry | null {
+  for (const entry of entries.values()) if (entry.rig) return entry;
+  return null;
+}
+const rigOf = (entries: Map<string, Entry>): BoxRig | null => boxOf(entries)?.rig ?? null;
+
+/** Gắn các món đã tải vào điểm neo của vỏ hộp. Món chưa có điểm neo (vỏ hộp chưa tải) tạm nằm ngoài cảnh. */
+function seatItems(entries: Map<string, Entry>) {
+  const rig = rigOf(entries);
+  for (const { object, item } of entries.values()) {
+    if (!object || !item.anchor) continue;
+    const anchor = rig?.anchors.get(item.anchor);
+    if (anchor && object.parent !== anchor) anchor.add(object);
   }
-  return entry.extent;
 }
 
 /**
- * Đặt một món theo "Bung hương vị": dời chéo lên về phía trước hộp, rồi ngả mặt ra phía trước
- * quanh mép đáy trước của món, để món không chúi xuống vách hộp khi nghiêng.
+ * Vỏ hộp đã tải nhưng lệch hợp đồng rig (docs/GIFT_BOX_RIG.md): thiếu animation mà khung cần đóng/mở,
+ * hoặc thiếu điểm neo cho một món. Khi đó món không có chỗ đứng nên phải báo lỗi, không lặng lẽ bỏ qua.
  */
-function poseItem(entry: Entry, object: THREE.Object3D, body: THREE.Vector3, pose: LidPose, lift: number) {
-  riseOffset(entry.item.rise, body, pose, riseScratch).y += lift;
-  if (pose.rise > 0 && entry.item.rise) {
-    pivotScratch.set(0, 0, extentOf(entry, object).max.z);
-    riseTilt(entry.item.rise, pose, object.quaternion);
-    riseScratch.add(pivotScratch).sub(pivotScratch.applyQuaternion(object.quaternion));
-  } else object.quaternion.identity();
-  object.position.set(...entry.item.position).add(riseScratch);
+function boxContractBroken(entries: Map<string, Entry>, lidEnabled: boolean): boolean {
+  const all = [...entries.values()];
+  const box = all.find((entry) => entry.item.isBox && entry.object);
+  if (!box) return false;
+  const rig = box.rig ?? null;
+  const wanted = all.flatMap((entry) => (entry.item.anchor ? [entry.item.anchor] : []));
+  return (lidEnabled && !rig) || missingAnchors(rig, wanted).length > 0;
 }
 
-/** Đặt nắp, vỏ hộp và các món theo dáng `pose`. Trả về false nếu hộp chưa có nắp tách được. */
-function poseScene(entries: Map<string, Entry>, pose: LidPose) {
-  const rig = [...entries.values()].find((entry) => entry.rig)?.rig;
-  if (!rig) return false;
-  // "Bung hương vị" nhấc cả hộp (vỏ, nắp và các món) lên khỏi mặt sàn.
-  const lift = boxLift(rig.body, pose);
-  for (const entry of entries.values()) {
-    const { object } = entry;
-    if (!object) continue;
-    if (entry.rig) poseLid(entry.rig, pose);
-    if (entry.appear) continue;
-    if (entry.rig) object.position.set(...entry.item.position).add(riseScratch.set(0, lift, 0));
-    else poseItem(entry, object, rig.body, pose, lift);
+/** Đưa vỏ hộp tiến về dáng đích theo thời gian thật; các món gắn ở điểm neo đi theo. */
+function stepLid(entries: Map<string, Entry>, state: LidState, dt: number) {
+  const box = boxOf(entries);
+  const rig = box?.rig;
+  if (!state.enabled || !box || !rig) return;
+  const goal = rigGoal(state.target, state.mode);
+  const settled = state.intro === null && state.shown !== null && sameRigState(state.shown, goal);
+  if (!settled) {
+    // Màn chào chỉ đếm quãng nghỉ khi vỏ hộp đã bật lên xong, để nhịp nghỉ không lẫn vào hiệu ứng xuất hiện.
+    const elapsed = state.intro !== null && box.appear ? 0 : dt;
+    const next = advanceLid(state, goal, elapsed, rig.duration, motionReduced() ? Infinity : state.rate);
+    state.shown = next.shown;
+    state.intro = next.intro;
   }
-  return true;
+  // Đã ở đúng dáng thì `poseBoxRig` không tính gì: khung hình đứng yên không tốn công.
+  if (state.shown) poseBoxRig(rig, state.shown);
 }
 
-/** Đưa nắp và các món tiến về dáng đích; trả về true nếu còn đang chuyển động. */
-function stepLid(entries: Map<string, Entry>, state: LidState) {
-  if (!state.enabled) return false;
-  const instant = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
-  const goal = lidPose(state.target, state.mode);
-  state.shown = !state.shown || instant ? goal : approachPose(state.shown, goal, LID_EASE);
-  if (!poseScene(entries, state.shown)) return false;
-  return !samePose(state.shown, goal);
-}
-
-/** Các dáng cần lọt khung: đóng, mở bản lề và "Bung hương vị" mở hết (hộp bay lên cao nhất). */
-const FIT_POSES: LidPose[] = [lidPose(0, "hinge"), lidPose(1, "hinge"), lidPose(1, "bloom")];
-
-/** Cập nhật hiệu ứng xuất hiện; trả về true khi còn vật thể đang chuyển động. */
+/** Cập nhật hiệu ứng xuất hiện của các vật thể vừa được thêm vào. */
 function stepAppear(entries: Map<string, Entry>, now: number) {
   for (const entry of entries.values()) {
     const appear = entry.appear;
@@ -196,7 +216,7 @@ function instantiate(gltf: GLTF, isBox: boolean) {
   return object;
 }
 
-export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], animateIn = false, fitPadding = 1.08, className = "", yaw, onYawChange, view = "3d", interactive = true, lid, onReady, onError }: Props) {
+export default function ModelStage({ items, boxTint = null, fitKey, label, autoRotate = false, viewDirection = [0, 1.25, 1], animateIn = false, fitPadding = 1.08, className = "", yaw, onYawChange, view = "3d", interactive = true, lid, fitModes = ALL_MODES, onReady, onError }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stage = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -213,7 +233,8 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   tintRef.current = boxTint;
   const animateRef = useRef(animateIn);
   animateRef.current = animateIn;
-  const orbit = useRef<Orbit>({ fitted: false, baseTheta: 0, basePhi: 0, goalTheta: null, goalPhi: null, dragging: false });
+  const orbit = useRef<Orbit>({ fitted: false, baseTheta: 0, basePhi: 0, goalTheta: null, goalPhi: null, dragging: false, distance: 1 });
+  const framing = useRef<Framing | null>(null);
   const yawCallback = useRef(onYawChange);
   yawCallback.current = onYawChange;
   const reportedYaw = useRef<number | null>(null);
@@ -221,12 +242,25 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   readyCallback.current = onReady;
   const errorCallback = useRef(onError);
   errorCallback.current = onError;
-  const lidState = useRef<LidState>({ enabled: Boolean(lid), target: lid?.open ?? 1, mode: lid?.mode ?? "hinge", shown: null });
-  lidState.current.enabled = Boolean(lid);
-  if (lid) {
-    lidState.current.target = lid.open;
-    lidState.current.mode = lid.mode;
-  }
+  const lidState = useRef<LidState>({ enabled: Boolean(lid), target: lid?.open ?? 1, mode: lid?.mode ?? "hinge", rate: PLAY_RATE, shown: null, intro: lid?.intro ? INTRO_WAITING : null });
+  const lidOpen = lid?.open;
+  const lidMode = lid?.mode;
+  const lidIntro = Boolean(lid?.intro);
+  // Trang báo khách đã tự điều khiển hộp: bỏ màn chào, hộp đi tiếp từ dáng đang hiện.
+  // Đặt trước effect bên dưới để lần đổi mức mở đi kèm được tính tốc độ như một thao tác bình thường.
+  useEffect(() => {
+    if (!lidIntro) lidState.current.intro = null;
+  }, [lidIntro]);
+  // Mức mở / kiểu mở mới: ghi vào trạng thái mà vòng lặp vẽ đọc mỗi khung hình.
+  useEffect(() => {
+    const state = lidState.current;
+    state.enabled = lidOpen !== undefined && lidMode !== undefined;
+    if (lidOpen === undefined || lidMode === undefined) return;
+    // Trong màn chào hộp luôn mở với tốc độ đã dựng, dù trang vừa tự đặt lại mức mở (món chọn sẵn, bản nháp).
+    if (lidOpen !== state.target && state.intro === null) state.rate = playRate(state.target, lidOpen);
+    state.target = lidOpen;
+    state.mode = lidMode;
+  }, [lidOpen, lidMode]);
 
   // Khởi tạo renderer một lần.
   useEffect(() => {
@@ -297,8 +331,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
       const goal = orbit.current;
       if (goal.goalTheta === null && goal.goalPhi === null) return;
       spherical.setFromVector3(offset.copy(camera.position).sub(controls.target));
-      const instant = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.body.classList.contains("motion-paused");
-      const blend = instant ? 1 : 0.16;
+      const blend = motionReduced() ? 1 : 0.16;
       let settled = true;
       if (goal.goalTheta !== null) {
         const delta = goal.goalTheta - spherical.theta;
@@ -315,6 +348,23 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
       camera.position.copy(controls.target).add(offset.setFromSpherical(spherical));
       camera.lookAt(controls.target);
       if (settled) goal.goalTheta = goal.goalPhi = null;
+    };
+    const frameScratch: Frame = { center: new THREE.Vector3(), distance: 0 };
+    /** Đổi kiểu mở: camera lùi/tiến sang khung hình của kiểu mới, cùng nhịp với lúc hai clip trộn vào nhau. */
+    const reframe = () => {
+      const frames = framing.current;
+      const state = orbit.current;
+      if (!frames || !state.fitted || frames.hinge === frames.bloom) return;
+      const goal = frameAt(frames, lidState.current.shown?.bloom ?? 0, frameScratch);
+      if (goal.distance === state.distance && goal.center.equals(controls.target)) return;
+      offset.copy(camera.position).sub(controls.target);
+      // Giữ nguyên mức phóng to/thu nhỏ khách đã chọn so với khoảng lùi chuẩn.
+      const zoom = offset.length() / state.distance;
+      controls.target.copy(goal.center);
+      camera.position.copy(goal.center).add(offset.setLength(goal.distance * zoom));
+      controls.minDistance = goal.distance * MIN_ZOOM;
+      controls.maxDistance = goal.distance * MAX_ZOOM;
+      state.distance = goal.distance;
     };
     stage.current = { renderer, scene, camera, controls, root, entries: new Map() };
 
@@ -335,13 +385,18 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     });
     visibility.observe(host);
     let frame = 0;
+    let last = performance.now();
     const loop = () => {
       frame = requestAnimationFrame(loop);
+      const now = performance.now();
+      const dt = Math.min(MAX_FRAME_SECONDS, (now - last) / 1000);
+      last = now;
       if (!visible) return;
       if (stage.current) {
-        stepAppear(stage.current.entries, performance.now());
-        stepLid(stage.current.entries, lidState.current);
+        stepAppear(stage.current.entries, now);
+        stepLid(stage.current.entries, lidState.current, dt);
       }
+      reframe();
       steer();
       controls.update();
       renderer.render(scene, camera);
@@ -352,7 +407,8 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
       cancelAnimationFrame(frame);
       observer.disconnect();
       visibility.disconnect();
-      for (const entry of stage.current?.entries.values() ?? []) if (entry.object) release(root, entry);
+      const entries = stage.current?.entries ?? new Map<string, Entry>();
+      for (const entry of entries.values()) release(entries, entry);
       controls.dispose();
       scene.environment?.dispose();
       ground.geometry.dispose();
@@ -408,7 +464,7 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
     for (const [key, entry] of current.entries) {
       const next = wanted.get(key);
       if (!next || next.url !== entry.item.url) {
-        if (entry.object) release(current.root, entry);
+        release(current.entries, entry);
         current.entries.delete(key);
       }
     }
@@ -428,20 +484,32 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
           const live = stage.current?.entries.get(item.key);
           if (!live || live.token !== token) return;
           const object = instantiate(gltf, Boolean(item.isBox));
-          // Tách nắp trước khi nhuộm màu để nắp nhận cùng màu vải với thân.
-          if (item.isBox && lidState.current.enabled) live.rig = rigLid(object);
-          if (item.isBox) applyTint(object, tintRef.current);
+          if (item.isBox) {
+            live.rig = createBoxRig(object, gltf.animations);
+            applyTint(object, tintRef.current);
+          }
           place(object, live.item);
           live.object = object;
-          const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          if (animateRef.current && !reduce) {
+          // Trong màn chào hộp còn đóng: món nằm sẵn trong ngăn, không rơi từ trên xuống xuyên qua nắp.
+          const tucked = Boolean(live.item.anchor) && lidState.current.intro !== null;
+          if (animateRef.current && !motionReduced() && !tucked) {
             live.appear = { start: performance.now() + (live.item.appearDelay ?? 0), target: live.item.scale ?? 1, lift: live.item.appearLift ?? 0 };
             stepAppear(new Map([[item.key, live]]), performance.now());
           }
-          stage.current?.root.add(object);
+          const entries = stage.current?.entries;
+          if (!entries) return;
+          // Vỏ hộp hỏng không được đưa lên sân khấu: khung chỉ hiện thông báo lỗi (xem `.catch` bên dưới).
+          if (boxContractBroken(entries, lidState.current.enabled)) throw new Error("Mô hình vỏ hộp lệch hợp đồng rig");
+          // Món có điểm neo chờ vỏ hộp; còn lại đặt thẳng lên sân khấu.
+          if (!live.item.anchor) stage.current?.root.add(object);
+          seatItems(entries);
+          // Vỏ hộp vừa tải: đặt ngay dáng hiện tại để không lộ một khung hình ở dáng nghỉ.
+          stepLid(entries, lidState.current, 0);
           tryFit.current();
         })
         .catch(() => {
+          // Thiếu một mô hình thì sân khấu không bao giờ "sẵn sàng": bỏ màn chào để hộp không đóng mãi.
+          lidState.current.intro = null;
           setFailed(true);
           errorCallback.current?.();
         })
@@ -459,44 +527,65 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
   // Đặt lại góc nhìn khi đổi bố cục chính, ngay khi mọi mô hình của bố cục đã có mặt.
   // Không dựa vào bộ đếm `pending`: với mô hình đã cache, +1 và −1 rơi vào cùng một lần render.
   const fitted = useRef("");
-  const fitOptions = useRef({ fitKey, viewDirection, fitPadding });
-  fitOptions.current = { fitKey, viewDirection, fitPadding };
+  // Khung hình phụ thuộc cả những kiểu mở được phép: đổi `fitModes` cũng phải canh lại.
+  const fitId = `${fitKey}|${fitModes.join(",")}`;
+  const fitOptions = useRef({ fitId, viewDirection, fitPadding, fitModes });
+  fitOptions.current = { fitId, viewDirection, fitPadding, fitModes };
   const tryFit = useRef(() => {});
   tryFit.current = () => {
     const current = stage.current;
     const options = fitOptions.current;
-    if (!current || fitted.current === options.fitKey) return;
+    if (!current || fitted.current === options.fitId) return;
     const entries = [...current.entries.values()];
     if (!entries.length || entries.some((entry) => !entry.object)) return;
     // Đo theo kích thước cuối cùng, không theo khung hình đang bật lên dở dang.
     for (const entry of entries) if (entry.object && entry.appear) place(entry.object, entry.item);
-    const box = new THREE.Box3().setFromObject(current.root);
-    // Hộp có nắp: canh theo mọi dáng mở để nắp mở hay hộp bay lên đều không bị cắt khung.
+    const rest = new THREE.Box3().setFromObject(current.root);
+    if (rest.isEmpty()) return;
+    const halfFovSine = Math.sin(THREE.MathUtils.degToRad(current.camera.fov / 2));
+    const frameOf = (box: THREE.Box3): Frame => ({
+      center: box.getCenter(new THREE.Vector3()),
+      distance: (box.getSize(new THREE.Vector3()).length() / 2 / halfFovSine) * options.fitPadding,
+    });
+    // Hộp có animation: mỗi kiểu mở một khung hình ôm trọn mọi dáng trên đường mở (cánh vung, hộp bay lên),
+    // nên "Hé nắp" được nhìn gần hơn "Bung hương vị"; đổi kiểu mở thì camera lùi/tiến theo (xem `reframe`).
     const lid = lidState.current;
-    if (lid.enabled) {
-      for (const pose of FIT_POSES) if (poseScene(current.entries, pose)) box.union(new THREE.Box3().setFromObject(current.root));
-      poseScene(current.entries, lid.shown ?? lidPose(lid.target, lid.mode));
-    }
-    if (box.isEmpty()) return;
-    fitted.current = options.fitKey;
-    const center = box.getCenter(new THREE.Vector3());
-    const radius = box.getSize(new THREE.Vector3()).length() / 2;
-    const distance = radius / Math.sin(THREE.MathUtils.degToRad(current.camera.fov / 2)) * options.fitPadding;
+    const rig = rigOf(current.entries);
+    const frames: Framing = { hinge: frameOf(rest), bloom: frameOf(rest) };
+    if (lid.enabled && rig) {
+      const modes = options.fitModes.length ? options.fitModes : ALL_MODES;
+      for (const mode of modes) {
+        const swept = new THREE.Box3();
+        for (const sample of fitSamples([mode])) {
+          poseBoxRig(rig, sample);
+          swept.union(new THREE.Box3().setFromObject(current.root));
+        }
+        frames[mode] = frameOf(swept);
+      }
+      for (const mode of ALL_MODES) if (!modes.includes(mode)) frames[mode] = frames[modes[0]];
+      poseBoxRig(rig, lid.shown ?? rigGoal(lid.target, lid.mode));
+    } else frames.bloom = frames.hinge;
+    fitted.current = options.fitId;
+    framing.current = frames;
+    const bloom = lid.enabled ? (lid.shown ?? rigGoal(lid.target, lid.mode)).bloom : 0;
+    const { center, distance } = frameAt(frames, bloom, { center: new THREE.Vector3(), distance: 0 });
     const direction = new THREE.Vector3(...options.viewDirection).normalize();
     current.controls.target.copy(center);
     current.camera.position.copy(center).addScaledVector(direction, distance);
-    current.controls.minDistance = distance * 0.45;
-    current.controls.maxDistance = distance * 1.8;
+    current.controls.minDistance = distance * MIN_ZOOM;
+    current.controls.maxDistance = distance * MAX_ZOOM;
     current.controls.update();
     const base = new THREE.Spherical().setFromVector3(direction);
-    orbit.current = { ...orbit.current, fitted: true, baseTheta: base.theta, basePhi: base.phi, goalTheta: null, goalPhi: null };
+    orbit.current = { ...orbit.current, fitted: true, baseTheta: base.theta, basePhi: base.phi, goalTheta: null, goalPhi: null, distance };
     appliedView.current = "3d";
     applyOrbit.current();
+    // Mọi mô hình đã vào chỗ và camera đã canh khung: màn chào (nếu còn) bắt đầu đếm quãng nghỉ.
+    if (lid.intro !== null) lid.intro = INTRO_HOLD_SECONDS;
     readyCallback.current?.();
   };
   useEffect(() => {
     tryFit.current();
-  }, [fitKey, items, viewDirection, fitPadding]);
+  }, [fitId, items, viewDirection, fitPadding]);
 
   return (
     <div className={`sf-stage ${className}`} role="img" aria-label={label}>
@@ -512,11 +601,17 @@ export default function ModelStage({ items, boxTint = null, fitKey, label, autoR
  * Gỡ vật thể khỏi cảnh. Vỏ hộp có vật liệu nhân bản riêng nên được giải phóng;
  * hình học, vật liệu sản phẩm và texture đã nhuộm màu dùng chung qua bộ nhớ đệm nên giữ lại.
  */
-function release(root: THREE.Group, entry: Entry) {
+function release(entries: Map<string, Entry>, entry: Entry) {
   const object = entry.object;
   if (!object) return;
-  root.remove(object);
+  object.removeFromParent();
   if (!entry.item.isBox) return;
+  if (entry.rig) {
+    disposeBoxRig(entry.rig);
+    entry.rig = null;
+  }
+  // Các món gắn ở điểm neo dùng vật liệu chung trong bộ nhớ đệm: tháo ra trước khi giải phóng vật liệu của vỏ.
+  for (const other of entries.values()) if (other !== entry && other.item.anchor) other.object?.removeFromParent();
   object.traverse((child) => {
     const mesh = child as THREE.Mesh;
     if (mesh.isMesh) (mesh.material as THREE.Material).dispose();

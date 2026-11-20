@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent } from "react";
-import { defaultDesign, sizeOf } from "../../../../catalog";
+import { defaultDesign, includedProductIds, sizeOf } from "../../../../catalog";
 import type { GiftSize, GiftSlotId } from "../../../../catalog";
 import { giftStageItems } from "../../../../storefront/gift/giftScene";
+import type { LidMode } from "../../../../storefront/three/boxRig";
 import { GIFT_DRAFT_KEY, GIFT_VARIANTS } from "../../../gift/variants";
 import { GiftArt, trackGiftArt } from "../../../gift/GiftArt";
 import { canRenderWebGL } from "../../../gift/GiftCssBox";
@@ -21,14 +22,18 @@ const VIEW_DIRECTION: [number, number, number] = [0, 0.85, 1];
 const YAW_OFFSET = -24;
 /** Khoảng lùi camera: vừa khít cả dáng đóng lẫn nắp mở dựng đứng. */
 const FIT_PADDING = 0.86;
+/** Khối này chỉ mở/đóng kiểu "Hé nắp" nên camera không cần chừa chỗ cho "Bung hương vị". */
+const FIT_MODES: readonly LidMode[] = ["hinge"];
 
 /** Hộp trưng bày theo đúng hai bộ mẫu của khách (hop nho/bt1, hop lon/sp2); món cố định do mẫu hộp tự thêm. */
 const SHOWCASE_SLOTS: Record<GiftSize, Partial<Record<GiftSlotId, string>>> = {
   medium: { bagA: "trau-gac-bep-tay-bac", bagB: "ba-chi-gac-bep", jar: "thit-lon-xe" },
-  large: { bagA: "trau-gac-bep-tay-bac", bagB: "lap-xuong-gac-bep", jar: "thit-trau-xe" },
+  // Hộp Thịnh Đỉnh chỉ có hai túi và bình rượu ngô (kèm sẵn).
+  large: { bagA: "trau-gac-bep-tay-bac", bagB: "lap-xuong-gac-bep" },
 };
 
-const previewSlugs = (size: GiftSize) => ["trau-gac-bep-tay-bac", "lap-xuong-gac-bep", "cham-cheo", ...(size === "large" ? ["ruou-ngo-ban-pho"] : [])];
+/** Ảnh món trong hộp CSS dự phòng (thiết bị không có WebGL): hai túi và món gói sẵn của mẫu hộp. */
+const previewSlugs = (size: GiftSize) => ["trau-gac-bep-tay-bac", "lap-xuong-gac-bep", ...includedProductIds(size)];
 
 /**
  * Khối xem hộp quà 360° (premium-gift-preview.js) dựng bằng mô hình 3D của cửa hàng:
@@ -173,6 +178,7 @@ export function GiftPreview() {
               yaw={angle + YAW_OFFSET}
               interactive={false}
               lid={{ open: open ? 1 : 0, mode: "hinge" }}
+              fitModes={FIT_MODES}
               className="pgp-mesh"
               onReady={() => setMesh("ready")}
               onError={() => setMesh("fallback")}

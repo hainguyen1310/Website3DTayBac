@@ -6,7 +6,7 @@ import { giftMeta } from "../../seo/meta";
 import { CommerceIcon } from "../icons";
 import { useSiteProducts } from "../data";
 import { GIFT_VARIANTS } from "./variants";
-import { applyGiftPrefill, giftReady, rememberGift, rememberedGift } from "./giftStore";
+import { applyGiftPrefill, giftReady, rememberGift, rememberedGift, withValidSlot } from "./giftStore";
 import type { GiftBuilderState } from "./giftStore";
 import { giftDesignOf } from "./giftStage";
 import { GiftConfig } from "./GiftConfig";
@@ -27,7 +27,12 @@ export function GiftPage() {
   useEffect(() => {
     if (!products.length || appliedSearch.current === search) return;
     appliedSearch.current = search;
-    setState((current) => applyGiftPrefill(current, search, products));
+    setState((current) => {
+      const next = withValidSlot(applyGiftPrefill(current, search, products));
+      // Món chọn sẵn có thể đổi cả cỡ hộp (hũ thịt xé chỉ gói được trong hộp Sinh Lộc): báo cho trình đọc màn hình.
+      if (next.size !== current.size) setAnnouncement(`Đã chọn hộp ${GIFT_VARIANTS[next.size].name}. Khung 3D đã cập nhật.`);
+      return next;
+    });
   }, [search, products]);
 
   useEffect(() => {
@@ -38,7 +43,8 @@ export function GiftPage() {
 
   const update = useCallback((changes: Partial<GiftBuilderState>) => {
     setState((current) => {
-      const next = { ...current, ...changes };
+      // Đổi cỡ hộp có thể làm ô đang mở không còn tồn tại (hộp Thịnh Đỉnh không có ngăn hũ).
+      const next = withValidSlot({ ...current, ...changes });
       if (changes.size && changes.size !== current.size) setAnnouncement(`Đã chọn hộp ${GIFT_VARIANTS[changes.size].name}. Khung 3D đã cập nhật.`);
       return next;
     });
@@ -47,7 +53,7 @@ export function GiftPage() {
   const changeStep = (target: number) => {
     let step = Math.max(1, Math.min(3, target)) as GiftBuilderState["step"];
     if (step === 3 && !giftReady(state, products)) {
-      announce("Hãy chọn đủ hai túi đặc sản và một hũ thịt xé trước khi viết thiệp.");
+      announce(GIFT_VARIANTS[state.size].incompleteHint);
       step = 2;
     }
     if (step !== state.step) update({ step });

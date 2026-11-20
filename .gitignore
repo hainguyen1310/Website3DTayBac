@@ -12,6 +12,8 @@ tmp/
 
 # Ảnh/3D gốc (~900MB) — bản web dùng public/media và public/models đã tối ưu.
 assets-src/
+# Bytecode Python do Blender sinh ra khi chạy scripts/gift3d/blender.
+__pycache__/
 # Dữ liệu cục bộ của công cụ.
 .agentic-qe/
 .claude-flow/

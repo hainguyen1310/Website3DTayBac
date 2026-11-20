@@ -20,7 +20,7 @@ const gifts = [
     photo: giftPhotoFor("large"),
     alt: "Hộp quà Thịnh Đỉnh màu đỏ đô của A SỈN, họa tiết ngựa và núi vàng",
     description:
-      "Gửi lời chúc thịnh vượng, với thêm không gian để chọn món hợp ý người nhận.",
+      "Gửi lời chúc thịnh vượng: hai túi đặc sản tự chọn bên bình rượu ngô Bản Phố.",
   },
 ];
 
