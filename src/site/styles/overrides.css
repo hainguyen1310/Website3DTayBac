@@ -70,3 +70,30 @@
 .site-footer p {
   text-wrap: pretty;
 }
+
+/*
+ * Đường đồng mức của dải núi nối chương (heritage-boundaries.css).
+ * Nét dùng vector-effect: non-scaling-stroke nên Chrome tính stroke-dasharray theo pixel
+ * màn hình, trong khi pathLength="1" quy đổi theo đơn vị viewBox: nét chỉ dài khoảng
+ * 1440px và hụt ở màn hình rộng hơn. Bỏ nét đứt, vẽ nét bằng clip-path từ trái sang phải.
+ */
+.rh-boundary .rh-contours path {
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.motion-paused) .rh-boundary.is-visible .rh-contours path {
+    animation-name: rh-trace-across;
+  }
+}
+
+@keyframes rh-trace-across {
+  from {
+    clip-path: inset(-50% 101% -50% -1%);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(-50% -1% -50% -1%);
+  }
+}

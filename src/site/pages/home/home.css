@@ -1,22 +1,11 @@
 /* Trang chủ A SỈN - Import CSS từ bản tham chiếu */
 /* CSS chính được nạp từ src/site/styles/index.css (reference CSS) */
 
-/* Scroll reveal animation */
-[data-ph-reveal] {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-[data-ph-reveal].is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-/* Motion paused state */
-.gs-home.ph-is-paused [data-ph-reveal].is-revealed {
-  transition: none;
-}
+/*
+ * Hiện dần khi cuộn: các khối [data-ph-reveal] và thẻ sản phẩm được motion.ts gắn lớp
+ * gs-reveal (scroll-reveal-v33.css). Không ẩn sẵn bằng CSS ở đây: nếu script không chạy,
+ * nội dung vẫn phải hiện.
+ */
 
 /* Hero depth variable */
 .rf-hero {

@@ -41,10 +41,12 @@ function prepareTargets(home: HTMLElement) {
 
   const choose = (selector: string, kind: string) => {
     home.querySelectorAll(selector).forEach((el) => {
+      // Thẻ sản phẩm tự hiện như một khối; chỉ bỏ qua phần tử nằm bên trong thẻ.
       if (
         el.closest(
-          ".ph-hero,.ph-program,.ph-product-card,.ph-editorial-story,.ph-review-rail,[aria-hidden=true]"
-        )
+          ".ph-hero,.ph-program,.ph-editorial-story,.ph-review-rail,[aria-hidden=true]"
+        ) ||
+        el.parentElement?.closest(".ph-product-card")
       )
         return;
       if (
@@ -55,7 +57,10 @@ function prepareTargets(home: HTMLElement) {
     });
   };
 
-  // Chọn các phần tử cần reveal
+  // Chọn các phần tử cần reveal. Tiêu đề chương [data-ph-reveal] hiện cả khối nên chọn
+  // trước, để h2/p bên trong không bị chọn riêng.
+  choose("[data-ph-reveal]", "text");
+  choose(".ph-product-card", "card");
   choose(".rf-value-list>li", "value");
   choose(".ph-editorial-article", "journal");
   choose(".ph-gift-card-copy", "text");
@@ -119,7 +124,9 @@ export function initHomeMotion() {
           });
           updateHomeMotion();
         },
-        { threshold: 0.08, rootMargin: "0px 0px -7% 0px" }
+        // Lề trên rất lớn: khối đã nằm phía trên màn hình (nhảy qua bằng neo, tải lại giữa
+        // trang) cũng tính là đã xem, nên không để lại khoảng trống khi cuộn ngược lên.
+        { threshold: 0.08, rootMargin: "100000px 0px -7% 0px" }
       );
 
       scrollTargets.forEach((el) => scrollObserver?.observe(el));
