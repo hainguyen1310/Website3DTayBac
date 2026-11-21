@@ -25,6 +25,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { initInnerMotion, destroyInnerMotion, updateInnerMotion } from "./motion/innerMotion";
 import { destroyHeritageBoundaries, initHeritageBoundaries, updateHeritageBoundaries } from "./motion/heritageBoundaries";
 import { motionAllowed } from "./motion/preference";
+import { destroyBoxTransition, playBoxTransition, prepareBoxTransition } from "./motion/boxTransition";
 import { useScrollFrame } from "./motion/useScrollFrame";
 
 type NavigationState = { hashScroll?: "smooth" } | null;
@@ -47,13 +48,23 @@ function useInternalLinks() {
       event.preventDefault();
       const url = new URL(href, location.origin);
       const target = `${url.pathname}${url.search}${url.hash}`;
-      const sameDocument = samePath(url.pathname, location.pathname) && url.search === location.search;
+      const samePage = samePath(url.pathname, location.pathname);
+      const sameDocument = samePage && url.search === location.search;
       if (sameDocument && url.hash) navigate(target, { state: { hashScroll: "smooth" } });
-      else navigate(target);
+      // Đổi bộ lọc/tham số trên cùng trang thì không mở hộp; sang trang khác thì có.
+      else if (samePage) navigate(target);
+      else playBoxTransition(() => navigate(target));
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
   }, [navigate]);
+
+  // navigate đổi sau mỗi lần sang trang, nên lớp phủ hộp sống theo Shell chứ không theo effect trên:
+  // dọn ở đó sẽ cắt ngang hộp đang bung.
+  useEffect(() => {
+    prepareBoxTransition();
+    return destroyBoxTransition;
+  }, []);
 }
 
 /** Cuộn về đầu trang hoặc tới neo sau mỗi lần điều hướng (app.js render). */

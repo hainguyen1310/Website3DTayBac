@@ -1,0 +1,214 @@
+/*
+ * Chuyển trang "mở hộp A SỈN" (motion/boxTransition.ts), theo hộp Thịnh Đỉnh đỏ đô:
+ * hai cánh khép lại theo bản lề ở hai mép màn hình, khoá vàng có logo cài giữa, rồi bung
+ * cánh về phía người xem để lộ trang mới. Mặt cánh là tranh núi đỏ đô thật
+ * (scenery/wine-landscape.webp) chia đôi, ghép liền khi cánh khép.
+ */
+.asin-box-veil {
+  --box-close: 420ms;
+  --box-open: 780ms;
+  --box-unlatch: 170ms;
+  --box-gold: #c9a25e;
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  perspective: 2200px;
+  perspective-origin: 50% 46%;
+  contain: strict;
+}
+
+.asin-box-veil:not([data-state="idle"]) { visibility: visible; }
+.asin-box-veil:is([data-state="closing"], [data-state="closed"]) { pointer-events: auto; cursor: progress; }
+
+/* Ánh vàng từ trong hộp hắt ra khi cánh vừa hé. */
+.asin-box-veil::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse 34% 62% at 50% 50%, #f7e2b0d9, #e9c98a59 46%, transparent 74%);
+}
+
+.asin-box-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform: rotateY(var(--door-open));
+}
+
+.asin-box-door--left { left: 0; transform-origin: 0 50%; --door-open: -92deg; }
+.asin-box-door--right { right: 0; transform-origin: 100% 50%; --door-open: 92deg; }
+
+.asin-box-art {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 200%;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, #9a2a2f40, transparent 70%),
+    linear-gradient(180deg, #4a070c55, transparent 22%, transparent 70%, #3a050999),
+    var(--heritage-wine, #681e28) url("/assets/scenery/wine-landscape.webp") center 62% / cover no-repeat;
+}
+
+.asin-box-door--left .asin-box-art { left: 0; }
+.asin-box-door--right .asin-box-art { right: 0; }
+
+/* Dải thổ cẩm vàng ở chân cánh, như hoạ tiết góc dưới của hộp. */
+.asin-box-art::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(26px, 5vh, 54px);
+  height: clamp(28px, 4.2vh, 40px);
+  border-block: 1px solid #c9a25e80;
+  background: url("/assets/scenery/pattern-gold.svg") 0 50% / auto 100% repeat-x;
+  opacity: .62;
+}
+
+/* Viền chỉ vàng chạy quanh mặt hộp, liền qua đường ghép giữa hai cánh. */
+.asin-box-door::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: clamp(12px, 2vw, 22px);
+  bottom: clamp(12px, 2vw, 22px);
+  border: 1px solid #c9a25e8c;
+}
+
+.asin-box-door--left::before { left: clamp(12px, 2vw, 22px); right: 0; border-right: 0; }
+.asin-box-door--right::before { right: clamp(12px, 2vw, 22px); left: 0; border-left: 0; }
+
+/* Đường ghép: mép cánh trái sẫm, mép cánh phải bắt sáng. */
+.asin-box-door::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+}
+
+.asin-box-door--left::after { right: 0; background: linear-gradient(270deg, #2b0408cc 0 2px, #1a020459 2px, transparent); }
+.asin-box-door--right::after { left: 0; background: linear-gradient(90deg, #e7c58a66 0 1px, #1a02044d 1px, transparent); }
+
+/* Bóng tối phủ lên cánh khi cánh nghiêng khỏi ánh sáng. */
+.asin-box-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #1a0306;
+  opacity: .62;
+}
+
+.asin-box-clasp {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  width: clamp(84px, 8.4vw, 124px);
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 14%;
+  background: linear-gradient(145deg, #f3dba6, #d2ab68 38%, #b48743 70%, #8f6528);
+  box-shadow:
+    inset 0 1px 0 #fff4d6b3,
+    inset 0 -3px 6px #5c3d1259,
+    0 14px 30px #1a020466,
+    0 2px 5px #1a020480;
+  opacity: 0;
+  translate: -50% -50%;
+  scale: .7;
+}
+
+.asin-box-clasp img {
+  display: block;
+  width: 80%;
+  height: auto;
+  filter: drop-shadow(0 1px 0 #f8e6bc99);
+}
+
+/* Khép cánh. */
+.asin-box-veil[data-state="closing"] .asin-box-door {
+  animation: asin-box-door-shut var(--box-close) cubic-bezier(.55, 0, .3, 1) both;
+}
+.asin-box-veil[data-state="closing"] .asin-box-shade {
+  animation: asin-box-shade-in var(--box-close) cubic-bezier(.55, 0, .3, 1) both;
+}
+.asin-box-veil[data-state="closing"] .asin-box-clasp {
+  animation: asin-box-clasp-in 240ms cubic-bezier(.3, 1.4, .5, 1) calc(var(--box-close) - 90ms) both;
+}
+
+/* Hộp đã khép: trang mới gắn vào bên dưới. */
+.asin-box-veil[data-state="closed"] .asin-box-door { transform: none; }
+.asin-box-veil[data-state="closed"] .asin-box-shade { opacity: 0; }
+.asin-box-veil[data-state="closed"] .asin-box-clasp { opacity: 1; scale: 1; }
+
+/* Mở khoá rồi bung cánh. */
+.asin-box-veil[data-state="opening"] .asin-box-clasp {
+  animation: asin-box-clasp-out var(--box-unlatch) cubic-bezier(.4, 0, .6, 1) both;
+}
+.asin-box-veil[data-state="opening"] .asin-box-door {
+  animation: asin-box-door-open calc(var(--box-open) - var(--box-unlatch)) cubic-bezier(.62, 0, .2, 1) var(--box-unlatch) both;
+}
+.asin-box-veil[data-state="opening"] .asin-box-shade {
+  animation: asin-box-shade-out calc(var(--box-open) - var(--box-unlatch)) cubic-bezier(.62, 0, .2, 1) var(--box-unlatch) both;
+}
+.asin-box-veil[data-state="opening"]::before {
+  animation: asin-box-glow var(--box-open) ease-out both;
+}
+
+@keyframes asin-box-door-shut {
+  0% { transform: rotateY(var(--door-open)); }
+  84% { transform: rotateY(calc(var(--door-open) * -.012)); }
+  100% { transform: none; }
+}
+
+@keyframes asin-box-door-open {
+  from { transform: none; }
+  to { transform: rotateY(var(--door-open)); }
+}
+
+@keyframes asin-box-shade-in {
+  from { opacity: .62; }
+  to { opacity: 0; }
+}
+
+@keyframes asin-box-shade-out {
+  from { opacity: 0; }
+  to { opacity: .62; }
+}
+
+@keyframes asin-box-clasp-in {
+  from { opacity: 0; scale: .7; }
+  to { opacity: 1; scale: 1; }
+}
+
+@keyframes asin-box-clasp-out {
+  from { opacity: 1; scale: 1; rotate: 0deg; }
+  45% { opacity: 1; scale: 1.06; rotate: -6deg; }
+  to { opacity: 0; scale: 1.14; rotate: -10deg; }
+}
+
+@keyframes asin-box-glow {
+  0%, 18% { opacity: 0; }
+  40% { opacity: .85; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 800px) {
+  .asin-box-veil { perspective: 1400px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asin-box-veil { display: none; }
+}
+
+body.motion-paused .asin-box-veil { display: none; }
