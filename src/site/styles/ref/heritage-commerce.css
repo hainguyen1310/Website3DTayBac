@@ -772,7 +772,7 @@ body.unified-site.inner-page #main {
 }
 
 /* Detail framing for the shop, with the whole open box in the atelier. */
-/* Ảnh hero /san-pham đã được cắt sẵn và làm nét (scripts/build-catalog-hero.mjs), không cần object-view-box. */
+/* Ảnh hero /san-pham là ảnh hộp ngang cắt sẵn (asin-sinh-loc-box-v2.webp), không cần object-view-box. */
 body.unified-site.inner-page #main .catalog-intro.catalog-intro--sinh-loc.uh-hero > .catalog-photo img {
   object-position: center;
 }

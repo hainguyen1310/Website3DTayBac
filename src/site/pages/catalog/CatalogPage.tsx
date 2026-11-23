@@ -119,10 +119,10 @@ export function CatalogPage() {
         <div className="catalog-photo uh-hero-photo">
           <img
             className="uh-scene-img"
-            src="/assets/original/asin-sinh-loc-box-hd.webp"
-            alt="Hộp quà Sinh Lộc A SỈN mở nắp, gồm ba chỉ gác bếp, thịt trâu gác bếp và hai hũ đặc sản"
-            width={2686}
-            height={1474}
+            src="/assets/original/asin-sinh-loc-box-v2.webp"
+            alt="Hộp quà Sinh Lộc A SỈN mở nắp, gồm ba chỉ gác bếp, thịt trâu gác bếp, hũ thịt sấy và chẩm chéo"
+            width={1672}
+            height={941}
             fetchPriority="high"
             loading="eager"
           />
