@@ -29,9 +29,9 @@ const priceOf = (size: GiftSize) => boxSizes.find((box) => box.value === size)?.
 export const GIFT_VARIANTS: Record<GiftSize, GiftVariant> = {
   medium: {
     size: "medium", artKey: "small", name: "Sinh Lộc", dimensions: "22 × 22 × 10 cm", finish: "Xanh rêu", price: priceOf("medium"), tint: null,
-    contents: "3 món tự chọn + chẩm chéo",
-    pickHint: "Chọn hai túi đặc sản và một hũ thịt xé. Chẩm chéo được gói sẵn.",
-    incompleteHint: "Hãy chọn đủ hai túi đặc sản và một hũ thịt xé trước khi viết thiệp.",
+    contents: "2 túi tự chọn + thịt lợn xé + chẩm chéo",
+    pickHint: "Chọn hai túi đặc sản. Thịt lợn xé và chẩm chéo được gói sẵn.",
+    incompleteHint: "Hãy chọn đủ hai túi đặc sản trước khi viết thiệp.",
   },
   // Mô hình Thịnh Đỉnh mới (11/2026) có sẵn vỏ đỏ đô hoạ tiết vàng, không cần nhuộm lại texture;
   // hộp gồm hai túi và bình rượu ngô, không có ngăn hũ và không kèm chẩm chéo.

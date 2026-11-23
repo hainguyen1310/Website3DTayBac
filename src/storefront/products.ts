@@ -152,7 +152,7 @@ const ENTRIES: Entry[] = [
     description: "Thịt trâu gác bếp xé sợi, đóng hũ tiện dùng làm quà.",
     filters: ["Thịt gác bếp"],
     giftModel: `${M}/jar-trau-xe.glb`,
-    giftSlot: "jar",
+    // Không đặt vào hộp quà: ngăn hũ của Sinh Lộc gói sẵn thịt lợn xé (11/2026).
   },
 ];
 

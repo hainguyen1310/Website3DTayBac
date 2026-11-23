@@ -36,8 +36,13 @@ test("each box states what it holds", () => {
   assert.deepEqual(choosableSlotsOf("large"), ["bagA", "bagB"], "Thịnh Đỉnh has no jar compartment");
   assert.equal(fixedItemsLabel("medium"), "Chẩm chéo");
   assert.equal(fixedItemsLabel("large"), "Rượu ngô Bản Phố");
-  assert.match(GIFT_VARIANTS.medium.contents, /^3 món tự chọn/);
+  assert.equal(GIFT_VARIANTS.medium.contents, "2 túi tự chọn + thịt lợn xé + chẩm chéo");
   assert.match(GIFT_VARIANTS.large.contents, /^2 túi tự chọn/);
+});
+
+test("a Sinh Lộc box starts with thịt lợn xé already in the jar", () => {
+  assert.equal(INITIAL_GIFT_STATE.items.jar, "thit-lon-xe");
+  assert.equal(INITIAL_GIFT_STATE.items.bagA, "");
 });
 
 test("a Thịnh Đỉnh gift is ready with two bags and never sends a jar picked for the other box", () => {

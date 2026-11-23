@@ -20,11 +20,14 @@ export type GiftBuilderState = {
   view: "3d" | "2d";
 };
 
+/** Hũ thịt xé gói sẵn trong hộp Sinh Lộc, khách không phải tự chọn. */
+export const DEFAULT_JAR = "thit-lon-xe";
+
 export const INITIAL_GIFT_STATE: GiftBuilderState = {
   size: "medium",
   step: 1,
   activeSlot: "bagA",
-  items: { bagA: "", bagB: "", jar: "" },
+  items: { bagA: "", bagB: "", jar: DEFAULT_JAR },
   recipient: "",
   message: "",
   opening: 1,

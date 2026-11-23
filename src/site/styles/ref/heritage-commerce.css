@@ -772,12 +772,12 @@ body.unified-site.inner-page #main {
 }
 
 /* Detail framing for the shop, with the whole open box in the atelier. */
-@supports (object-view-box: inset(0%)) {
-  body.unified-site.inner-page #main .catalog-intro.catalog-intro--sinh-loc.uh-hero > .catalog-photo img {
-    object-view-box: inset(53% 18% 11% 0);
-    object-position: center;
-  }
+/* Ảnh hero /san-pham đã được cắt sẵn và làm nét (scripts/build-catalog-hero.mjs), không cần object-view-box. */
+body.unified-site.inner-page #main .catalog-intro.catalog-intro--sinh-loc.uh-hero > .catalog-photo img {
+  object-position: center;
+}
 
+@supports (object-view-box: inset(0%)) {
   body.unified-site.inner-page #main .gift-page .gift-page-header .gift-hero-image {
     object-view-box: inset(32% 0 6% 0);
     object-position: center;
